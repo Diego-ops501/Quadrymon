@@ -1,13 +1,14 @@
 {
   "name": "quadrymon",
-  "version": "2.2.0",
+  "version": "1.0.0",
   "description": "Quadrymon: quatro contas de Poke Idle World, painel, alertas e ferramentas locais para Windows.",
   "main": "main.js",
   "author": "Diego-ops501",
   "scripts": {
     "start": "electron .",
     "test": "node scripts/check.cjs",
-    "dist": "electron-builder --win nsis --x64 --publish never"
+    "dist": "electron-builder --win nsis --x64 --publish never",
+    "docs:screenshots": "electron scripts/docs-screenshots.cjs"
   },
   "keywords": [
     "electron",
@@ -45,7 +46,11 @@
       "quadrymon-icon.png",
       "quadrymon-icon.svg",
       "quadrymon-logo.png",
-      "quadrymon-logo.svg"
+      "quadrymon-logo.svg",
+      "README.en.md",
+      "README.es.md",
+      "docs/images/*.png",
+      "docs/art/*.png"
     ],
     "win": {
       "target": [
