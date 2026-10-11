@@ -865,7 +865,7 @@
       row.append(node("b", index + 1));
       for (const [field, type, placeholder] of [
         ["name", "text", "Nome"],
-        ["email", "email", "E-mail"],
+        ["email", "text", L("E-mail ou usuário", "Email or username", "Correo o usuario")],
         ["senha", "password", "Senha"],
       ]) {
         const input = node("input");

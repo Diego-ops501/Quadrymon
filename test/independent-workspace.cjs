@@ -31,6 +31,11 @@ const fixtures = {
   }),
   "autostart:get": () => ({ on: false, suportado: true }),
 };
+let savedAccounts;
+ipcMain.handle("creds:save", (_event, value) => {
+  savedAccounts = value;
+  return true;
+});
 for (const channel of [
   "creds:load",
   "game-runtime:read",
@@ -95,6 +100,17 @@ app.whenReady().then(async () => {
       document.querySelector('#menu .settings-search').value='Eco';document.querySelector('#menu .settings-search').dispatchEvent(new Event('input'));
       check(!document.querySelector('[data-section="performance"].settings-section').hidden,'settings search works');
       document.querySelector('#menu header button').click();check(!document.querySelector('#menu').open,'settings dialog closes');
+      document.querySelector('#accounts').click();
+      document.querySelector('[name="email0"]').value='azuosd2';
+      document.querySelector('[name="email1"]').value='fixture@example.invalid';
+      const accountForm=document.querySelector('#accountForm');
+      check(accountForm.checkValidity(),'account form accepts both username and email');
+      accountForm.requestSubmit();await pause(150);
+      check(!document.querySelector('#accountEditor').open,'native form submission saves usernames');
+      document.querySelector('#accounts').click();
+      check(document.querySelector('[name="email0"]').value==='azuosd2','username is retained');
+      check(document.querySelector('[name="email1"]').value==='fixture@example.invalid','email is retained');
+      document.querySelector('#accountEditor').close();
       document.querySelector('#inventoryBtn').click();await pause(100);check(document.querySelector('#inventoryDialog')?.open,'inventory opens');document.querySelector('#inventoryDialog').close();
       document.querySelector('#marketBtn').click();await pause(120);check(document.querySelector('#pmMarket').classList.contains('show'),'market opens without connected accounts');
       return {mode:document.body.dataset.workspaceMode,accounts:window.PokeMuxRuntime.state().accounts.length};
@@ -115,6 +131,8 @@ app.whenReady().then(async () => {
         throw Error("Horizontal overflow at " + width);
       console.log("Layout " + width + " passed");
     }
+    if (savedAccounts?.[0]?.email !== 'azuosd2' || savedAccounts?.[1]?.email !== 'fixture@example.invalid')
+      throw Error('Both login formats must reach credential storage unchanged');
     win.setContentSize(1440, 950);
     await new Promise((resolve) => setTimeout(resolve, 100));
     fs.writeFileSync(
