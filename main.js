@@ -17,6 +17,14 @@ const {
   powerSaveBlocker,
   webContents,
 } = electron;
+// Keep existing encrypted accounts and persistent game sessions after the visual rename.
+if (app.getPath("userData") === path.join(app.getPath("appData"), app.getName())) {
+  const profile = path.join(app.getPath("appData"), "pokemux");
+  fs.mkdirSync(profile, { recursive: true });
+  app.setPath("userData", profile);
+  app.setPath("sessionData", profile);
+}
+app.setName("Quadrymon");
 const GAME_ORIGIN = "https://poke.idleworld.online";
 const home = () => app.getPath("userData");
 const localFile = (name) => path.join(home(), name);
@@ -191,7 +199,7 @@ function autoStart(enabled) {
       shell.writeShortcutLink(startupFile(), "create", {
         target: process.execPath,
         args: app.isPackaged ? "" : '"' + app.getAppPath() + '"',
-        description: "PokeMux",
+        description: "Quadrymon",
         appUserModelId: "com.pokemux.desktop",
       });
     else if (fs.existsSync(startupFile())) fs.unlinkSync(startupFile());
@@ -464,7 +472,8 @@ function openWindow() {
     height: 900,
     show: false,
     autoHideMenuBar: true,
-    backgroundColor: "#0d1117",
+    backgroundColor: "#0b1220",
+    icon: appFile("quadrymon-icon.png"),
     webPreferences: {
       ...securePreferences(),
       webviewTag: true,
@@ -522,7 +531,7 @@ function openWindow() {
   Menu.setApplicationMenu(
     Menu.buildFromTemplate([
       {
-        label: "PokeMux",
+        label: "Quadrymon",
         submenu: [
           ...[0, 1, 2, 3].map((index) => ({
             label: "Conta " + (index + 1),
@@ -541,7 +550,7 @@ function openWindow() {
   setTimeout(() => {
     try {
       tray = new Tray(appFile("tray.png"));
-      tray.setToolTip("PokeMux");
+      tray.setToolTip("Quadrymon");
       tray.setContextMenu(
         Menu.buildFromTemplate([
           { label: "Mostrar", click: restore },

@@ -12,11 +12,11 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  color: #e8eff7;
+  color: #e5e7eb;
   font:
     13px system-ui,
     sans-serif;
-  background: #0b121b;
+  background: #0b1220;
 }
 button,
 input,
@@ -26,13 +26,13 @@ select {
 }
 button {
   cursor: pointer;
-  border: 1px solid #304254;
+  border: 1px solid #28415e;
   border-radius: 7px;
-  background: #152536;
+  background: #17263b;
   padding: 7px 11px;
 }
 button:hover {
-  border-color: #d9b663;
+  border-color: #22d3c5;
 }
 button:disabled {
   opacity: 0.5;
@@ -41,12 +41,12 @@ button:disabled {
 input,
 select {
   padding: 8px;
-  border: 1px solid #34485c;
+  border: 1px solid #28415e;
   border-radius: 6px;
-  background: #0c1723;
+  background: #0b1220;
 }
 a {
-  color: #74c3ff;
+  color: #3882f6;
 }
 [hidden] {
   display: none !important;
@@ -76,7 +76,7 @@ a {
   height: 21px;
 }
 #topbar #recommendTop {
-  --tool-art: url("toolbar-icons/hunt.png");
+  --tool-art: url("toolbar-icons/hunt.svg");
 }
 #content {
   display: flex;
@@ -121,7 +121,7 @@ a {
 }
 .panel-header .status {
   margin-right: auto;
-  color: #9cb2c7;
+  color: #91a8c3;
 }
 .panel-header .name {
   font-weight: 700;
@@ -161,14 +161,14 @@ webview {
   gap: 14px;
 }
 .runtime-card {
-  border: 1px solid #2b4055;
+  border: 1px solid #28415e;
   border-radius: 10px;
-  background: #132130;
+  background: #111a2b;
   padding: 16px;
 }
 .runtime-card h3 {
   margin: 0 0 12px;
-  color: #e1c16f;
+  color: #22d3c5;
 }
 .runtime-card dl {
   display: grid;
@@ -177,7 +177,7 @@ webview {
   margin: 10px 0;
 }
 .runtime-card dt {
-  color: #9db3ca;
+  color: #91a8c3;
 }
 .runtime-card dd {
   margin: 0;
@@ -194,12 +194,12 @@ webview {
   gap: 10px;
 }
 .runtime-note {
-  color: #a4b7cc;
+  color: #91a8c3;
   line-height: 1.5;
 }
 dialog {
   color: inherit;
-  background: #0e1925;
+  background: #111a2b;
   border: 1px solid #52637a;
   border-radius: 11px;
   padding: 18px;
@@ -285,8 +285,8 @@ body.stats-open #cards {
   max-height: 70vh;
   overflow: auto;
   padding: 15px;
-  border: 1px solid #d7b561;
-  background: #101b28;
+  border: 1px solid #22d3c5;
+  background: #111a2b;
   border-radius: 10px;
   pointer-events: auto;
   box-shadow: 0 16px 45px #0008;
@@ -300,7 +300,7 @@ body.stats-open #cards {
 #ivCard th {
   text-align: left;
   padding: 5px;
-  border-bottom: 1px solid #2b3d50;
+  border-bottom: 1px solid #28415e;
 }
 #ivCard img {
   width: 65px;
@@ -323,10 +323,10 @@ body.stats-open #cards {
   bottom: 42px;
   right: 16px;
   max-width: 420px;
-  border: 1px solid #bd9b50;
+  border: 1px solid #28415e;
   border-radius: 9px;
   padding: 13px;
-  background: #152536;
+  background: #17263b;
   z-index: 30000;
 }
 .capture-table {
@@ -336,7 +336,7 @@ body.stats-open #cards {
 .capture-table th,
 .capture-table td {
   text-align: left;
-  border-bottom: 1px solid #2f4256;
+  border-bottom: 1px solid #28415e;
   padding: 7px;
 }
 .runtime-settings {

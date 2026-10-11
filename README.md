@@ -1,4 +1,6 @@
-# PokeMux
+# Quadrymon
+
+![Quadrymon](quadrymon-logo.png)
 
 Aplicativo para gerenciar ate quatro contas, consultar o mercado global e analisar hunts.
 

@@ -9,7 +9,7 @@ function readConfig(app) {
     const parsed = JSON.parse(fs.readFileSync(file, 'utf8'));
     const feed = new URL(String(parsed.feedUrl || ''));
     if (feed.protocol !== 'https:' || feed.hostname !== 'github.com') return null;
-    if (!/\/Diego-ops501\/PokeMux-Independent\/releases\/latest\/download\/?$/i.test(feed.pathname)) return null;
+    if (!/\/Diego-ops501\/Quadrymon\/releases\/latest\/download\/?$/i.test(feed.pathname)) return null;
     return parsed.enabled === true ? { feedUrl: feed.toString().replace(/\/$/, '') } : null;
   } catch {
     return null;

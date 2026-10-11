@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self'; connect-src 'none';">
-  <title>PokeMux — Overlay</title>
+  <title>Quadrymon — Overlay</title>
   <style>
     :root { color-scheme: dark; font: 13px/1.35 Inter, Segoe UI, sans-serif; }
     * { box-sizing: border-box; }
-    body { margin: 0; padding: 8px; background: transparent; color: #e6edf3; user-select: none; }
-    main { height: calc(100vh - 16px); overflow: hidden; border: 1px solid #30363d; border-radius: 12px; background: rgba(13,17,23,.94); box-shadow: 0 12px 35px #0009; }
-    header { -webkit-app-region: drag; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 1px solid #243052; color: #67e8f9; font-weight: 700; }
+    body { margin: 0; padding: 8px; background: transparent; color: #e5e7eb; user-select: none; }
+    main { height: calc(100vh - 16px); overflow: hidden; border: 1px solid #28415e; border-radius: 12px; background: rgba(11,18,32,.94); box-shadow: 0 12px 35px #0009; }
+    header { -webkit-app-region: drag; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 1px solid #243052; color: #22d3c5; font-weight: 700; }
     header img { width: 25px; height: 25px; object-fit: contain; }
     header span { flex: 1; }
     button { -webkit-app-region: no-drag; border: 0; background: transparent; color: #8b949e; cursor: pointer; font-size: 15px; }
     #summary { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; padding: 8px; }
-    .kpi, .account { border: 1px solid #21262d; border-radius: 8px; background: #161b22; padding: 7px; }
+    .kpi, .account { border: 1px solid #21262d; border-radius: 8px; background: #111a2b; padding: 7px; }
     .k { color: #8b949e; font-size: 10px; text-transform: uppercase; }
     .v { font-size: 15px; font-weight: 700; margin-top: 2px; }
     #accounts { padding: 0 8px 8px; display: grid; gap: 5px; overflow: auto; max-height: calc(100vh - 122px); }
@@ -27,7 +27,7 @@
 </head>
 <body>
   <main>
-    <header><img src="pokemux-icon.png" alt=""><span>POKEMUX</span><button id="close" title="Fechar">✕</button></header>
+    <header><img src="quadrymon-icon.png" alt=""><span>QUADRYMON</span><button id="close" title="Fechar">✕</button></header>
     <section id="summary"></section>
     <section id="accounts"></section>
   </main>

@@ -50,7 +50,7 @@
     parent.append(...children);
     return parent;
   };
-  const colors = ["#b77dff", "#409cff", "#24d7a4", "#e9bd58"];
+  const colors = ["#22d3c5", "#f4b942", "#3882f6", "#e5e7eb"];
   const options = {
     lang: ["pt", "en", "es"].includes(load("lang")) ? load("lang") : "pt",
     count: Math.max(1, Math.min(4, num(load("count")) || 4)),
@@ -286,7 +286,7 @@
   }
   function notify(text, voice = true) {
     if (!options.alerts) return;
-    void ipc.notify("PokeMux", text);
+    void ipc.notify("Quadrymon", text);
     if (voice) speak(text);
     const configured = readJson("webhook", {});
     if (configured.url) void ipc.webhook(configured.url, text);
@@ -1086,7 +1086,7 @@
     ...ivBridge,
     notifyMarket: (text, desktop, voice) => {
       if (!options.alerts) return;
-      if (desktop) void ipc.notify("PokeMux · Mercado", text);
+      if (desktop) void ipc.notify("Quadrymon · Mercado", text);
       if (voice) speak(text);
     },
     rememberFocus: () => {},
@@ -1193,9 +1193,9 @@
   $("overlayBtn").onclick = () => ipc.toggleOverlay();
   $("errlogBtn").onclick = () => ipc.openErrorLog();
   $("manBtn").onclick = () =>
-    window.open("https://github.com/Diego-ops501/PokeMux-Independent/blob/main/MANUAL.md");
+    window.open("https://github.com/Diego-ops501/Quadrymon/blob/main/MANUAL.md");
   $("faqBtn").onclick = () =>
-    window.open("https://github.com/Diego-ops501/PokeMux-Independent/blob/main/FAQ.md");
+    window.open("https://github.com/Diego-ops501/Quadrymon/blob/main/FAQ.md");
   $("hunt").onclick = toggleAnalysis;
   const bindings = [
     ["eco", "eco", "eco"],
@@ -1909,7 +1909,7 @@
       ]),
     ];
     download(
-      "pokemux-capturas.csv",
+      "quadrymon-capturas.csv",
       "\uFEFF" + records.map((row) => row.map(cell).join(";")).join("\r\n"),
       "text/csv;charset=utf-8",
     );
@@ -1931,7 +1931,7 @@
         entries[key] = load(key);
     }
     download(
-      "pokemux-config.json",
+      "quadrymon-config.json",
       JSON.stringify(entries, null, 2),
       "application/json",
     );

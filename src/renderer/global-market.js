@@ -169,8 +169,8 @@
     const button = document.getElementById('marketBtn');
     const tabs = ['buy', 'compare', 'alerts', 'mine', 'requests', 'history'];
     PT.alerts = 'Alertas'; EN.alerts = 'Alerts'; ES.alerts = 'Alertas';
-    const tabIcons = { buy: 'tab_buy', compare: 'itens', alerts: 'tab_requests', mine: 'tab_mine', requests: 'tab_requests', history: 'tab_history' };
-    const categoryIcons = { All: 'todos', Items: 'itens', Stones: 'stones', 'Poke Balls': 'poke_balls', Diamonds: 'diamonds', Pokemon: 'pokemon' };
+    const tabIcons = { buy: 'buy', compare: 'compare', alerts: 'alerts', mine: 'history', requests: 'requests', history: 'history' };
+    const categoryIcons = { All: 'simple', Items: 'inventory', Stones: 'stones', 'Poke Balls': 'ball', Diamonds: 'diamonds', Pokemon: 'pokemon' };
     const img = (url, className = 'mk-art') => url ? `<img class="${className}" src="${esc(url)}" alt="" loading="lazy">` : `<span class="${className}" aria-hidden="true">◇</span>`;
     const art = (x, className) => {
       const url = x.kind === 'pokemon' || x.speciesId ? bridge.sprite(x.speciesId, !!x.shiny) : M.safeIcon(x.icon);
@@ -223,10 +223,10 @@
         return `<section class="mk-highlight" title="${esc(highlightText.min + (key === 'boss' ? ' · Bronze Boss Token' : ''))}"><div class="mk-highlight-name">${img(GAME + icon)}<b>${esc(name)}</b></div>${line('GOLD')}${key === 'diamond' ? '' : line('DIAMONDS')}</section>`;
       }).join('');
       el('#mkAccount').setAttribute('aria-label', s.tab === 'alerts' ? tr('account') : teamText('Filtrar inventário e anúncios por conta','Filter inventory and listings by account','Filtrar inventario y anuncios por cuenta')); el('#mkRefresh').title = tr('refresh'); el('#mkClose').setAttribute('aria-label', tr('close'));
-      el('.mk-tabs').innerHTML = tabs.map(tab => `<button role="tab" id="mkTab-${tab}" aria-controls="mkResults" aria-selected="${s.tab === tab}" data-tab="${tab}" class="${s.tab === tab ? 'active' : ''}">${img(GAME + '/assets/market/' + tabIcons[tab] + '.png', 'mk-tab-icon')}<span>${esc(tr(tab))}${tab === 'mine' && s.data ? ' (' + nf(teamRows('mine',-1).length) + ')' : ''}</span></button>`).join('');
+      el('.mk-tabs').innerHTML = tabs.map(tab => `<button role="tab" id="mkTab-${tab}" aria-controls="mkResults" aria-selected="${s.tab === tab}" data-tab="${tab}" class="${s.tab === tab ? 'active' : ''}">${img('src/renderer/toolbar-icons/' + tabIcons[tab] + '.svg', 'mk-tab-icon')}<span>${esc(tr(tab))}${tab === 'mine' && s.data ? ' (' + nf(teamRows('mine',-1).length) + ')' : ''}</span></button>`).join('');
       el('#mkResults').setAttribute('aria-labelledby', 'mkTab-' + s.tab);
       el('.mk-categories').hidden = !['buy', 'requests'].includes(s.tab);
-      el('.mk-categories').innerHTML = M.CATEGORIES.map(category => `<button data-category="${category}" class="${s.category === category ? 'active' : ''}">${img(GAME + '/assets/market/' + categoryIcons[category] + '.png')}<span>${esc(tr(category))}</span></button>`).join('');
+      el('.mk-categories').innerHTML = M.CATEGORIES.map(category => `<button data-category="${category}" class="${s.category === category ? 'active' : ''}">${img('src/renderer/toolbar-icons/' + categoryIcons[category] + '.svg')}<span>${esc(tr(category))}</span></button>`).join('');
       el('.mk-toolbar').hidden = !['buy', 'requests', 'mine'].includes(s.tab);
       const searchLabel = tr(s.tab === 'buy' && s.category === 'Pokemon' ? 'searchPokemon' : 'search');
       el('#mkSearch').placeholder = searchLabel; el('#mkSearch').setAttribute('aria-label', searchLabel);

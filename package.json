@@ -1,7 +1,7 @@
 {
-  "name": "pokemux",
+  "name": "quadrymon",
   "version": "2.2.0",
-  "description": "PokeMux: quatro contas de Poke Idle World, painel, alertas e ferramentas locais para Windows.",
+  "description": "Quadrymon: quatro contas de Poke Idle World, painel, alertas e ferramentas locais para Windows.",
   "main": "main.js",
   "author": "Diego-ops501",
   "scripts": {
@@ -16,7 +16,7 @@
     "idle-game"
   ],
   "license": "UNLICENSED",
-  "homepage": "https://github.com/Diego-ops501/PokeMux-Independent",
+  "homepage": "https://github.com/Diego-ops501/Quadrymon",
   "dependencies": {
     "electron-updater": "6.8.9"
   },
@@ -26,8 +26,8 @@
   },
   "build": {
     "appId": "com.pokemux.desktop",
-    "productName": "PokeMux",
-    "artifactName": "PokeMux-${version}-${arch}.${ext}",
+    "productName": "Quadrymon",
+    "artifactName": "Quadrymon-${version}-${arch}.${ext}",
     "asar": true,
     "files": [
       "main.js",
@@ -37,14 +37,15 @@
       "src/**/*",
       "tray.png",
       "build-icon.png",
-      "pokemux-logo.png",
-      "pokemux-logo-ui.png",
-      "pokemux-icon.png",
       "README.md",
       "MANUAL.md",
       "FAQ.md",
       "CHANGELOG.md",
-      "update-config.json"
+      "update-config.json",
+      "quadrymon-icon.png",
+      "quadrymon-icon.svg",
+      "quadrymon-logo.png",
+      "quadrymon-logo.svg"
     ],
     "win": {
       "target": [
@@ -59,7 +60,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "PokeMux",
+      "shortcutName": "Quadrymon",
       "deleteAppDataOnUninstall": false,
       "installerLanguages": [
         "pt_BR",
@@ -71,7 +72,7 @@
     "publish": [
       {
         "provider": "generic",
-        "url": "https://github.com/Diego-ops501/PokeMux-Independent/releases/latest/download"
+        "url": "https://github.com/Diego-ops501/Quadrymon/releases/latest/download"
       }
     ]
   },
