@@ -15,7 +15,7 @@ The promotional illustration was inspired by the Quadrymon visual reference. The
 1. Download **Quadrymon-1.0.0-x64.exe** using the link above.
 2. Run the installer and choose its language and installation directory.
 3. Open **Settings → Accounts** (Ajustes → Contas), add up to four accounts and save.
-4. Complete each account's game login yourself, including CAPTCHA and additional authentication.
+4. The app fills each account's email or username and password when its login page loads. Click **Log in to accounts** to submit the forms. Complete CAPTCHA and additional authentication in the game.
 5. Choose **Grid**, **Focus** or **Summary**. Select the interface language under **Settings → Appearance and game**.
 
 Windows x64 and internet access are required. The installer includes the application runtime; Node.js is not required to use the app.

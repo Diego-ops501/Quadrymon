@@ -94,6 +94,8 @@
     read: null,
     previous: readJson("marketReturn" + index, null),
     traveling: false,
+    loginRequested: false,
+    loginTask: null,
     events: new Set(),
     lastKill: 0,
     lastReload: 0,
@@ -112,7 +114,7 @@
       ivsBtn: ["IV", "IV", "IV"],
       menuBtn: ["Ajustes", "Settings", "Ajustes"],
       accounts: ["Contas", "Accounts", "Cuentas"],
-      loginAll: ["Entrar nas contas", "Fill account login", "Completar acceso"],
+      loginAll: ["Entrar nas contas", "Log in to accounts", "Entrar en las cuentas"],
       voltaHunt: ["Retornar à hunt", "Return to hunt", "Volver a la hunt"],
       propNat: [
         "Proporção do jogo",
@@ -533,8 +535,12 @@
         view.setZoomFactor(num(load("zoom" + index)) || 1);
       } catch {}
       void inject(index);
+      void login(index);
     });
-    view.addEventListener("did-navigate-in-page", () => void inject(index));
+    view.addEventListener("did-navigate-in-page", () => {
+      void inject(index);
+      void login(index);
+    });
     view.addEventListener("did-start-navigation", (event) => {
       if (event.isMainFrame && !event.isInPlace) {
         current.epoch++;
@@ -841,21 +847,32 @@
       "window.PokeMuxGamePreferences?.configure(" + JSON.stringify(value) + ")",
     );
   }
-  async function login(index) {
+  async function login(index, submit = false) {
     const account = accounts[index],
       current = slots[index];
-    if (!current.view || current.off || !account.email) return;
-    const input = JSON.stringify({
-      email: account.email,
-      password: account.senha,
-    });
+    if (!current.view || current.off) return "off";
+    if (!account.email || !account.senha) return "missing";
+    if (submit) current.loginRequested = true;
+    if (current.loginTask) return current.loginTask;
+    const view = current.view;
     try {
-      await current.view.executeJavaScript(
-        '(()=>{if(location.origin!=="https://poke.idleworld.online"||location.pathname!=="/login")return false;const fields=' +
-          input +
-          ';const email=document.querySelector("input[type=email],input[name=email]");const password=document.querySelector("input[type=password]");if(!email||!password)return false;const setter=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,"value").set;for(const [element,value]of [[email,fields.email],[password,fields.password]]){setter.call(element,value);element.dispatchEvent(new Event("input",{bubbles:true}));}password.scrollIntoView({block:"center"});return true;})()',
+      const url = new URL(view.getURL());
+      if (url.origin !== "https://poke.idleworld.online" || !/^\/login\/?$/.test(url.pathname)) {
+        if (url.origin === "https://poke.idleworld.online") current.loginRequested = false;
+        return "wrong-page";
+      }
+      const send = current.loginRequested;
+      current.loginRequested = false;
+      const task = view.executeJavaScript(
+        window.QuadrymonLogin.source(account.email, account.senha, send),
       );
-    } catch {}
+      current.loginTask = task;
+      let result;
+      try { result = await task; }
+      finally { if (current.loginTask === task) current.loginTask = null; }
+      if (current.view === view && result === "filled" && current.loginRequested) return login(index, true);
+      return result;
+    } catch { return "not-ready"; }
   }
   function openAccounts() {
     const host = $("accountFields");
@@ -927,6 +944,7 @@
     accounts = next;
     $("accountEditor").close();
     build();
+    slots.slice(0, options.count).forEach(current => void login(current.index));
   };
   function positionIv(point) {
     const card = $("ivCard");
@@ -1186,10 +1204,11 @@
     );
   };
   $("accounts").onclick = openAccounts;
-  $("loginAll").onclick = () =>
-    slots
-      .slice(0, options.count)
-      .forEach((current) => void login(current.index));
+  $("loginAll").onclick = async () => {
+    const results = await Promise.all(slots.slice(0, options.count).map(current => login(current.index, true)));
+    if (results.includes("challenge")) message(L("Conclua o CAPTCHA no jogo e tente entrar novamente.", "Complete the CAPTCHA in the game and try again.", "Completa el CAPTCHA en el juego e inténtalo de nuevo."));
+    else if (results.includes("not-ready")) message(L("Aguarde a página de login carregar e tente novamente.", "Wait for the login page to load and try again.", "Espera a que cargue la página de acceso e inténtalo de nuevo."));
+  };
   $("overlayBtn").onclick = () => ipc.toggleOverlay();
   $("errlogBtn").onclick = () => ipc.openErrorLog();
   $("manBtn").onclick = () =>

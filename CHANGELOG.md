@@ -7,6 +7,7 @@ Primeira publicação do Quadrymon para Windows x64.
 - Identidade Quadrymon com logo, ícones e paleta azul escuro, ciano, azul elétrico e âmbar.
 - Instalador corrigido para sugerir a pasta Quadrymon, sem reutilizar a pasta antiga PokeMux.
 - Cadastro de contas aceita e-mail ou nome de usuário como login.
+- Preenchimento automático acompanha o formulário atual do jogo; Entrar nas contas envia os formulários das contas ativas.
 - Até quatro contas, modos Grade/Foco/Resumo, sessões separadas e recarga conjunta.
 - Mercado com sugestões em cache, filtros, evoluções, comparação e alertas.
 - Viagem ao mercado e retorno à hunt anterior.

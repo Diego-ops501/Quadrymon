@@ -22,6 +22,7 @@ const tests = [
   "game-catalog.test.js",
 ];
 const browser = [
+  "login.cjs",
   "independent-game.cjs",
   "independent-main.cjs",
   "independent-workspace.cjs",

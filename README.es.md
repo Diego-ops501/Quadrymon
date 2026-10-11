@@ -15,7 +15,7 @@ La ilustración de presentación fue creada a partir de la referencia visual de 
 1. Descarga **Quadrymon-1.0.0-x64.exe** desde el enlace superior.
 2. Ejecuta el instalador y elige el idioma y la carpeta de instalación.
 3. Abre **Ajustes → Cuentas** (Ajustes → Contas), añade hasta cuatro cuentas y guarda.
-4. Completa el inicio de sesión de cada cuenta, incluidos CAPTCHA y autenticación adicional.
+4. La app completa el correo o usuario y la contraseña al cargar cada cuenta. Pulsa **Entrar en las cuentas** para enviar los formularios. Completa CAPTCHA y autenticación adicional en el juego.
 5. Elige **Cuadrícula**, **Foco** o **Resumen**. Selecciona el idioma en **Ajustes → Aspecto y juego**.
 
 Se necesita Windows x64 y acceso a internet. El instalador incluye el entorno de ejecución; no necesitas Node.js para usar la aplicación.

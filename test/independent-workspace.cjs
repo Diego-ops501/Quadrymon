@@ -133,6 +133,28 @@ app.whenReady().then(async () => {
     }
     if (savedAccounts?.[0]?.email !== 'azuosd2' || savedAccounts?.[1]?.email !== 'fixture@example.invalid')
       throw Error('Both login formats must reach credential storage unchanged');
+    await win.webContents.executeJavaScript(`(async()=>{
+      const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+      document.querySelector('#accounts').click();
+      for(let i=0;i<4;i++)document.querySelector('[name="senha'+i+'"]').value='fixture-login-'+i;
+      document.querySelector('#accountForm').requestSubmit();await pause(100);
+      const calls=[];
+      const views=[...document.querySelectorAll('webview')];
+      views.forEach((view,index)=>{
+        view.getURL=()=> 'https://poke.idleworld.online/login';
+        view.executeJavaScript=async source=>{
+          if(source.includes('async function loginInPage'))calls.push({index,submit:source.endsWith(',true)'),source});
+          return source.endsWith(',true)')?'submitted':'filled';
+        };
+        view.dispatchEvent(new Event('dom-ready'));
+      });
+      await pause(100);
+      if(calls.filter(x=>!x.submit).length!==4)throw Error('Login autofill must run for all four loaded accounts');
+      document.querySelector('#loginAll').click();await pause(100);
+      const submits=calls.filter(x=>x.submit);
+      if(submits.length!==4||new Set(submits.map(x=>x.index)).size!==4)throw Error('Account button must submit all four accounts');
+      for(let i=0;i<4;i++)if(!submits[i].source.includes('fixture-login-'+i))throw Error('Login credentials crossed account boundaries');
+    })()`);
     win.setContentSize(1440, 950);
     await new Promise((resolve) => setTimeout(resolve, 100));
     fs.writeFileSync(
