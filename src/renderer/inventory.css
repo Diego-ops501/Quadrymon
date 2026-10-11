@@ -1,0 +1,41 @@
+#inventoryDialog { position: fixed; inset: 0; margin: auto; box-sizing: border-box; width: min(1800px, 96vw); height: 94vh; max-width: 96vw; max-height: 96vh; padding: 0; color: #d9e5ef; background: #0e1824; border: 1px solid #34485d; border-radius: 12px; }
+#inventoryDialog[open] { display: flex; flex-direction: column; }
+#inventoryDialog::backdrop { background: #000a; }
+#inventoryDialog header { display: flex; align-items: center; gap: 12px; padding: 16px; border-bottom: 1px solid #34485d; }
+#inventoryDialog h2 { margin: 0; color: #dfba65; font-size: 20px; flex: 1; }
+#inventoryDialog button, #inventoryDialog input, #inventoryDialog select { background: #152637; color: #d9e5ef; border: 1px solid #34485d; border-radius: 6px; padding: 8px; }
+.inventory-filters { display: flex; align-items: end; flex-wrap: wrap; gap: 10px; padding: 14px 16px; border-bottom: 1px solid #34485d; }
+.inventory-filters label { display: flex; flex-direction: column; gap: 5px; font-size: 12px; }
+.inventory-filters label:first-child { flex: 1; min-width: 180px; }
+.inventory-filters input[type=number] { width: 85px; }
+.inventory-groups { display: grid; grid-template-columns: repeat(var(--inventory-columns,1),minmax(260px,1fr)); gap: 12px; flex: 1; min-height: 0; overflow-x: auto; overflow-y: hidden; padding: 0 16px 16px; }
+.inventory-account { min-height: 0; display: flex; flex-direction: column; border: 1px solid #283849; border-radius: 8px; background: #101c29; padding: 10px; }
+.inventory-list { min-height: 0; flex: 1; overflow-y: auto; scrollbar-width: thin; }
+.inventory-account h3 { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0 0 8px; }
+#inventoryDialog .inventory-account h3 button { color: #dfba65; font-size: 16px; }
+.inventory-row { display: grid; grid-template-columns: 36px minmax(0,1fr) auto; align-items: center; gap: 8px; padding: 10px 6px; border: 1px solid #283849; border-bottom: 0; background: #122030; }
+.inventory-row[role=button] { cursor: pointer; }
+.inventory-row[role=button]:hover, .inventory-row:focus-visible { background: #1a2d40; outline: 1px solid #dfba65; outline-offset: -1px; }
+.inventory-picture { display: grid; place-items: center; width: 36px; height: 40px; }
+.inventory-picture img { max-width: 36px; max-height: 40px; object-fit: contain; image-rendering: pixelated; }
+.inventory-picture span { font-size: 24px; }
+.inventory-row:last-child { border-bottom: 1px solid #283849; }
+.inventory-row > div { min-width: 0; display: flex; flex-direction: column; gap: 5px; overflow-wrap: anywhere; }
+.inventory-row span { font-size: 12px; color: #a9bdd0; }
+.inventory-row small { font-size: 10px; color: #8298ac; }
+.inventory-row > b { white-space: nowrap; color: #62d5aa; }
+.inventory-note { color: #93aabf; font-size: 12px; font-weight: normal; }
+.inventory-pages { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px; }
+.inventory-categories { display: flex; gap: 8px; padding: 12px 16px 0; flex-wrap: wrap; }
+#inventoryDialog .inventory-categories button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-width: 86px; min-height: 58px; font-size: 12px; }
+.inventory-categories button span { font-size: 22px; }
+.inventory-categories .inventory-ball-icon { position: relative; width: 24px; height: 24px; border: 2px solid #14181d; border-radius: 50%; background: linear-gradient(#ed3c43 0 43%,#14181d 43% 57%,#e8eef4 57%); }
+.inventory-ball-icon::after { content: ''; position: absolute; top: 7px; left: 7px; width: 6px; height: 6px; border: 2px solid #14181d; border-radius: 50%; background: #e8eef4; }
+#inventoryDialog .inventory-categories button.active { color: #ffe19a; border-color: #dfba65; background: #2a2c28; }
+.inventory-iv-hint, .inventory-disconnected { font-size: 12px; color: #93aabf; margin: 10px 16px; }
+.inventory-iv-hint { color: #6ee4cf; }
+.inventory-filters [hidden] { display: none; }
+#inventoryDialog #ivCard { position: fixed; font-size: 12px; }
+#inventoryDialog #ivCard button { padding: 0 5px; }
+.inventory-market-note { color: #93aabf; font-size: 11px; margin: 0 16px 8px; }
+.inventory-row .inventory-market-price { color: #74d2ff; font-size: 11px; }

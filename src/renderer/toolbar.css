@@ -1,0 +1,45 @@
+#topbar .game-tool {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 34px;
+  min-width: 36px;
+  padding: 3px;
+  font-size: 0;
+  letter-spacing: 0;
+  border: 1px solid #695739;
+  border-radius: 8px;
+  background: linear-gradient(145deg, #232a31, #0b121b 70%);
+  box-shadow: inset 0 1px 0 #b9954a20, 0 2px 4px #0005;
+  transition: border-color .15s, background .15s, box-shadow .15s;
+}
+#topbar .game-tool::before {
+  content: '';
+  width: 28px;
+  height: 28px;
+  flex: none;
+  background: var(--tool-art) center / contain no-repeat;
+  pointer-events: none;
+}
+#topbar .game-tool:hover { border-color: #d5b567; background: linear-gradient(145deg,#353127,#151e29); box-shadow: inset 0 0 12px #d5b56712, 0 0 8px #d5b56725; }
+#topbar .game-tool:focus-visible { outline: 2px solid #f5d88b; outline-offset: 3px; }
+#topbar .game-tool.on, #topbar .game-tool.copied { border-color: #d5b567; background: linear-gradient(145deg,#423822,#172325); box-shadow: inset 0 0 10px #e7c46a15; }
+#topbar .game-tool.on::after, #topbar .game-tool.copied::after { content: ''; position: absolute; bottom: 3px; right: 3px; width: 5px; height: 5px; border-radius: 50%; background: #8cf2a6; box-shadow: 0 0 5px #72e892; pointer-events: none; }
+#topbar #supportLinks { display: flex; align-items: center; gap: 6px; flex: none; margin-right: 12px; }
+#topbar #donTop { --tool-art: url('toolbar-icons/support.png'); margin: 0; }
+#topbar #loginAll { --tool-art: url('toolbar-icons/login.png'); }
+#topbar #accounts { --tool-art: url('toolbar-icons/trainers.png'); }
+#topbar #reloadAll { --tool-art: url('toolbar-icons/refresh.png'); }
+#topbar #statsBtn { --tool-art: url('toolbar-icons/stats.png'); }
+#topbar #cardsBtn { --tool-art: url('toolbar-icons/simple.png'); }
+#topbar #ivsBtn.game-tool { --tool-art: url('toolbar-icons/iv.png'); border-radius: 8px; gap: 0; }
+#topbar #recommendBtn { --tool-art: url('toolbar-icons/hunt.png'); }
+#topbar #marketBtn { --tool-art: url('market-icon.svg'); width: 36px; height: 34px; flex: 0 0 36px; padding: 3px; }
+#topbar #marketBtn img { display: none; }
+#topbar #menuBtn { --tool-art: url('toolbar-icons/options.png'); }
+#topbar #refBtn { --tool-art: url('toolbar-icons/referral.png'); margin-left: 0; }
+#topbar #toolbarIcons { display: flex; align-items: center; gap: 8px; margin-left: auto; flex: none; }
+#topbar #menuWrap { margin-left: 0; flex: none; }

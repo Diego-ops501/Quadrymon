@@ -1,0 +1,45 @@
+const assert = require('node:assert/strict');
+const M = require('../src/domain/global-market');
+(async () => {
+  const own = {kind:'pokemon',speciesId:112,level:495,ivTotal:129,quality:1.8,shiny:false};
+  const listings = Array.from({length:120}, (_,i) => ({...own,id:'ad'+i,name:'Rhydon',level:i<3?495:1,price:(i+1)*100,currency:'GOLD'}));
+  const calls = [];
+  let fail = false, cid = 'c1';
+  const read = async script => {
+    const q = JSON.parse(script.match(/\}\)\((\{[^\n]*?\}),/)[1]); calls.push(q);
+    if (fail) return {ok:false,reason:'limited'};
+    const list = listings.filter(x => ['ivTotal:iv','level:lv','quality:q'].every(pair => {
+      const [field,prefix] = pair.split(':');
+      return (!q[prefix+'Min'] || x[field]>=Number(q[prefix+'Min'])) && (!q[prefix+'Max'] || x[field]<=Number(q[prefix+'Max']));
+    }));
+    const offset = (Number(q.page)-1)*12;
+    return {ok:true,data:{cid,listings:list.slice(offset,offset+12),total:list.length,pages:Math.max(1,Math.ceil(list.length/12))}};
+  };
+  let result = await M.readComparisonBook(read,own,{iv:10,lv:10,q:.1},'c1',2700000);
+  assert.equal(calls.length,1,'matching specimen needs one request rather than ten species pages');
+  assert.equal(result.book.listings.length,3);
+  assert.equal(M.priceSummary(result.book.listings).GOLD.median,200);
+  assert.equal(calls[0].lvMin,'485'); assert.equal(calls[0].qMin,'1.7');
+  calls.length=0;
+  result = await M.readComparisonBook(read,{...own,level:1000},{},'c1',2700000);
+  assert.equal(calls.length,1,'no automatic broad scan when there are no similar levels');
+  assert.equal(result.book.listings.length,0);
+  calls.length=0;
+  result = await M.readComparisonBook(read,own,{broad:true},'c1',2700000);
+  assert.equal(calls.length,10); assert.ok(calls.every(q=>!q.lvMin));
+  assert.equal(M.priceSummary(result.book.listings).GOLD.median,6050,'explicit whole-species median remains exact');
+  const boundary = {...own,quality:1.7};
+  assert.equal(M.comparable([{...boundary,quality:1.69}],boundary,{q:.1}).length,0,'different rarity excluded even inside the quality tolerance');
+  fail=true; calls.length=0;
+  result = await M.readComparisonBook(read,own,{},'c1',2700000);
+  assert.equal(result.reason,'limited'); assert.equal(calls.length,1,'failure never triggers broad retry');
+  fail=false; cid='c2'; calls.length=0;
+  result = await M.readComparisonBook(read,own,{},'c1',2700000);
+  assert.equal(result.reason,'changed'); assert.equal(calls.length,1);
+  const order=[]; let release;
+  const reader=M.createMarketReader(async(account,script)=>{order.push(script);if(script==='background-1')await new Promise(r=>release=r);return {ok:true};},{interval:0});
+  const first=reader(0,'background-1',()=>true,0),second=reader(0,'background-2',()=>true,0),foreground=reader(0,'comparison',()=>true,10);
+  release();await Promise.all([first,second,foreground]);
+  assert.deepEqual(order,['background-1','comparison','background-2'],'visible comparison overtakes queued background work');
+  console.log('ok market comparison: server tolerances, rarity, complete medians, explicit broad reference, foreground priority, failures and CID');
+})().catch(error=>{console.error(error);process.exitCode=1;});

@@ -1,0 +1,92 @@
+:root { --workspace-gold: #dfba65; --workspace-bg: #0b121b; --workspace-border: #283849; --toolbar-height: 56px; --footer-height: 28px; }
+body { background: var(--workspace-bg); }
+#topbar { gap: 12px; padding: 9px 14px; min-height: 56px; background: #101b28; border-bottom: 1px solid var(--workspace-border); }
+#topbar .logo { min-width: 130px; gap: 8px; flex: none; }
+#topbar .logo img { width: 30px; height: 30px; }
+#topbar .logo strong { font-size: 20px; letter-spacing: -.7px; }
+#topbar .logo .ver { align-self: center; color: var(--workspace-gold); padding: 0; font-size: 10px; }
+#workspaceAccountControls { display: flex; flex: 1; align-items: center; gap: 6px; min-width: 222px; }
+#workspaceAccounts { display: flex; flex: 0 1 618px; gap: 6px; min-width: 180px; overflow-x: auto; scrollbar-width: thin; }
+#topbar #reloadAll { height: 36px; background: #132130; border-color: var(--workspace-border); }
+#topbar #reloadAll::before { width: 24px; height: 24px; }
+.workspace-account { display: flex; align-items: center; gap: 7px; min-width: 78px; max-width: 150px; flex: 1 0 78px; height: 36px; padding: 5px 8px; background: #132130; border: 1px solid var(--workspace-border); font-size: 12px; }
+.account-number { display: grid; place-items: center; flex: none; width: 22px; height: 22px; background: color-mix(in srgb, var(--account-color) 18%, #112030); border: 1px solid var(--account-color); border-radius: 5px; color: #f0f6fc; }
+.account-label { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.workspace-account .account-state { width: 6px; height: 6px; margin-left: auto; border-radius: 50%; background: #637083; flex: none; font-size: 0; }
+.workspace-account.online .account-state { background: #3cdaa7; }
+.workspace-account.active { border-color: var(--account-color); background: color-mix(in srgb, var(--account-color) 12%, #122030); }
+#workspaceModes { display: flex; align-items: center; gap: 2px; padding: 3px; background: #0b1521; border: 1px solid var(--workspace-border); border-radius: 8px; flex: none; }
+#workspaceModes button { display: flex; align-items: center; gap: 6px; padding: 7px 10px; border-color: transparent; background: transparent; color: #a7b9cc; font-size: 12px; }
+#workspaceModes button.active { color: #171b21; background: var(--workspace-gold); }
+#topbar #toolbarIcons { gap: 6px; margin-left: 0; }
+#topbar .workspace-tool { height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 9px; background: #132130; border-color: var(--workspace-border); white-space: nowrap; font-size: 12px; }
+#topbar .workspace-tool img { width: 21px; height: 21px; object-fit: contain; }
+#topbar #marketBtn { width: auto; flex: none; padding: 6px 9px; height: 36px; }
+#topbar #marketBtn img { display: block; }
+#topbar .workspace-tool::before { display: none; }
+#topbar #ivsBtn, #topbar #menuBtn { background: #132130; border-color: var(--workspace-border); height: 36px; }
+#topbar #ivsBtn::before, #topbar #menuBtn::before { width: 24px; height: 24px; }
+#topbar #menu { max-height: calc(100vh - var(--toolbar-height) - 20px); overflow-y: auto; min-width: 242px; border-color: var(--workspace-border); background: #122030; scrollbar-width: thin; }
+#topbar #menu button { background: #172636; border-color: #293a4d; padding: 8px 10px; }
+#topbar #menu #supportLinks { margin: 0; width: 100%; padding-top: 6px; border-top: 1px solid var(--workspace-border); }
+#topbar #menu .game-tool { flex: 1; width: auto; font-size: 11px; }
+#topbar #menu .game-tool::before { display: none; }
+#grid { gap: 10px; padding: 10px; transition: none; }
+.panel { background: #0b141f; border-color: #2c3e52; border-radius: 9px; }
+.panel-header { min-height: 34px; padding: 5px 10px; background: #132130; border-bottom: 1px solid #25364a; }
+.panel-header .name { max-width: 40%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.panel-header .status { font-size: 10px; }
+.panel-header button { background: #172a3d; border-color: #2a3d51; height: 24px; }
+.panel-header .dot { box-shadow: none; }
+.panel.expanded { inset: 10px; }
+.panel-metrics { display: flex; gap: 12px; align-items: center; min-height: 34px; padding: 5px 10px; flex: none; background: #101d2a; border-top: 1px solid #25364a; }
+.panel-metrics > span { display: flex; gap: 6px; align-items: baseline; flex: 1; min-width: 0; }
+.panel-metrics small { color: #8ca2b9; font-size: 10px; white-space: nowrap; }
+.panel-metrics b { font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.panel-metrics button { background: transparent; color: var(--workspace-gold); padding: 3px 6px; border: 0; font-size: 11px; white-space: nowrap; }
+body[data-workspace-mode="focus"] #grid .panel:not(.expanded) { visibility: hidden; pointer-events: none; }
+#focusAccounts { display: none; margin: 0 10px 10px; gap: 8px; flex: none; }
+body[data-workspace-mode="focus"] #focusAccounts { display: flex; }
+#focusAccounts[hidden] { display: none; }
+.focus-account { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: center; gap: 5px 9px; flex: 1; min-width: 0; text-align: left; padding: 8px 12px; background: #132130; border: 1px solid var(--workspace-border); }
+.focus-account[hidden] { display: none; }
+.focus-account .account-state { color: #8096ae; font-size: 10px; }
+.focus-account.online .account-state { color: #57d7b0; }
+.focus-account .account-detail { grid-column: 2 / -1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #91a7bf; font-size: 11px; }
+#workspaceFooter { display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 28px; padding: 5px 16px; border-top: 1px solid var(--workspace-border); background: #101b28; color: #92a9bf; flex: none; font-size: 11px; }
+#workspaceFooter span:first-child::before { content: ''; display: inline-block; margin-right: 7px; width: 7px; height: 7px; background: #637083; border-radius: 50%; }
+#workspaceFooter.online span:first-child::before { background: #3cdaa7; }
+#stats { left: auto; right: 0; top: var(--toolbar-height) !important; bottom: var(--footer-height) !important; max-width: min(760px, 75vw); border-left: 1px solid #314357; border-right: 0; background: #101b28; transform: translateX(100%); box-shadow: none; transition: none; }
+body.stats-open #grid { margin-left: 0; margin-right: min(var(--statsw, 350px), 75vw); }
+body.stats-open #cards { margin-left: 0; margin-right: min(var(--statsw, 350px), 75vw); transition: none; }
+body.stats-open #focusAccounts { margin-right: calc(min(var(--statsw, 350px), 75vw) + 10px); }
+#stats .st-resize { right: auto; left: 0; }
+#stats .st-head, #stats .st-tabs { background: #132130; }
+#stats .sb-top { background: var(--workspace-gold); }
+body.cards-on #focusAccounts { display: none; }
+#cards { background: var(--workspace-bg); padding: 14px; }
+.cd-box, .cd-kpi { border-color: var(--workspace-border); background: #132130; }
+button:focus-visible { outline: 2px solid var(--workspace-gold); outline-offset: 2px; }
+@media (max-width: 1250px) {
+  #topbar { gap: 8px; padding: 8px 10px; }
+  #topbar .logo { min-width: 108px; }
+  #topbar .logo strong { font-size: 17px; }
+  #topbar .logo .ver { display: none; }
+  #topbar .workspace-tool .tool-label { display: none; }
+  #topbar .workspace-tool { width: 36px; padding: 5px; }
+  #topbar #marketBtn { width: 36px; padding: 5px; }
+  #workspaceModes button { padding: 7px 8px; }
+}
+@media (max-width: 850px) {
+  #topbar { flex-wrap: wrap; }
+  #workspaceAccounts { min-width: 180px; }
+  #workspaceModes { order: 3; }
+  #topbar #toolbarIcons { order: 4; margin-left: auto; }
+  .panel-metrics { gap: 6px; padding: 5px 6px; }
+  .panel-metrics .panel-travel { font-size: 0; width: 24px; }
+  .panel-metrics .panel-travel::after { content: '→'; font-size: 18px; }
+  .panel-metrics .panel-travel[data-returning="true"]::after { content: '↩'; }
+  .focus-account .account-state { display: none; }
+  .focus-account { grid-template-columns: 22px minmax(0, 1fr); padding: 7px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }

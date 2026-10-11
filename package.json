@@ -1,0 +1,79 @@
+{
+  "name": "pokemux",
+  "version": "2.2.0",
+  "description": "PokeMux: quatro contas de Poke Idle World, painel, alertas e ferramentas locais para Windows.",
+  "main": "main.js",
+  "author": "Diego-ops501",
+  "scripts": {
+    "start": "electron .",
+    "test": "node scripts/check.cjs",
+    "dist": "electron-builder --win nsis --x64 --publish never"
+  },
+  "keywords": [
+    "electron",
+    "multi-account",
+    "poke-idle-world",
+    "idle-game"
+  ],
+  "license": "UNLICENSED",
+  "homepage": "https://github.com/Diego-ops501/PokeMux-Independent",
+  "dependencies": {
+    "electron-updater": "6.8.9"
+  },
+  "devDependencies": {
+    "electron": "43.1.1",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "com.pokemux.desktop",
+    "productName": "PokeMux",
+    "artifactName": "PokeMux-${version}-${arch}.${ext}",
+    "asar": true,
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "overlay.html",
+      "src/**/*",
+      "tray.png",
+      "build-icon.png",
+      "pokemux-logo.png",
+      "pokemux-logo-ui.png",
+      "pokemux-icon.png",
+      "README.md",
+      "MANUAL.md",
+      "FAQ.md",
+      "CHANGELOG.md",
+      "update-config.json"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "build-icon.png",
+      "verifyUpdateCodeSignature": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "PokeMux",
+      "deleteAppDataOnUninstall": false,
+      "installerLanguages": [
+        "pt_BR",
+        "en_US",
+        "es_ES"
+      ],
+      "displayLanguageSelector": true
+    },
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "https://github.com/Diego-ops501/PokeMux-Independent/releases/latest/download"
+      }
+    ]
+  },
+  "private": true
+}

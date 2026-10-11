@@ -1,0 +1,374 @@
+:root {
+  color-scheme: dark;
+  --account-color: #b080ff;
+  --statsw: 380px;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #e8eff7;
+  font:
+    13px system-ui,
+    sans-serif;
+  background: #0b121b;
+}
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+button {
+  cursor: pointer;
+  border: 1px solid #304254;
+  border-radius: 7px;
+  background: #152536;
+  padding: 7px 11px;
+}
+button:hover {
+  border-color: #d9b663;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+input,
+select {
+  padding: 8px;
+  border: 1px solid #34485c;
+  border-radius: 6px;
+  background: #0c1723;
+}
+a {
+  color: #74c3ff;
+}
+[hidden] {
+  display: none !important;
+}
+#topbar {
+  display: flex;
+  align-items: center;
+  flex: none;
+}
+.logo {
+  display: flex;
+  align-items: center;
+}
+#toolbarIcons {
+  display: flex;
+  gap: 7px;
+  margin-left: auto;
+}
+#topbar #marketBtn {
+  width: auto;
+  flex: none;
+  padding: 6px 9px;
+  height: 36px;
+}
+#topbar #marketBtn img {
+  width: 21px;
+  height: 21px;
+}
+#topbar #recommendTop {
+  --tool-art: url("toolbar-icons/hunt.png");
+}
+#content {
+  display: flex;
+  position: relative;
+  min-height: 0;
+  flex: 1;
+}
+#grid {
+  display: grid;
+  position: relative;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+#grid[data-count="1"] {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+#grid[data-count="2"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: 1fr;
+}
+#grid[data-count="3"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: 1fr;
+}
+.panel {
+  border: 1px solid;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: none;
+}
+.panel-header .status {
+  margin-right: auto;
+  color: #9cb2c7;
+}
+.panel-header .name {
+  font-weight: 700;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--account-color);
+}
+.panel-header button {
+  padding: 2px 7px;
+}
+webview {
+  display: flex;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+.panel.expanded {
+  position: absolute;
+  z-index: 5;
+}
+.panel-off {
+  display: grid;
+  place-items: center;
+  flex: 1;
+  color: #8298ad;
+}
+#cards {
+  flex: 1;
+  overflow: auto;
+}
+#cards .summary-accounts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+.runtime-card {
+  border: 1px solid #2b4055;
+  border-radius: 10px;
+  background: #132130;
+  padding: 16px;
+}
+.runtime-card h3 {
+  margin: 0 0 12px;
+  color: #e1c16f;
+}
+.runtime-card dl {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  margin: 10px 0;
+}
+.runtime-card dt {
+  color: #9db3ca;
+}
+.runtime-card dd {
+  margin: 0;
+  font-weight: 700;
+}
+.runtime-card .buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.runtime-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.runtime-note {
+  color: #a4b7cc;
+  line-height: 1.5;
+}
+dialog {
+  color: inherit;
+  background: #0e1925;
+  border: 1px solid #52637a;
+  border-radius: 11px;
+  padding: 18px;
+  width: min(760px, calc(100vw - 32px));
+  max-height: 90vh;
+}
+dialog::backdrop {
+  background: #02060bbf;
+}
+dialog .dialog-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+dialog .dialog-head h2 {
+  margin: 0;
+}
+dialog .dialog-body {
+  overflow: auto;
+  max-height: 72vh;
+}
+.account-fields {
+  display: grid;
+  grid-template-columns: 36px 1fr 1fr 1fr auto;
+  gap: 9px;
+  align-items: center;
+  margin: 12px 0;
+}
+.account-fields input {
+  min-width: 0;
+}
+#stats {
+  position: relative;
+  display: none;
+  width: 380px;
+  flex: none;
+  overflow: auto;
+  padding: 15px;
+}
+body.stats-open #stats {
+  display: block;
+  transform: none;
+  top: 0 !important;
+  bottom: 0 !important;
+}
+body.stats-open #grid,
+body.stats-open #cards {
+  margin: 0;
+}
+#huntRecommend .runtime-card {
+  margin: 10px 0;
+}
+.hr-controls {
+  display: flex;
+  gap: 12px;
+  align-items: end;
+  flex-wrap: wrap;
+}
+.hr-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+#hrThreshold {
+  width: 75px;
+}
+.hr-day {
+  border: 2px solid #876bb9;
+  border-radius: 10px;
+  padding: 12px;
+  margin: 15px 0;
+}
+.runtime-best {
+  border-color: #3fb950;
+}
+#ivCard {
+  position: fixed;
+  z-index: 20000;
+  width: 360px;
+  max-width: calc(100vw - 20px);
+  max-height: 70vh;
+  overflow: auto;
+  padding: 15px;
+  border: 1px solid #d7b561;
+  background: #101b28;
+  border-radius: 10px;
+  pointer-events: auto;
+  box-shadow: 0 16px 45px #0008;
+}
+#ivCard table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+}
+#ivCard td,
+#ivCard th {
+  text-align: left;
+  padding: 5px;
+  border-bottom: 1px solid #2b3d50;
+}
+#ivCard img {
+  width: 65px;
+  height: 65px;
+  image-rendering: pixelated;
+  float: right;
+}
+#ivCard .iv-controls {
+  display: flex;
+  gap: 9px;
+}
+#ivCard .iv-controls input {
+  width: 95px;
+}
+#focusAccounts {
+  margin-bottom: 0;
+}
+#appMessage {
+  position: fixed;
+  bottom: 42px;
+  right: 16px;
+  max-width: 420px;
+  border: 1px solid #bd9b50;
+  border-radius: 9px;
+  padding: 13px;
+  background: #152536;
+  z-index: 30000;
+}
+.capture-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.capture-table th,
+.capture-table td {
+  text-align: left;
+  border-bottom: 1px solid #2f4256;
+  padding: 7px;
+}
+.runtime-settings {
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+}
+#settingsControls {
+  display: none;
+}
+@media (max-width: 800px) {
+  .account-fields {
+    grid-template-columns: 26px 1fr;
+  }
+  .account-fields input {
+    grid-column: 2;
+  }
+  #stats {
+    width: min(380px, 65vw);
+  }
+  .capture-table {
+    font-size: 11px;
+  }
+  #grid[data-count="3"] {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(3, 1fr);
+  }
+}
+
+.native-ratio #grid webview {
+  aspect-ratio: 16 / 9;
+  flex: none;
+  width: 100%;
+  max-height: calc(100% - 42px);
+}

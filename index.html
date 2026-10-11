@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://poke.idleworld.online https://raw.githubusercontent.com; connect-src 'none'; frame-src https://poke.idleworld.online; object-src 'none'; base-uri 'none'"
+    />
+    <title>PokeMux</title>
+    <link rel="stylesheet" href="src/renderer/toolbar.css" />
+    <link rel="stylesheet" href="src/renderer/workspace.css" />
+    <link rel="stylesheet" href="src/renderer/global-market.css" />
+    <link rel="stylesheet" href="src/renderer/inventory.css" />
+    <link rel="stylesheet" href="src/renderer/settings.css" />
+    <link rel="stylesheet" href="src/renderer/runtime.css" />
+  </head>
+  <body>
+    <header id="topbar">
+      <div class="logo">
+        <img src="pokemux-icon.png" alt="" /><strong>PokeMux</strong
+        ><span class="ver" id="version"></span>
+      </div>
+      <div id="workspaceAccountControls">
+        <nav id="workspaceAccounts"></nav>
+        <button id="reloadAll" class="game-tool" title="Recarregar contas">
+          ⟳
+        </button>
+      </div>
+      <nav id="workspaceModes">
+        <button data-mode="grid"><span>Grade</span></button
+        ><button data-mode="focus"><span>Foco</span></button
+        ><button data-mode="summary"><span>Resumo</span></button>
+      </nav>
+      <div id="toolbarIcons">
+        <button id="statsBtn">Análise</button
+        ><button id="inventoryBtn" class="workspace-tool">
+          <span class="tool-label">Inventário</span></button
+        ><button id="marketBtn" class="workspace-tool">
+          <img src="src/renderer/market-icon.svg" alt="" /><span
+            class="tool-label"
+            >Mercado</span
+          ></button
+        ><button id="recommendTop" class="game-tool">Hunt</button
+        ><button id="recommendBtn" class="game-tool" title="Recomendar hunt">
+          Hunt</button
+        ><button id="ivsBtn" class="game-tool" title="Calcular IV">IV</button
+        ><button id="menuBtn" class="game-tool" title="Ajustes">Ajustes</button>
+      </div>
+    </header>
+    <main id="content">
+      <section id="grid"></section>
+      <section id="cards" hidden></section>
+      <aside id="stats"></aside>
+    </main>
+    <dialog id="menu"></dialog>
+    <dialog id="accountEditor">
+      <div class="dialog-head">
+        <h2>Contas</h2>
+        <button data-close>✕</button>
+      </div>
+      <form id="accountForm">
+        <div id="accountFields"></div>
+        <button type="submit">Salvar contas</button>
+      </form>
+      <p class="runtime-note">
+        As senhas ficam criptografadas neste computador. CAPTCHA e 2FA são
+        resolvidos no jogo.
+      </p>
+    </dialog>
+    <dialog id="huntRecommend">
+      <div class="dialog-head">
+        <h2>Recomendar hunt</h2>
+        <select id="hrAccount"></select
+        ><button id="hrRefresh">⟳</button><button data-close>✕</button>
+      </div>
+      <div class="hr-controls">
+        <label
+          >Foco<select id="hrFocus">
+            <option value="xp">XP</option>
+            <option value="gold">Dólares</option>
+          </select></label
+        ><label
+          >Poção<select id="hrPotion">
+            <option value="observed">Gastos observados</option>
+            <option value="none">Sem poção</option>
+          </select></label
+        ><label
+          >Limiar HP (%)<input
+            id="hrThreshold"
+            type="number"
+            min="1"
+            max="99"
+            value="50"
+        /></label>
+      </div>
+      <p id="hrStatus" role="status"></p>
+      <div id="hrBody" class="dialog-body"></div>
+    </dialog>
+    <dialog id="captureHistory">
+      <div class="dialog-head">
+        <h2>Histórico de capturas</h2>
+        <button data-close>✕</button>
+      </div>
+      <div class="hr-controls">
+        <input
+          id="captureSearch"
+          type="search"
+          placeholder="Nome do Pokémon"
+        /><select id="captureAccount">
+          <option value="">Todas as contas</option></select
+        ><select id="captureRarity">
+          <option value="">Todas as raridades</option></select
+        ><input id="captureIv" type="number" placeholder="IV mínimo" /><label
+          ><input id="captureShiny" type="checkbox" />Shiny</label
+        ><button id="captureCsv">Exportar CSV</button>
+      </div>
+      <div id="captureRows" class="dialog-body"></div>
+    </dialog>
+    <dialog id="toolsDialog">
+      <div class="dialog-head">
+        <h2 id="toolsTitle"></h2>
+        <button data-close>✕</button>
+      </div>
+      <div id="toolsBody" class="dialog-body"></div>
+    </dialog>
+    <div id="ivCard" hidden></div>
+    <div id="appMessage" hidden role="status"></div>
+    <div id="settingsControls">
+      <button id="accounts">Contas</button
+      ><button id="loginAll">Entrar nas contas</button
+      ><label id="count"
+        >Painéis
+        <select id="panelCount"></select></label
+      ><button id="voltaHunt">Retornar à hunt</button>
+      <div id="langRow">
+        <button data-lang="pt">Português</button
+        ><button data-lang="en">English</button
+        ><button data-lang="es">Español</button>
+      </div>
+      <button id="propNat">Proporção do jogo</button
+      ><button id="dock">Menu do jogo</button><button id="chat">Chat</button
+      ><button id="cleanHud">Limpar HUD</button><button id="muteAll">Som</button
+      ><button id="overlayBtn">Overlay</button><button id="eco">Eco</button
+      ><button id="awake">Impedir suspensão</button
+      ><button id="minTray">Minimizar na bandeja</button
+      ><button id="autoStart">Iniciar com Windows</button
+      ><button id="alerts">Alertas</button
+      ><button id="sndShiny">Som de shiny</button
+      ><button id="voiceAlerts">Voz dos alertas</button
+      ><button id="shotShiny">Print de shiny</button
+      ><button id="sellguard">Venda protegida</button
+      ><button id="hunt">Análise da hunt</button
+      ><button id="tierBtn">Tierlist</button><button id="dittoBtn">Ditto</button
+      ><button id="bkExp">Exportar configurações</button
+      ><button id="bkImp">Importar configurações</button
+      ><button id="updateBtn">Verificar atualização</button
+      ><button id="manBtn">Manual</button><button id="faqBtn">FAQ</button
+      ><button id="errlogBtn">Relatório de erros</button>
+      <div id="supportLinks">
+        <button id="donTop">Ajude o projeto</button
+        ><button id="refBtn">Referral</button>
+      </div>
+      <button id="cardsBtn">Resumo</button><button id="layout">Grade</button>
+      <div id="analysisSettings"></div>
+    </div>
+    <script src="src/domain/iv-math.js"></script>
+    <script src="src/domain/pokemon-state.js"></script>
+    <script src="src/domain/pokemon-aptitude.js"></script>
+    <script src="src/domain/capture-filters.js"></script>
+    <script src="src/domain/hunt-measurements.js"></script>
+    <script src="src/domain/hunt-catalog.js"></script>
+    <script src="src/domain/hunt-combat-model.js"></script>
+    <script src="src/domain/hunt-recommendations.js"></script>
+    <script src="src/domain/market-travel.js"></script>
+    <script src="src/domain/global-market.js"></script>
+    <script src="src/domain/market-alerts.js"></script>
+    <script src="src/renderer/global-market.js"></script>
+    <script src="src/renderer/inventory.js"></script>
+    <script src="src/renderer/workspace.js"></script>
+    <script src="src/renderer/summary.js"></script>
+    <script src="src/renderer/settings.js"></script>
+    <script src="src/renderer/runtime.js"></script>
+  </body>
+</html>
