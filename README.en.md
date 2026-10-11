@@ -4,11 +4,11 @@
 <p align="center">Multi-account hub for Poke Idle World · Windows x64 · Version 1.0.0</p>
 <p align="center"><a href="https://github.com/Diego-ops501/Quadrymon/releases/download/v1.0.0/Quadrymon-1.0.0-x64.exe"><strong>Download Quadrymon 1.0.0</strong></a> · <a href="https://github.com/Diego-ops501/Quadrymon/releases/latest">Latest release</a></p>
 
-![Quadrymon visual identity](docs/art/quadrymon-identidade.png)
+![Quadrymon — four adventures in one hub](docs/art/quadrymon-banner.png)
 
 **Four accounts, the global market, inventory and hunt analysis in one application.** Quadrymon brings together tools to monitor accounts, compare opportunities and choose where to train your Pokémon.
 
-The artwork above presents the brand and a conceptual interface. The screenshots below show the actual Portuguese application interface with demonstration accounts, inventories and values; they do not represent guaranteed farming results.
+The promotional illustration was inspired by the Quadrymon visual reference. The screenshots below show the actual Portuguese application interface with demonstration accounts, inventories and values; they do not represent guaranteed farming results.
 
 ## Installation and first steps
 
@@ -151,14 +151,5 @@ To check the codebase and build the installer:
     npm run dist
 
 The Windows installer is generated in <code>dist/</code>. <code>npm run docs:screenshots</code> recreates documentation images in a temporary profile using demonstration data, without accessing real accounts.
-
-## Presentation artwork
-
-<details>
-<summary>View the full Quadrymon poster</summary>
-
-![Quadrymon presentation poster](docs/art/quadrymon-apresentacao.png)
-
-</details>
 
 Development and maintenance: **Diego-ops501**. All rights reserved for the original code; no open-source license is granted. Dependencies retain their own terms.

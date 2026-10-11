@@ -4,11 +4,11 @@
 <p align="center">Central multicuenta para Poke Idle World · Windows x64 · Versión 1.0.0</p>
 <p align="center"><a href="https://github.com/Diego-ops501/Quadrymon/releases/download/v1.0.0/Quadrymon-1.0.0-x64.exe"><strong>Descargar Quadrymon 1.0.0</strong></a> · <a href="https://github.com/Diego-ops501/Quadrymon/releases/latest">Última versión</a></p>
 
-![Identidad visual de Quadrymon](docs/art/quadrymon-identidade.png)
+![Quadrymon — cuatro aventuras en una central](docs/art/quadrymon-banner.png)
 
 **Cuatro cuentas, mercado global, inventario y análisis de hunts en una aplicación.** Quadrymon reúne herramientas para seguir tus cuentas, comparar oportunidades y elegir dónde entrenar a tu Pokémon.
 
-La ilustración superior presenta la marca y una interfaz conceptual. Las capturas inferiores muestran la interfaz real en portugués con cuentas, inventarios y valores de demostración; no representan resultados garantizados de farm.
+La ilustración de presentación fue creada a partir de la referencia visual de Quadrymon. Las capturas inferiores muestran la interfaz real en portugués con cuentas, inventarios y valores de demostración; no representan resultados garantizados de farm.
 
 ## Instalación y primeros pasos
 
@@ -151,14 +151,5 @@ Para verificar el código y generar el instalador:
     npm run dist
 
 El instalador de Windows se genera en <code>dist/</code>. <code>npm run docs:screenshots</code> recrea las imágenes de documentación en un perfil temporal con datos de demostración, sin acceder a cuentas reales.
-
-## Arte de presentación
-
-<details>
-<summary>Ver el póster completo de Quadrymon</summary>
-
-![Póster de presentación Quadrymon](docs/art/quadrymon-apresentacao.png)
-
-</details>
 
 Desarrollo y mantenimiento: **Diego-ops501**. Código propio con todos los derechos reservados, sin concesión de licencia de código abierto. Las dependencias mantienen sus propias condiciones.
