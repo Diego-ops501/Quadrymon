@@ -6,7 +6,8 @@
     const number = value => value == null || !Number.isFinite(Number(value)) ? "—" : c.format(Number(value));
     const compact = value => { if (value == null || !Number.isFinite(Number(value))) return "—"; const n = Number(value), size = Math.abs(n), scale = size >= 1e9 ? 1e9 : size >= 1e6 ? 1e6 : size >= 1e3 ? 1e3 : 1; return new Intl.NumberFormat(c.lang(), { maximumFractionDigits: scale === 1 ? 0 : 1 }).format(n / scale) + ({ 1e9: "B", 1e6: "M", 1e3: "K" }[scale] || ""); };
     const signed = value => value == null ? "—" : (value >= 0 ? "+" : "") + compact(value);
-    const quality = value => value == null ? "—" : new Intl.NumberFormat(c.lang(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+    const qualityFormatters = new Map();
+    const quality = value => { if (value == null) return "—"; const locale = c.lang(); if (!qualityFormatters.has(locale)) qualityFormatters.set(locale, new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })); return qualityFormatters.get(locale).format(value); };
     const lifetimeShinies = index => number(c.shinyLifetime(index)) + " / " + number(c.shinyCapturedLifetime?.(index) ?? c.shinies?.().filter(x => x.cap && (index == null || Number(x.p) === index)).length ?? 0);
     const duration = seconds => Number.isFinite(seconds) ? Math.floor(seconds / 3600) + "h " + Math.floor(seconds % 3600 / 60) + "m" : seconds === Infinity ? "∞" : "—";
     const sections = ["kpis", "session", "gold", "compare", "drops", "bag", "pinned", "target", "team"];
@@ -19,6 +20,13 @@
     captureFilter = catchFilters.mode === "all" ? "all" : "important"; search = String(catchFilters.n || "");
     function clearQualityFilters() { Object.assign(catchFilters, { iv: 0, q: 0, r: "", sh: false }); }
     function saveCatchFilters() { c.save("cdFC", JSON.stringify({ ...catchFilters, mode: captureFilter, n: search, allDefaultsVersion: 1 })); }
+    let catchRefreshTimer = null;
+    function refreshCatchFilters(type) {
+      clearTimeout(catchRefreshTimer); catchRefreshTimer = null;
+      const refresh = () => { catchRefreshTimer = null; (c.refreshCaptures || c.refresh)(); };
+      if (type === "input") catchRefreshTimer = setTimeout(refresh, 140);
+      else refresh();
+    }
     // Older settings kept the important-capture threshold when switching to All.
     if (captureFilter === "all" && catchFilters.allDefaultsVersion !== 1) { clearQualityFilters(); saveCatchFilters(); }
     const summarySections = ["kpis", "table", "today", "catches", "pinned", "trend", "shinies", "shinyTried", "shared"];
@@ -49,7 +57,7 @@
     function action(label, type, index) { const b = button(label, () => {}); b.dataset.panelAction = type; if (index != null) b.dataset.account = index; return b; }
     function serializeControls(host) { for (const input of host.querySelectorAll("input")) { input.setAttribute("value", input.value); if (input.type === "checkbox") input.toggleAttribute("checked", input.checked); } for (const option of host.querySelectorAll("option")) option.toggleAttribute("selected", option.selected); return host; }
     function image(id, shiny, name) { const src = c.sprite(id, shiny, name); if (!src) return el("span", "◇", "restored-sprite-placeholder"); const img = el("img"); img.src = src; img.alt = ""; img.loading = "eager"; return img; }
-    function captureRow(entry) { const line = el("div", null, "summary-capture"), account = entry.account || entry.acc || c.name(entry.p || 0); line.append(image(entry.sid || entry.speciesId, false, entry.n), el("b", (entry.sh ? "✨ " : "") + display(entry.n), "capture-name"), el("span", "IV " + number(entry.iv), "capture-iv"), el("span", "Q ×" + quality(entry.q), "capture-quality"), el("span", account, "capture-account")); return line; }
+    function captureRow(entry) { const line = el("div", null, "summary-capture"), account = entry.account || entry.acc || c.name(entry.p || 0); line.dataset.summaryKey = "capture:" + [entry.p, entry.t, entry.id || entry.n].join(":"); line.append(image(entry.sid || entry.speciesId, false, entry.n), el("b", (entry.sh ? "✨ " : "") + display(entry.n), "capture-name"), el("span", "IV " + number(entry.iv), "capture-iv"), el("span", "Q ×" + quality(entry.q), "capture-quality"), el("span", account, "capture-account")); return line; }
     function teamCard(p, index) {
       const box = el("article", null, "restored-pokemon" + (p.ld ? " leader" : ""));
       const details = el("div"); details.append(append(el("span", null, "team-line"), el("b", (p.ld ? "⭐ " : "") + (p.shiny ? "✨ " : "") + display(p.name) + " Lv" + number(p.level)), el("small", number(p.hp) + "/" + number(p.hm))));
@@ -104,6 +112,21 @@
       card.append(append(el("div", null, "summary-actions"), action(copy.open, "focus", index), action(L("Recomendar hunt", "Recommend hunt", "Recomendar hunt"), "recommend", index)));
       return card;
     }
+    function capturePanel(rows = Array.from({ length: c.count() }, (_, i) => c.data(i))) {
+      const captures = section(L("Capturas importantes", "Important catches", "Capturas importantes")), controls = el("div", null, "restored-filters"), mode = el("select"); mode.dataset.panelFilter = "mode";
+      for (const [value, label] of [["important", L("Importantes", "Important", "Importantes")], ["all", L("Todas", "All", "Todas")]]) { const option = el("option", label); option.value = value; option.selected = captureFilter === value; mode.append(option); }
+      const query = el("input"); query.type = "search"; query.placeholder = L("Buscar Pokémon", "Search Pokémon", "Buscar Pokémon"); query.value = search; query.dataset.panelFilter = "search"; controls.append(mode, query); captures.append(controls);
+      const addSelect = (key, options) => { const select = el("select"); select.dataset.catchFilter = key; for (const [value, label] of options) { const option = el("option", label); option.value = value; option.selected = String(catchFilters[key]) === String(value); select.append(option); } controls.append(select); };
+      addSelect("p", [[-1, L("Todas as contas", "All accounts", "Todas las cuentas")], ...rows.map((_, i) => [i, c.name(i)])]); addSelect("per", [[0, L("Todo o período", "All time", "Todo el período")], [1, "1h"], [6, "6h"], [24, "24h"]]); addSelect("r", [["", L("Raridade: todas", "Rarity: all", "Rareza: todas")], ...["weak", "common", "uncommon", "rare", "epic", "legendary", "mythic", "ancient", "divine"].map((key, i) => [key, ["Fraca", "Comum", "Incomum", "Rara", "Épica", "Lendária", "Mítica", "Anciã", "Divina"][i]])]);
+      for (const [key, label] of [["iv", "IV ≥"], ["q", "Q ≥"]]) { const input = el("input"); input.type = "number"; input.min = 0; input.step = key === "q" ? .01 : 1; input.placeholder = label; input.value = catchFilters[key] || ""; input.dataset.catchFilter = key; controls.append(input); } const shinyOnly = el("input"); shinyOnly.type = "checkbox"; shinyOnly.checked = !!catchFilters.sh; shinyOnly.dataset.catchFilter = "sh"; controls.append(append(el("label", "✨"), shinyOnly));
+      controls.append(action(L("Limpar filtros", "Clear filters", "Limpiar filtros"), "clear-capture-filters"));
+      const filtered = root.PokeMuxCaptureFilters?.filterCaptures(c.captures(), { ...catchFilters, n: search }) || c.captures().filter(x => String(x.n).toLowerCase().includes(search.toLowerCase()));
+      const caught = captureFilter === "all" ? filtered : root.PokeMuxSummary.prioritize(filtered.filter(root.PokeMuxSummary.important)), list = el("div", null, "cd-catches-list");
+      captures.firstChild.textContent = captureFilter === "all" ? L("Todas as capturas", "All catches", "Todas las capturas") : L("Capturas importantes", "Important catches", "Capturas importantes");
+      list.dataset.summaryKey = "captures-list"; list.tabIndex = 0; list.setAttribute("role", "region"); list.setAttribute("aria-label", captures.firstChild.textContent);
+      for (const entry of caught) list.append(captureRow(entry)); captures.append(list);
+      if (!caught.length) captures.append(el("p", L("Nenhuma captura neste filtro.", "No catches in this filter.", "No hay capturas en este filtro."), "runtime-note")); captures.append(action(L("Ver histórico completo", "Full history", "Historial completo"), "captures")); return serializeControls(captures);
+    }
     function summary() {
       const host = el("div", null, "restored-summary"), rows = Array.from({ length: c.count() }, (_, i) => c.data(i)), active = rows.filter((x, i) => x?.live && c.summaryRow(i).st === "on");
       host.append(append(el("div", null, "restored-heading"), el("h2", L("Resumo das contas", "Account summary", "Resumen de cuentas")), action(L("Histórico de capturas", "Capture history", "Historial de capturas"), "captures"), action(L("Zerar sessão", "Reset session", "Reiniciar sesión"), "reset")));
@@ -134,22 +157,10 @@
         const min = Math.min(0, ...history.map(x => x[key])), max = Math.max(1, ...history.map(x => x[key])); const line = document.createElementNS(svg.namespaceURI, "polyline"); line.setAttribute("points", history.map((x, i) => (i * 400 / Math.max(1, history.length - 1)) + "," + (65 - (x[key] - min) / Math.max(1, max - min) * 60)).join(" ")); line.setAttribute("stroke", color); line.setAttribute("fill", "none"); line.setAttribute("stroke-width", "2"); svg.append(line); trend.append(svg);
       } columns.append(trend);
       const teams = section(text("team")); for (let i = 0; i < c.count(); i++) { teams.append(el("h4", c.name(i))); for (const p of c.data(i)?.team || []) teams.append(teamCard(p, i)); } columns.append(teams);
-      const captures = section(L("Capturas importantes", "Important catches", "Capturas importantes")), controls = el("div", null, "restored-filters"), mode = el("select"); mode.dataset.panelFilter = "mode";
-      for (const [value, label] of [["important", L("Importantes", "Important", "Importantes")], ["all", L("Todas", "All", "Todas")]]) { const option = el("option", label); option.value = value; option.selected = captureFilter === value; mode.append(option); }
-      const query = el("input"); query.type = "search"; query.placeholder = L("Buscar Pokémon", "Search Pokémon", "Buscar Pokémon"); query.value = search; query.dataset.panelFilter = "search"; controls.append(mode, query); captures.append(controls);
-      const addSelect = (key, options) => { const select = el("select"); select.dataset.catchFilter = key; for (const [value, label] of options) { const option = el("option", label); option.value = value; option.selected = String(catchFilters[key]) === String(value); select.append(option); } controls.append(select); };
-      addSelect("p", [[-1, L("Todas as contas", "All accounts", "Todas las cuentas")], ...rows.map((_, i) => [i, c.name(i)])]); addSelect("per", [[0, L("Todo o período", "All time", "Todo el período")], [1, "1h"], [6, "6h"], [24, "24h"]]); addSelect("r", [["", L("Raridade: todas", "Rarity: all", "Rareza: todas")], ...["weak", "common", "uncommon", "rare", "epic", "legendary", "mythic", "ancient", "divine"].map((key, i) => [key, ["Fraca", "Comum", "Incomum", "Rara", "Épica", "Lendária", "Mítica", "Anciã", "Divina"][i]])]);
-      for (const [key, label] of [["iv", "IV ≥"], ["q", "Q ≥"]]) { const input = el("input"); input.type = "number"; input.min = 0; input.step = key === "q" ? .01 : 1; input.placeholder = label; input.value = catchFilters[key] || ""; input.dataset.catchFilter = key; controls.append(input); } const shinyOnly = el("input"); shinyOnly.type = "checkbox"; shinyOnly.checked = !!catchFilters.sh; shinyOnly.dataset.catchFilter = "sh"; controls.append(append(el("label", "✨"), shinyOnly));
-      controls.append(action(L("Limpar filtros", "Clear filters", "Limpiar filtros"), "clear-capture-filters"));
-      const filtered = root.PokeMuxCaptureFilters?.filterCaptures(c.captures(), { ...catchFilters, n: search }) || c.captures().filter(x => String(x.n).toLowerCase().includes(search.toLowerCase()));
-      const caught = captureFilter === "all" ? filtered : root.PokeMuxSummary.prioritize(filtered.filter(root.PokeMuxSummary.important)), list = el("div", null, "cd-catches-list");
-      captures.firstChild.textContent = captureFilter === "all" ? L("Todas as capturas", "All catches", "Todas las capturas") : L("Capturas importantes", "Important catches", "Capturas importantes");
-      list.dataset.summaryKey = "captures-list"; list.tabIndex = 0; list.setAttribute("role", "region"); list.setAttribute("aria-label", captures.firstChild.textContent);
-      for (const entry of caught) list.append(captureRow(entry)); captures.append(list);
-      if (!caught.length) captures.append(el("p", L("Nenhuma captura neste filtro.", "No catches in this filter.", "No hay capturas en este filtro."), "runtime-note")); captures.append(action(L("Ver histórico completo", "Full history", "Historial completo"), "captures")); columns.append(captures);
+      const captures = summaryConfig.hide.catches ? section("") : capturePanel(rows); columns.append(captures);
       const stock = section(text("pinned")), fixed = el("div", null, "summary-pinned"); for (const item of config.pinned) { const quantities = rows.map(data => (item.t === "ball" ? data?.balls : data?.bag)?.find(x => Number(x.id) === Number(item.id))); const line = append(el("span"), document.createTextNode(item.name + " "), el("b", quantities.some(x => x?.infinite) ? "∞" : number(quantities.reduce((n, x) => n + (Number(x?.quantity) || 0), 0)))); line.title = quantities.map((x, i) => c.name(i) + ": " + (x?.infinite ? "∞" : number(x?.quantity || 0))).join(" · "); fixed.append(line); } stock.append(fixed); if (!config.pinned.length) stock.append(el("p", root.PokeMuxSummary.COPY[c.lang()].noPinned, "summary-period")); columns.append(stock);
       const hunts = section(L("Hunts e desempenho", "Hunts and performance", "Hunts y rendimiento")); for (let i = 0; i < c.count(); i++) hunts.append(row(c.name(i) + " · " + (c.data(i)?.hunt || "—"), number(c.data(i)?.a?.kph) + "/h")); columns.append(hunts);
-      const shinyEntries = (c.shinies ? c.shinies().map(x => ({ ...x, sh: true })) : c.captures().filter(x => x.sh)).sort((a, b) => b.t - a.t); const shiny = section(L("Histórico de shinies", "Shiny history", "Historial de shinies") + " · " + number(shinyEntries.length)), shinyList = el("div", null, "cd-catches-list"); shinyList.dataset.summaryKey = "shiny-list"; for (const entry of shinyEntries) { const line = captureRow(entry); if (!entry.cap && c.shinies) { line.querySelector(".capture-iv").textContent = L("Derrotado", "Defeated", "Derrotado"); line.querySelector(".capture-quality").textContent = ""; } shinyList.append(line); } if (shinyEntries.length) shiny.append(shinyList);
+      const shinyEntries = summaryConfig.hide.shinies ? [] : (c.shinies ? c.shinies().map(x => ({ ...x, sh: true })) : c.captures().filter(x => x.sh)).sort((a, b) => b.t - a.t); const shiny = section(L("Histórico de shinies", "Shiny history", "Historial de shinies") + " · " + number(shinyEntries.length)), shinyList = el("div", null, "cd-catches-list"); shinyList.dataset.summaryKey = "shiny-list"; for (const entry of shinyEntries) { const line = captureRow(entry); if (!entry.cap && c.shinies) { line.querySelector(".capture-iv").textContent = L("Derrotado", "Defeated", "Derrotado"); line.querySelector(".capture-quality").textContent = ""; } shinyList.append(line); } if (shinyEntries.length) shiny.append(shinyList);
       const attempts = section(L("Shinies tentados", "Shiny attempts", "Intentos shiny")); for (let i = 0; i < rows.length; i++) for (const entry of rows[i]?.usedList || []) if (entry.shiny && entry.attempts > 0) attempts.append(row(display(entry.name) + " · " + c.name(i), number(entry.attempts) + (entry.caught ? " ✓" : "")));
       const shares = section(L("Pokémon compartilhados", "Shared Pokémon", "Pokémon compartidos")); const shared = new Map(); for (const data of rows) for (const entry of data?.chatShares || []) shared.set([entry.fr, entry.n, entry.iv, entry.lv].join(":"), entry); for (const entry of [...shared.values()].sort((a, b) => b.t - a.t).slice(0, 8)) shares.append(row(display(entry.n) + " · " + entry.fr, "IV " + number(entry.iv) + " · Q ×" + quality(entry.q)));
       for (const box of [shiny, attempts, shares]) if (box.children.length === 1) box.append(el("p", L("Nenhum registro.", "No records.", "Sin registros."), "summary-period"));
@@ -207,7 +218,7 @@
       if (actionName === "focus") c.open(index); else if (actionName === "recommend") c.recommend(index); else if (actionName === "captures") c.openCaptures(); else if (actionName === "export") c.exportCaptures(); else if (actionName === "reset") c.reset(); else if (actionName === "close") c.closeAnalysis();
       else if (actionName === "pokemon") c.openPokemon(index, control.dataset.pokemon);
       else if (actionName === "account") { selected = index; c.refresh(); }
-      else if (actionName === "clear-capture-filters") { Object.assign(catchFilters, { p: -1, per: 0 }); clearQualityFilters(); captureFilter = "all"; search = ""; saveCatchFilters(); c.refresh(); }
+      else if (actionName === "clear-capture-filters") { Object.assign(catchFilters, { p: -1, per: 0 }); clearQualityFilters(); captureFilter = "all"; search = ""; saveCatchFilters(); refreshCatchFilters("change"); }
       else if (actionName === "summary-config") { summaryConfigOpen = !summaryConfigOpen; c.refresh(); }
       else if (actionName === "analysis-config") c.openSettings?.("analysis");
       else if (actionName === "export-day" || actionName === "export-hunts") {
@@ -220,7 +231,24 @@
       else if (actionName === "pin") { const id = Number(control.dataset.item), kind = control.dataset.kind, at = config.pinned.findIndex(x => x.id === id && x.t === kind); if (at >= 0) config.pinned.splice(at, 1); else config.pinned.push({ id, t: kind, name: control.dataset.name }); save(); c.refresh(); }
       return true;
     }
-    function filter(event) { if (event.target.dataset.catchFilter) { const key = event.target.dataset.catchFilter; catchFilters[key] = key === "sh" ? event.target.checked : event.target.value; saveCatchFilters(); c.refresh(); return; } if (event.target.dataset.summarySection) { summaryConfig.hide[event.target.dataset.summarySection] = !event.target.checked; saveSummary(); c.refresh(); return; } if (event.target.dataset.panelTarget) { const select = event.target; config.shinyTarget = select.value ? { id: Number(select.value), name: select.selectedOptions[0].textContent } : null; save(); c.refresh(); return; } const goal = event.target.dataset.panelGoal; if (goal) { if (event.type === "input") return; goals[goal] = Math.max(0, Number(event.target.value) || 0); c.save("goals", JSON.stringify(goals)); c.refresh(); return; } const key = event.target.dataset.panelFilter; if (key === "mode") { captureFilter = event.target.value; if (captureFilter === "all") clearQualityFilters(); } else if (key === "search") search = event.target.value; else return; saveCatchFilters(); c.refresh(); }
+    function filter(event) {
+      const target = event.target;
+      if (event.type === "input" && (target.tagName === "SELECT" || target.type === "checkbox")) return;
+      if (target.dataset.catchFilter) {
+        const key = target.dataset.catchFilter, value = key === "sh" ? target.checked : target.value;
+        if (String(catchFilters[key]) === String(value)) { if (catchRefreshTimer && event.type === "change") refreshCatchFilters("change"); return; }
+        catchFilters[key] = value; saveCatchFilters(); refreshCatchFilters(event.type); return;
+      }
+      if (target.dataset.summarySection) { summaryConfig.hide[target.dataset.summarySection] = !target.checked; saveSummary(); c.refresh(); return; }
+      if (target.dataset.panelTarget) { config.shinyTarget = target.value ? { id: Number(target.value), name: target.selectedOptions[0].textContent } : null; save(); c.refresh(); return; }
+      const goal = target.dataset.panelGoal;
+      if (goal) { if (event.type === "input") return; goals[goal] = Math.max(0, Number(target.value) || 0); c.save("goals", JSON.stringify(goals)); c.refresh(); return; }
+      const key = target.dataset.panelFilter;
+      if (key === "mode") { if (captureFilter === target.value) return; captureFilter = target.value; if (captureFilter === "all") clearQualityFilters(); }
+      else if (key === "search") { if (search === target.value) { if (catchRefreshTimer && event.type === "change") refreshCatchFilters("change"); return; } search = target.value; }
+      else return;
+      saveCatchFilters(); refreshCatchFilters(event.type);
+    }
     function settings(host) {
       host.replaceChildren(el("h4", L("Seções da análise", "Analysis sections", "Secciones del análisis")));
       for (const key of config.order) {
@@ -250,7 +278,7 @@
       const finish = () => { if (resizing) { resizing = null; saveSummary(); c.refresh(); } }; host.addEventListener("pointerup", finish); host.addEventListener("lostpointercapture", finish);
       host.addEventListener("dblclick", event => { const handle = event.target.closest('[data-summary-resize="height"]'); if (handle) { delete summaryConfig.h[handle.closest(".cd-it").dataset.s]; saveSummary(); c.refresh(); } });
     }
-    return { summary, analysis, handle, filter, settings, summarySettings, bindGestures, observe, select: index => { selected = index; } };
+    return { summary, capturePanel, analysis, handle, filter, settings, summarySettings, bindGestures, observe, select: index => { selected = index; } };
   }
   function iv(c) {
     const { data: d, node: el, append, button, L } = c, host = el("div", null, "restored-iv");

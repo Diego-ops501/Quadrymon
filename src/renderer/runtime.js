@@ -258,12 +258,13 @@
     $("captureIv").placeholder = L("IV mínimo", "Minimum IV", "IV mínimo");
     document.documentElement.lang = options.lang;
   }
-  const format = (value) =>
-    value == null
-      ? "—"
-      : new Intl.NumberFormat(options.lang === "pt" ? "pt-BR" : options.lang, {
-          maximumFractionDigits: 1,
-        }).format(Number(value));
+  const numberFormatters = new Map();
+  const format = (value) => {
+    if (value == null) return "—";
+    const locale = options.lang === "pt" ? "pt-BR" : options.lang;
+    if (!numberFormatters.has(locale)) numberFormatters.set(locale, new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }));
+    return numberFormatters.get(locale).format(Number(value));
+  };
   function message(text) {
     $("appMessage").textContent = text;
     $("appMessage").hidden = false;
@@ -744,6 +745,14 @@
     closeAnalysis: toggleAnalysis,
     openSettings: tab => settings.open(tab),
     refresh: () => { renderSummary(); renderAnalysis(); },
+    refreshCaptures: () => {
+      if (mode !== "summary") return;
+      const target = $("cards").querySelector('[data-s="catches"] .cd-sec');
+      if (!target) return;
+      const panel = richPanels.capturePanel();
+      panel.firstChild.classList.add("cd-h");
+      window.PokeMuxSummary.patch(target, panel.innerHTML);
+    },
     openPokemon: async (index, id) => {
       const p = slots[index].data?.team?.find(row => row.id === id);
       if (!p) return;
@@ -1023,15 +1032,23 @@
     hideIv,
   };
   let spriteEntries = [];
+  let spriteDex, spriteCacheEntries, spriteCache = new Map();
   void ipc.loadGameCatalog().then(cache => { spriteEntries = cache?.entries || []; renderSummary(); renderAnalysis(); }).catch(() => {});
   function sprite(id, shiny, pokemonName) {
+    if (spriteCacheEntries !== spriteEntries || spriteDex !== gameCatalog?.dex) {
+      spriteCacheEntries = spriteEntries; spriteDex = gameCatalog?.dex; spriteCache.clear();
+    }
+    const key = String(id) + ":" + !!shiny + ":" + String(pokemonName);
+    if (spriteCache.has(key)) return spriteCache.get(key);
     const value = window.QuadrymonNames.spriteId(id, pokemonName, spriteEntries, gameCatalog?.dex);
-    return value > 0 && value < 10000
+    const result = value > 0 && value < 10000
       ? "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" +
           (shiny ? "shiny/" : "") +
           value +
           ".png"
       : "";
+    spriteCache.set(key, result);
+    return result;
   }
   market = window.PokeMuxMarketUI.mount({
     language: () => options.lang,

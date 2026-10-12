@@ -11,6 +11,7 @@
     id = Number(id) || 0;
     if (Number(dex[id]) > 0) return Number(dex[id]);
     if (id >= 13000 && id < 14000) return id - 13000;
+    if (id > 0 && id < 10000) return id;
     const pokemon = entries.filter(x => x.kind === "pokemon" && Number(x.speciesId) > 0);
     const source = name || pokemon.find(x => Number(x.speciesId) === id)?.name;
     const normalized = key(source);

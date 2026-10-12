@@ -41,11 +41,20 @@
     const template=container.ownerDocument.createElement('template');template.innerHTML=html;
     const key=node=>node.nodeType===1?(node.id?'id:'+node.id:node.getAttribute('data-summary-key')|| (node.hasAttribute('data-s')?'section:'+node.dataset.s:'')):'';
     function sync(target,source) {
+      if(target.nodeType===1&&target.classList.contains('cd-catches-list')&&target.isEqualNode(source))return;
+      const scrollTop=target.nodeType===1&&target.classList.contains('cd-catches-list')?target.scrollTop:null;
       const old=[...target.childNodes], keyed=new Map(old.map(node=>[key(node),node]).filter(pair=>pair[0]));
+      const pools=new Map();
+      for(const candidate of old)if(!key(candidate)) {
+        const type=candidate.nodeType+':'+candidate.nodeName;
+        if(!pools.has(type))pools.set(type,{nodes:[],next:0});
+        pools.get(type).nodes.push(candidate);
+      }
       const used=new Set();let cursor=target.firstChild;
       for(const incoming of [...source.childNodes]) {
         const id=key(incoming);
-        let node=id?keyed.get(id):old.find(candidate=>!used.has(candidate)&&!key(candidate)&&candidate.nodeType===incoming.nodeType&&candidate.nodeName===incoming.nodeName);
+        const pool=pools.get(incoming.nodeType+':'+incoming.nodeName);
+        let node=id?keyed.get(id):pool?.nodes[pool.next++];
         if(!node||node.nodeType!==incoming.nodeType||node.nodeName!==incoming.nodeName)node=incoming.cloneNode(true);
         else if(node.nodeType===3){if(node.data!==incoming.data)node.data=incoming.data;}
         else if(node.nodeType===1) {
@@ -62,6 +71,7 @@
         cursor=node.nextSibling;
       }
       for(const node of old)if(!used.has(node)&&node.parentNode===target)node.remove();
+      if(scrollTop!==null)target.scrollTop=scrollTop;
     }
     sync(container,template.content);
   }

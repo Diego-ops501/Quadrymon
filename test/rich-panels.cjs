@@ -10,7 +10,7 @@ app.whenReady().then(async()=>{
   await win.loadURL('data:text/html,<html><body><div id="cards"></div><div id="stats"></div><div id="ivCard"></div></body></html>');
   await win.webContents.insertCSS(fs.readFileSync(path.join(root,"src/renderer/rich-panels.css"),"utf8"));
   for(const file of ["src/domain/display-name.js","src/domain/iv-math.js","src/domain/pokemon-aptitude.js","src/domain/capture-filters.js","src/renderer/summary.js","src/renderer/rich-panels.js"])await win.webContents.executeJavaScript(fs.readFileSync(path.join(root,file),"utf8"));
-  await win.webContents.executeJavaScript(`(()=>{
+  await win.webContents.executeJavaScript(`(async()=>{
    const check=(ok,label)=>{if(!ok)throw Error(label)},node=(tag,text,cls)=>{const e=document.createElement(tag);if(text!=null)e.textContent=text;if(cls)e.className=cls;return e},append=(p,...e)=>{p.append(...e);return p},button=(label,handler)=>{const b=node('button',label);b.onclick=handler;return b},L=(pt)=>pt;
    const sources=Array.from({length:4},(_,i)=>({live:true,name:'Conta '+i,level:100+i,gold:1000+i,diamonds:5,hunt:'Hunt '+i,farm:{hunting:true},a:{xph:100+i,gph:50+i,kph:20+i,seconds:3600,captures:3,kills:20,xpg:100,lootGold:80,capturesGold:20,supplyGold:10,balance:90,ballsUsed:2,potsUsed:1},team:[{id:'p'+i,sid:130,name:'Gyarados',level:10,q:1,ivt:192,hp:16,hm:16,ld:true}],bag:[{id:7,name:'Potion',quantity:20,category:'heal'}],balls:[{id:8,name:'Ultra Ball',quantity:100}],drops:[{name:'Loot',qty:2,gold:10}]}));
    const saved={},captures=[{n:'Rare',iv:180,q:1.8,p:0,t:1},{n:'Common',iv:10,q:1,p:0,t:2}];let focused=-1;
@@ -27,7 +27,9 @@ app.whenReady().then(async()=>{
    check(shinyPanel.querySelector('[data-s=shinies] h3').textContent.includes('25')&&shinyPanel.querySelector('[data-s=shinies] .capture-account').textContent==='Old account','shiny history exposes its total and retains legacy account names');
    const panels=QuadrymonRichPanels.mount(c),cards=document.querySelector('#cards'),stats=document.querySelector('#stats');
    function refresh(){PokeMuxSummary.patch(cards,panels.summary().outerHTML);PokeMuxSummary.patch(stats,panels.analysis().outerHTML)}
-   cards.onclick=stats.onclick=e=>panels.handle(e);cards.onchange=stats.onchange=e=>panels.filter(e);refresh();
+   let captureRefreshes=0;
+   c.refreshCaptures=()=>{captureRefreshes++;const block=cards.querySelector('[data-s=catches] .cd-sec'),panel=panels.capturePanel();panel.firstChild.classList.add('cd-h');PokeMuxSummary.patch(block,panel.innerHTML);};
+   cards.onclick=stats.onclick=e=>panels.handle(e);cards.onchange=stats.onchange=e=>panels.filter(e);cards.oninput=e=>panels.filter(e);refresh();
    panels.bindGestures(cards);panels.bindGestures(stats);
    check([...cards.querySelectorAll('.cd-it')].map(x=>x.dataset.s).join(',')==='kpis,table,today,catches,pinned','original dashboard section order and default visibility');
    check(stats.querySelector('.trainer-avatar .trainer-level').textContent==='100'&&stats.querySelector('.analysis-session-grid').children.length===4,'original trainer header and compact session grid');
@@ -77,6 +79,15 @@ app.whenReady().then(async()=>{
    const iv=document.querySelector('#ivCard');iv.append(QuadrymonRichPanels.iv({data:d,node,append,button,L,format:String,account:'Conta 0',close:()=>{}}));
    check(iv.querySelectorAll('.iv-st').length===6,'six IV cards and bars');check(iv.querySelector('.iv-mv.off').textContent.includes('Future Move'),'locked moves remain unavailable');
    iv.querySelector('.iv-controls input').value=20;iv.querySelector('.iv-controls button').click();check(iv.querySelector('[data-projected=hp]').textContent.includes('33'),'level simulation uses stat formula');check(iv.querySelector('.iv-st').textContent.includes('Atual: 16'),'simulation preserves observed stats');
+   const analysisBefore=stats.innerHTML,shinyBefore=cards.querySelector('[data-s=shinies]'),beforeFilters=captureRefreshes;
+   const query=cards.querySelector('[data-panel-filter=search]');query.focus();
+   for(const value of ['Or','Ord','Ordinary']){query.value=value;query.dispatchEvent(new Event('input',{bubbles:true}));}
+   check(captureRefreshes===beforeFilters,'typing does not synchronously rebuild the dashboard');
+   await new Promise(r=>setTimeout(r,180));
+   check(captureRefreshes===beforeFilters+1&&cards.querySelectorAll('[data-s=catches] .summary-capture').length===46,'rapid typing applies the latest filter in one capture-only update');
+   check(stats.innerHTML===analysisBefore&&cards.querySelector('[data-s=shinies]')===shinyBefore,'capture filters do not rebuild analysis or shiny history');
+   check(document.activeElement===query&&query.value==='Ordinary','filter keeps the active search input');
+   query.dispatchEvent(new Event('change',{bubbles:true}));check(captureRefreshes===beforeFilters+1,'the subsequent change event does not duplicate the input render');
   })()`);
   console.log("Rich panels: four account summaries, supplies, capture filters, account analysis, pin/hide/reorder, IV bars, locked moves and level projection passed.");app.exit(0);
  }catch(e){console.error(e.stack);app.exit(1)}
