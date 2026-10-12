@@ -30,7 +30,9 @@ const fixtures = {
     entries: [{ kind: "pokemon", name: "Dratini", speciesId: 147 }],
   }),
   "autostart:get": () => ({ on: false, suportado: true }),
+  "notify": (_title, text) => { notificationTexts.push(text); return true; },
 };
+const notificationTexts = [];
 let savedAccounts;
 ipcMain.handle("creds:save", (_event, value) => {
   savedAccounts = value;
@@ -49,7 +51,7 @@ for (const channel of [
   "notify",
   "overlay:state",
 ])
-  ipcMain.handle(channel, () => fixtures[channel]?.() ?? false);
+  ipcMain.handle(channel, (_event, ...args) => fixtures[channel]?.(...args) ?? false);
 ipcMain.on("app:version", (event) => {
   event.returnValue = "independent-test";
 });
@@ -151,6 +153,12 @@ app.whenReady().then(async () => {
       namedView.executeJavaScript=async()=>({ok:true,name:'OfficialTrainer',cid:'fixture-character',team:[],captures:[],shinies:[]});
       await PokeMuxRuntime.readState(0);
       check(document.querySelector('[name="name0"]').value==='OfficialTrainer','game snapshot fills the display name automatically');
+      const spoken=[];Object.defineProperty(window,'speechSynthesis',{configurable:true,value:{pending:false,speak:s=>spoken.push(s.text)}});
+      if(document.querySelector('#voiceAlerts').getAttribute('aria-pressed')!=='true')document.querySelector('#voiceAlerts').click();
+      const capturedAt=Date.now();
+      namedView.executeJavaScript=async()=>({ok:true,name:'OfficialTrainer',cid:'fixture-character',team:[],captures:[{id:'voice-capture',n:'Girafarig',iv:116,q:1.8,t:capturedAt}],shinies:[]});
+      await PokeMuxRuntime.readState(0);await pause(50);
+      check(spoken.length===1&&spoken[0]==='OfficialTrainer: Girafarig, IVÊ 116, qualidade Lendária','capture speech pronounces IVÊ and names the actual rarity');
       namedView.getURL=()=> 'about:blank';
       document.querySelector('#accountEditor').close();
       document.querySelector('#inventoryBtn').click();await pause(100);check(document.querySelector('#inventoryDialog')?.open,'inventory opens');document.querySelector('#inventoryDialog').close();
@@ -160,6 +168,7 @@ app.whenReady().then(async () => {
     console.log(
       "Independent Electron workspace passed: " + JSON.stringify(output),
     );
+    if(!notificationTexts.includes('OfficialTrainer: Girafarig, IV 116, qualidade Lendária'))throw Error('Written capture alert must retain IV and include quality');
     await win.webContents.executeJavaScript(
       'document.querySelector("#mkClose")?.click()',
     );

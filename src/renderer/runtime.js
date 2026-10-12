@@ -352,7 +352,7 @@
   function speak(text) {
     if (!options.voice || !window.speechSynthesis) return;
     if (speechSynthesis.pending) return;
-    const speech = new SpeechSynthesisUtterance(text);
+    const speech = new SpeechSynthesisUtterance(options.lang === "pt" ? String(text).replace(/\bIV\b/g, "IVÊ") : text);
     speech.lang =
       options.lang === "pt"
         ? "pt-BR"
@@ -431,12 +431,20 @@
       save("lifeCatch", JSON.stringify(captureLog));
       const important = window.PokeMuxSummary.important(entry, readJson("importantCaptures", {}));
       if ((important || capture.sh) && Date.now() - capture.t < 15000) {
+        const q = capture.q == null || capture.q === "" ? NaN : Number(String(capture.q).replace(",", "."));
+        const grade = Number.isFinite(q) ? window.PokeMuxGlobalMarket.GRADES.indexOf(window.PokeMuxGlobalMarket.rarity(q)) : -1;
+        const qualityText = grade < 0 ? "" : L(
+          ", qualidade " + window.PokeMuxGlobalMarket.GRADES[grade],
+          ", quality " + ["Weak", "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Ancient", "Divine"][grade],
+          ", calidad " + ["Débil", "Común", "Poco común", "Rara", "Épica", "Legendaria", "Mítica", "Antigua", "Divina"][grade],
+        );
         notify(
           name(index) +
             ": " +
             window.QuadrymonNames.display(capture.n) +
             ", IV " +
             format(capture.iv) +
+            qualityText +
             (capture.sh
               ? L(", shiny capturado", ", shiny caught", ", shiny capturado")
               : ""),
