@@ -4,9 +4,11 @@ const root=path.resolve(__dirname,"..");
 app.setPath("userData",fs.mkdtempSync(path.join(os.tmpdir(),"quadrymon-panels-test-")));
 app.whenReady().then(async()=>{
  const win=new BrowserWindow({show:false,width:1440,height:950,webPreferences:{sandbox:true,contextIsolation:true}});
+ win.webContents.on("console-message", event => { if(event.message?.startsWith("Uncaught"))console.error(event.message); });
 
  try {
   await win.loadURL('data:text/html,<html><body><div id="cards"></div><div id="stats"></div><div id="ivCard"></div></body></html>');
+  await win.webContents.insertCSS(fs.readFileSync(path.join(root,"src/renderer/rich-panels.css"),"utf8"));
   for(const file of ["src/domain/display-name.js","src/domain/iv-math.js","src/domain/pokemon-aptitude.js","src/domain/capture-filters.js","src/renderer/summary.js","src/renderer/rich-panels.js"])await win.webContents.executeJavaScript(fs.readFileSync(path.join(root,file),"utf8"));
   await win.webContents.executeJavaScript(`(()=>{
    const check=(ok,label)=>{if(!ok)throw Error(label)},node=(tag,text,cls)=>{const e=document.createElement(tag);if(text!=null)e.textContent=text;if(cls)e.className=cls;return e},append=(p,...e)=>{p.append(...e);return p},button=(label,handler)=>{const b=node('button',label);b.onclick=handler;return b},L=(pt)=>pt;
@@ -40,6 +42,16 @@ app.whenReady().then(async()=>{
    check(cards.querySelector('[data-panel-filter=mode]').value==='all','selected capture mode stays visible after DOM refresh');
    const minIv=cards.querySelector('[data-catch-filter=iv]');minIv.value=170;minIv.dispatchEvent(new Event('change',{bubbles:true}));check(cards.querySelector('.cd-catches-list').textContent.includes('Rare')&&!cards.querySelector('.cd-catches-list').textContent.includes('Common'),'summary IV filter uses real capture values');
    check(saved.cdFC.iv==='170'&&saved.cdFC.mode==='all','capture filters survive reload');
+   const clearIv=cards.querySelector('[data-catch-filter=iv]');clearIv.value='';clearIv.dispatchEvent(new Event('change',{bubbles:true}));
+   const older=Array.from({length:45},(_,i)=>({n:'Ordinary '+i,iv:20,q:1,p:0,t:100+i}));captures.push(...older);refresh();
+   check(cards.querySelectorAll('.cd-catches-list .summary-capture').length===47,'all mode includes every registered capture beyond the old 30 limit');
+   check(cards.querySelector('.cd-catches-list').firstChild.textContent.includes('Ordinary 44'),'all mode uses newest first instead of important-first');
+   check(cards.querySelector('.cd-it[data-s=catches] h3').textContent==='Todas as capturas','heading follows selected capture mode');
+   const scroll=cards.querySelector('.cd-catches-list');check(scroll.scrollHeight>scroll.clientHeight&&getComputedStyle(scroll).overflowY==='scroll','long capture list has its own vertical scrollbar');
+   scroll.scrollTop=180;captures.push({n:'Latest ordinary',iv:20,q:1,p:0,t:999});refresh();
+   check(cards.querySelector('.cd-catches-list')===scroll&&scroll.scrollTop===180,'new captures preserve the scroll container and position');
+   const importantOnly=cards.querySelector('[data-panel-filter=mode]');importantOnly.value='important';importantOnly.dispatchEvent(new Event('change',{bubbles:true}));
+   check(cards.querySelectorAll('.cd-catches-list .summary-capture').length===1&&cards.querySelector('.cd-catches-list').textContent.includes('Rare'),'important mode excludes common captures');
    stats.querySelector('[data-panel-action=account][data-account="1"]').click();check(stats.textContent.includes('1001'),'analysis account changes source data');
    stats.querySelector('[data-panel-action=pin]').click();check(saved.statsCfg.pinned.length===1,'pin items persists config');
    stats.querySelector('[data-panel-action=hide][data-section=bag]').click();check(!stats.querySelector('[data-panel-section=bag]'),'hide analysis section');
