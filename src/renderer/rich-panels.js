@@ -17,6 +17,7 @@
     config.pinned = (Array.isArray(config.pinned) ? config.pinned : []).filter(x => x && ["ball", "item"].includes(x.t)).slice(0, 40);
     let selected = null, captureFilter = "important", search = "", history = [];
     const catchFilters = { p: -1, per: 0, r: "", iv: 0, q: 0, sh: false, ...c.read("cdFC", {}) };
+    let importantRules = root.PokeMuxSummary.captureImportance(c.read("importantCaptures", {}));
     captureFilter = catchFilters.mode === "all" ? "all" : "important"; search = String(catchFilters.n || "");
     function clearQualityFilters() { Object.assign(catchFilters, { iv: 0, q: 0, r: "", sh: false }); }
     function saveCatchFilters() { c.save("cdFC", JSON.stringify({ ...catchFilters, mode: captureFilter, n: search, allDefaultsVersion: 1 })); }
@@ -121,7 +122,7 @@
       for (const [key, label] of [["iv", "IV ≥"], ["q", "Q ≥"]]) { const input = el("input"); input.type = "number"; input.min = 0; input.step = key === "q" ? .01 : 1; input.placeholder = label; input.value = catchFilters[key] || ""; input.dataset.catchFilter = key; controls.append(input); } const shinyOnly = el("input"); shinyOnly.type = "checkbox"; shinyOnly.checked = !!catchFilters.sh; shinyOnly.dataset.catchFilter = "sh"; controls.append(append(el("label", "✨"), shinyOnly));
       controls.append(action(L("Limpar filtros", "Clear filters", "Limpiar filtros"), "clear-capture-filters"));
       const filtered = root.PokeMuxCaptureFilters?.filterCaptures(c.captures(), { ...catchFilters, n: search }) || c.captures().filter(x => String(x.n).toLowerCase().includes(search.toLowerCase()));
-      const caught = captureFilter === "all" ? filtered : root.PokeMuxSummary.prioritize(filtered.filter(root.PokeMuxSummary.important)), list = el("div", null, "cd-catches-list");
+      const caught = captureFilter === "all" ? filtered : root.PokeMuxSummary.prioritize(filtered.filter(x => root.PokeMuxSummary.important(x, importantRules)), importantRules), list = el("div", null, "cd-catches-list");
       captures.firstChild.textContent = captureFilter === "all" ? L("Todas as capturas", "All catches", "Todas las capturas") : L("Capturas importantes", "Important catches", "Capturas importantes");
       list.dataset.summaryKey = "captures-list"; list.tabIndex = 0; list.setAttribute("role", "region"); list.setAttribute("aria-label", captures.firstChild.textContent);
       for (const entry of caught) list.append(captureRow(entry)); captures.append(list);
@@ -234,6 +235,12 @@
     function filter(event) {
       const target = event.target;
       if (event.type === "input" && (target.tagName === "SELECT" || target.type === "checkbox")) return;
+      if (target.dataset.importantRule) {
+        if (event.type === "input") return;
+        const key = target.dataset.importantRule;
+        importantRules = root.PokeMuxSummary.captureImportance({ ...importantRules, [key]: key === "ivEnabled" ? target.checked : target.value });
+        c.save("importantCaptures", JSON.stringify(importantRules)); refreshCatchFilters("change"); return;
+      }
       if (target.dataset.catchFilter) {
         const key = target.dataset.catchFilter, value = key === "sh" ? target.checked : target.value;
         if (String(catchFilters[key]) === String(value)) { if (catchRefreshTimer && event.type === "change") refreshCatchFilters("change"); return; }
@@ -263,6 +270,14 @@
     const summaryLabels = () => ({ kpis: text("kpis"), table: L("Contas em farm", "Farming accounts", "Cuentas farmeando"), today: L("Hoje · acumulado", "Today · cumulative", "Hoy · acumulado"), catches: L("Capturas importantes", "Important catches", "Capturas importantes"), pinned: text("pinned"), trend: L("Tendência", "Trend", "Tendencia"), shinies: L("Shinies capturados", "Shinies caught", "Shinies capturados"), shinyTried: L("Shinies tentados", "Shiny attempts", "Intentos shiny"), shared: L("Pokémon compartilhados", "Shared Pokémon", "Pokémon compartidos") });
     function summarySettings(host) {
       host.replaceChildren(el("h4", L("Seções do resumo", "Summary sections", "Secciones del resumen")));
+      host.append(el("h4", L("Critérios de capturas importantes", "Important capture criteria", "Criterios de capturas importantes")), el("p", L("Uma captura é importante quando atende ao critério de IV OU à raridade escolhida. Shinies seguem no histórico próprio.", "A capture is important when it meets the IV criterion OR the selected rarity. Shinies remain in their own history.", "Una captura es importante si cumple el criterio de IV O la rareza elegida. Los shinies siguen en su propio historial."), "runtime-note"));
+      const ivEnabled = el("input"); ivEnabled.type = "checkbox"; ivEnabled.checked = importantRules.ivEnabled; ivEnabled.dataset.importantRule = "ivEnabled"; ivEnabled.onchange = filter;
+      host.append(append(el("label", null, "settings-check"), ivEnabled, document.createTextNode(" " + L("Usar critério de IV", "Use IV criterion", "Usar criterio de IV"))));
+      const ivAbove = el("input"); ivAbove.type = "number"; ivAbove.min = 0; ivAbove.max = 192; ivAbove.step = 1; ivAbove.value = importantRules.ivAbove; ivAbove.dataset.importantRule = "ivAbove"; ivAbove.onchange = filter;
+      host.append(append(el("label", L("IV superior a", "IV greater than", "IV superior a"), "settings-field"), ivAbove));
+      const rarity = el("select"); rarity.dataset.importantRule = "rarity"; rarity.onchange = filter;
+      for (const [value, caption] of [["", L("Não usar raridade", "Do not use rarity", "No usar rareza")], ["weak", L("Fraca", "Weak", "Débil")], ["common", L("Comum", "Common", "Común")], ["uncommon", L("Incomum", "Uncommon", "Poco común")], ["rare", L("Rara", "Rare", "Rara")], ["epic", L("Épica", "Epic", "Épica")], ["legendary", L("Lendária", "Legendary", "Legendaria")], ["mythic", L("Mítica", "Mythic", "Mítica")], ["ancient", L("Anciã", "Ancient", "Antigua")], ["divine", L("Divina", "Divine", "Divina")]]) { const option = el("option", caption); option.value = value; option.selected = importantRules.rarity === value; rarity.append(option); }
+      host.append(append(el("label", L("Raridade importante", "Important rarity", "Rareza importante"), "settings-field"), rarity));
       for (const key of summaryConfig.order) { const input = el("input"); input.type = "checkbox"; input.checked = !summaryConfig.hide[key]; input.dataset.summarySection = key; const line = append(el("div", null, "settings-summary-row"), append(el("label"), input, document.createTextNode(" " + summaryLabels()[key]))); input.onchange = () => { summaryConfig.hide[key] = !input.checked; saveSummary(); c.refresh(); };
         for (const [label, type] of [["↑", "summary-up"], ["↓", "summary-down"]]) { const control = action(label, type); control.dataset.section = key; control.onclick = event => { event.stopPropagation(); handle(event); if (!host.closest("#cards")) summarySettings(host); }; line.append(control); } host.append(line);
       }

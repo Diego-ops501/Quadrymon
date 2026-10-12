@@ -1,8 +1,8 @@
 (function(root, factory) {
-  const api=factory();
+  const api=factory(typeof module==='object'&&module.exports?require('../domain/capture-filters.js'):root.PokeMuxCaptureFilters);
   if(typeof module==='object' && module.exports)module.exports=api;
   else root.PokeMuxSummary=api;
-})(typeof globalThis!=='undefined'?globalThis:this,function() {
+})(typeof globalThis!=='undefined'?globalThis:this,function(captureFilters) {
   const COPY={
     pt:{title:'Resumo das contas',pace:'Ritmo atual · por hora',session:'Sessão da hunt',accounts:'Contas em farm',open:'Abrir conta',analyze:'Analisar hunt',balls:'Pokébolas',potions:'Poções',estimate:'Duração estimada pelo consumo da sessão',unknown:'Sem consumo suficiente para estimar',infinite:'Infinita',off:'Desligada',down:'Desconectada',wait:'Aguardando dados',idle:'Fora da hunt',stalled:'Sem combate recente',hunting:'Farm ativo',emptyBalls:'Sem Pokébolas',emptyPotions:'Poções esgotadas',faint:'Pokémon ativo sem HP',important:'Capturas importantes',all:'Todas as capturas',pinned:'Itens fixados',noPinned:'Fixe itens em Ajustes → Análise para acompanhar as quantidades.',problems:'Atenção às contas',now:'Agora',today:'Hoje · acumulado',noHunt:'Nenhuma hunt ativa',supplies:'Suprimentos',captures:'Capturas',noPokemon:'Nenhum Pokémon ativo',sample:'Aguardando medição',updated:'Dados atualizados',missing:'Indisponível'},
     en:{title:'Account summary',pace:'Current pace · per hour',session:'Hunt session',accounts:'Farming accounts',open:'Open account',analyze:'Analyze hunt',balls:'Poké Balls',potions:'Potions',estimate:'Estimated duration from session consumption',unknown:'Not enough consumption to estimate',infinite:'Infinite',off:'Off',down:'Disconnected',wait:'Waiting for data',idle:'Outside hunt',stalled:'No recent combat',hunting:'Farming',emptyBalls:'No Poké Balls',emptyPotions:'Potions depleted',faint:'Active Pokémon has no HP',important:'Important catches',all:'All catches',pinned:'Pinned items',noPinned:'Pin items in Settings → Analysis to track quantities.',problems:'Accounts need attention',now:'Now',today:'Today · accumulated',noHunt:'No active hunt',supplies:'Supplies',captures:'Catches',noPokemon:'No active Pokémon',sample:'Waiting for measurements',updated:'Updated data',missing:'Unavailable'},
@@ -31,9 +31,17 @@
     if(row.hasInv&&row.pots>0&&potionTime!==null&&potionTime<7200)issues.push('lowPotions');
     return {status,issues};
   }
-  function important(entry) {return !!entry && (!!entry.sh||Number(entry.iv)>=160||Number(entry.q)>=1.7);}
-  function prioritize(entries) {
-    return entries.filter(entry=>entry&&typeof entry==='object').sort((a,b)=>Number(important(b))-Number(important(a))||Number(!!b.sh)-Number(!!a.sh)||(Number(b.t)||0)-(Number(a.t)||0));
+  function captureImportance(config={}) {
+    const allowed=['','weak','common','uncommon','rare','epic','legendary','mythic','ancient','divine'];
+    return {ivEnabled:config.ivEnabled!==false,ivAbove:Number.isFinite(Number(config.ivAbove))?Math.max(0,Math.min(192,Math.floor(Number(config.ivAbove)))):170,rarity:allowed.includes(config.rarity)?config.rarity:'legendary'};
+  }
+  function important(entry,config) {
+    if(!entry)return false;
+    const rules=captureImportance(config);
+    return (rules.ivEnabled&&captureFilters.parseLooseNumber(entry.iv)>rules.ivAbove)||!!(rules.rarity&&captureFilters.rarityKey(entry.q)===rules.rarity);
+  }
+  function prioritize(entries,config) {
+    return entries.filter(entry=>entry&&typeof entry==='object').sort((a,b)=>Number(important(b,config))-Number(important(a,config))||Number(!!b.sh)-Number(!!a.sh)||(Number(b.t)||0)-(Number(a.t)||0));
   }
   // Reconcile keyed sections/accounts/catches and update only changed attributes/text.
   // Existing controls, listeners, scroll containers and focused inputs retain their identity.
@@ -78,5 +86,5 @@
   Object.assign(COPY.pt,{lowBalls:'Pokébolas: menos de 2h estimadas',lowPotions:'Poções: menos de 2h estimadas'});
   Object.assign(COPY.en,{lowBalls:'Poké Balls: less than 2h estimated',lowPotions:'Potions: less than 2h estimated'});
   Object.assign(COPY.es,{lowBalls:'Poké Balls: menos de 2h estimadas',lowPotions:'Pociones: menos de 2h estimadas'});
-  return {COPY,duration,health,important,prioritize,patch};
+  return {COPY,duration,health,captureImportance,important,prioritize,patch};
 });

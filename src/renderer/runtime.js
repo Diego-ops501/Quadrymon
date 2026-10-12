@@ -430,8 +430,8 @@
       captureLog.push(entry);
       if (captureLog.length > 3000) captureLog.shift();
       save("lifeCatch", JSON.stringify(captureLog));
-      const important = window.PokeMuxSummary.important(entry);
-      if (important && Date.now() - capture.t < 15000) {
+      const important = window.PokeMuxSummary.important(entry, readJson("importantCaptures", {}));
+      if ((important || capture.sh) && Date.now() - capture.t < 15000) {
         notify(
           name(index) +
             ": " +

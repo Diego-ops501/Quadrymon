@@ -88,6 +88,16 @@ app.whenReady().then(async()=>{
    check(stats.innerHTML===analysisBefore&&cards.querySelector('[data-s=shinies]')===shinyBefore,'capture filters do not rebuild analysis or shiny history');
    check(document.activeElement===query&&query.value==='Ordinary','filter keeps the active search input');
    query.dispatchEvent(new Event('change',{bubbles:true}));check(captureRefreshes===beforeFilters+1,'the subsequent change event does not duplicate the input render');
+   const importanceSettings=node('div');panels.summarySettings(importanceSettings);document.body.append(importanceSettings);
+   check(importanceSettings.querySelector('[data-important-rule=ivAbove]').value==='170'&&importanceSettings.querySelector('[data-important-rule=rarity]').value==='legendary','importance settings default to IV above 170 or legendary rarity');
+   const criterion=importanceSettings.querySelector('[data-important-rule=ivAbove]');criterion.value='190';criterion.dispatchEvent(new Event('change',{bubbles:true}));
+   check(saved.importantCaptures.ivAbove===190,'configured IV threshold persists');
+   const rarityCriterion=importanceSettings.querySelector('[data-important-rule=rarity]');rarityCriterion.value='';rarityCriterion.dispatchEvent(new Event('change',{bubbles:true}));
+   const persisted=QuadrymonRichPanels.mount({...c,read:key=>key==='importantCaptures'?saved.importantCaptures:{}}).capturePanel();
+   check(persisted.querySelectorAll('.summary-capture').length===0,'reopening applies saved IV and rarity rules');
+   criterion.value='170';criterion.dispatchEvent(new Event('change',{bubbles:true}));
+   const restoredCriteria=QuadrymonRichPanels.mount({...c,read:key=>key==='importantCaptures'?saved.importantCaptures:{}}).capturePanel();
+   check(restoredCriteria.querySelectorAll('.summary-capture').length===1,'IV criterion alone includes above-threshold captures');
   })()`);
   console.log("Rich panels: four account summaries, supplies, capture filters, account analysis, pin/hide/reorder, IV bars, locked moves and level projection passed.");app.exit(0);
  }catch(e){console.error(e.stack);app.exit(1)}
