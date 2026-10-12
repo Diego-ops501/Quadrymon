@@ -25,6 +25,7 @@ if (app.getPath("userData") === path.join(app.getPath("appData"), app.getName())
   app.setPath("sessionData", profile);
 }
 app.setName("Quadrymon");
+if (process.platform === "win32") app.setAppUserModelId("com.pokemux.desktop");
 const GAME_ORIGIN = "https://poke.idleworld.online";
 const home = () => app.getPath("userData");
 const localFile = (name) => path.join(home(), name);
@@ -473,7 +474,7 @@ function openWindow() {
     show: false,
     autoHideMenuBar: true,
     backgroundColor: "#0b1220",
-    icon: appFile("quadrymon-icon.png"),
+    icon: appFile(process.platform === "win32" ? "quadrymon-icon.ico" : "quadrymon-icon.png"),
     webPreferences: {
       ...securePreferences(),
       webviewTag: true,

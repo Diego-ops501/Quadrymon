@@ -46,6 +46,7 @@
       "CHANGELOG.md",
       "update-config.json",
       "quadrymon-icon.png",
+      "quadrymon-icon.ico",
       "quadrymon-icon.svg",
       "quadrymon-logo.png",
       "quadrymon-logo.svg",
@@ -58,7 +59,7 @@
       "target": [
         "nsis"
       ],
-      "icon": "build-icon.png",
+      "icon": "quadrymon-icon.ico",
       "verifyUpdateCodeSignature": false
     },
     "nsis": {
