@@ -37,7 +37,7 @@
 #topbar #cardsBtn { --tool-art: url('toolbar-icons/simple.svg'); }
 #topbar #ivsBtn.game-tool { --tool-art: url('toolbar-icons/iv.svg'); border-radius: 8px; gap: 0; }
 #topbar #recommendBtn { --tool-art: url('toolbar-icons/hunt.svg'); }
-#topbar #marketBtn { --tool-art: url('market-icon.svg'); width: 36px; height: 34px; flex: 0 0 36px; padding: 3px; }
+#topbar #marketBtn { --tool-art: url('game-icons/market.png'); width: 36px; height: 34px; flex: 0 0 36px; padding: 3px; }
 #topbar #marketBtn img { display: none; }
 #topbar #menuBtn { --tool-art: url('toolbar-icons/options.svg'); }
 #topbar #refBtn { --tool-art: url('toolbar-icons/referral.svg'); margin-left: 0; }

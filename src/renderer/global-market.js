@@ -115,7 +115,7 @@
     const overlay = document.createElement('div');
     overlay.id = 'pmMarket'; overlay.setAttribute('role', 'dialog'); overlay.setAttribute('aria-modal', 'true'); overlay.setAttribute('aria-labelledby', 'mkTitle');
     overlay.innerHTML = `<div class="mk-window">
-      <header class="mk-head"><img class="mk-crest" src="src/renderer/market-icon.svg" alt=""><div class="mk-titles"><h2 id="mkTitle"></h2><p class="mk-subtitle" id="mkSubtitle"></p></div><div class="mk-highlights" aria-live="polite"></div><select id="mkAccount"></select><button id="mkRefresh">⟳</button><button id="mkClose">✕</button></header>
+      <header class="mk-head"><img class="mk-crest" src="src/renderer/game-icons/market.png" alt=""><div class="mk-titles"><h2 id="mkTitle"></h2><p class="mk-subtitle" id="mkSubtitle"></p></div><div class="mk-highlights" aria-live="polite"></div><select id="mkAccount"></select><button id="mkRefresh">⟳</button><button id="mkClose">✕</button></header>
       <nav class="mk-tabs" role="tablist"></nav><div class="mk-status" role="status" aria-live="polite"></div><div class="mk-rate" role="note"></div>
       <div class="mk-layout"><aside class="mk-categories"></aside><main class="mk-main">
         <div class="mk-toolbar"><div class="mk-search-picker"><input class="mk-search" id="mkSearch" type="search" maxlength="120" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="mkSearchSuggestions" autocomplete="off"><div id="mkSearchSuggestions" role="listbox" hidden></div></div><select id="mkSort"></select><button id="mkClear"></button><div class="mk-view"><button id="mkCards"></button><button id="mkRows"></button></div></div>
