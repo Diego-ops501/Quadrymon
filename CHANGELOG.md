@@ -10,6 +10,7 @@ Primeira publicação do Quadrymon para Windows x64.
 - Preenchimento e entrada automáticos nas contas ativas; aguarda o formulário e CAPTCHA pendente, sem repetir envios concluídos.
 - Nome da conta identificado pelo personagem, separado do login e não editável.
 - Grade, coluna e linha com proporção original do jogo; Foco preserva sessões; chat, menu/F2 e limpeza do HUD corrigidos para os elementos atuais do jogo.
+- Ocultar avisos do jogo vem ativado por padrão: fecha a promoção inicial e oculta painel de captura e cartões de Pokémon derrotado, preservando captura automática e registros do aplicativo.
 - Ajustes de seções da análise, largura do painel e lista de itens protegidos na venda recuperados.
 - Até quatro contas, modos Grade/Foco/Resumo, sessões separadas e recarga conjunta.
 - Foco com as outras contas na faixa inferior; nomes de Pokémon e hunts formatados sem sublinhados; imagens básicas e IV/qualidade ao lado do nome no Resumo, com a conta alinhada à direita nas capturas.

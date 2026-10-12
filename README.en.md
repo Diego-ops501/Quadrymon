@@ -127,6 +127,7 @@ Under **Appearance and game**, enable the **Overlay** to monitor a compact accou
 
 - **Eco:** reduces panel frame rates according to the active view.
 - **Appearance and game:** language, game aspect ratio, chat, game menu, HUD and sound.
+- **Hide game notices:** enabled by default, dismisses the initial promotion and hides capture and defeated Pokémon panels. Auto-capture and app records remain active. Disable to use the manual capture panel.
 - **Arrangement:** grid, column or row; original aspect ratio also works in Focus.
 - **Chat and HUD:** hide chat or the game menu; Hide HUD removes capture popups and reveals trainer, Auto-Helper and menu on hover.
 - **Analysis settings:** show, hide and reorder sections; manage pinned items and protected sale items. Drag the panel edge to resize it.

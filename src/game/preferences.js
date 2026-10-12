@@ -38,6 +38,22 @@
     acceptedFrame = -1,
     frameId = 0,
     dockOverride = null;
+  const dismissedPromotions = new WeakSet();
+  let noticeScanPending = false;
+  function dismissPromotions() {
+    if (!options.hideGameNotices || root.location?.pathname !== "/play") return;
+    for (const button of document.querySelectorAll(".promo-overlay button.promo-close")) {
+      if (button.disabled || dismissedPromotions.has(button)) continue;
+      dismissedPromotions.add(button);
+      button.click();
+    }
+  }
+  const noticeObserver = new MutationObserver(() => {
+    if (!options.hideGameNotices || noticeScanPending) return;
+    noticeScanPending = true;
+    queueMicrotask(() => { noticeScanPending = false; dismissPromotions(); });
+  });
+  noticeObserver.observe(document.documentElement, { childList:true, subtree:true });
   const nativeFrame = root.requestAnimationFrame.bind(root),
     nativeCancel = root.cancelAnimationFrame.bind(root),
     frames = new Map();
@@ -92,7 +108,9 @@
       rules.push(
         ".cap-panel,.capture-popup{display:none!important}.ah-panel,.auto-helper,.autohelper,.game-hud-tl,nav.game-dock{opacity:0!important;transition:opacity .18s ease!important}.ah-panel:hover,.ah-panel:focus-within,.auto-helper:hover,.autohelper:hover,.game-hud-tl:hover,.game-hud-tl:focus-within,nav.game-dock:hover,nav.game-dock:focus-within{opacity:1!important}",
       );
+    if (options.hideGameNotices && root.location?.pathname === "/play") rules.push(".promo-overlay,.cap-panel,.capture-popup,.cap-flash,.kc-stack,.kc-card{display:none!important}");
     sheet.textContent = rules.join("\n");
+    dismissPromotions();
   }
   root.addEventListener?.("keydown", event => {
     if (event.key !== "F2" || root.location?.pathname !== "/play") return;

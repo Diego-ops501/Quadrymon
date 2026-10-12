@@ -127,6 +127,7 @@ Em **Visual e jogo**, ative o **Overlay** para acompanhar um resumo compacto das
 
 - **Eco:** reduz a frequência de quadros dos painéis conforme a visualização.
 - **Visual e jogo:** idioma, proporção do jogo, chat, menu do jogo, HUD e som.
+- **Ocultar avisos do jogo:** ativado por padrão, fecha a promoção inicial e oculta painel de captura e cartões de Pokémon derrotado. A captura automática e os registros continuam ativos. Desative para usar o painel de captura manual.
 - **Disposição:** grade, coluna ou linha; a proporção original é preservada também no Foco.
 - **Chat e HUD:** chat e menu podem ser ocultados; Limpar HUD esconde a captura e revela nome, Auto-Helper e menu ao passar o mouse.
 - **Configuração da análise:** mostre, oculte e reordene seções; gerencie itens fixados e a lista de itens protegidos na venda. Arraste a borda do painel para ajustar sua largura.

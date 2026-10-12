@@ -70,6 +70,7 @@
     layout: ["grid", "col", "row"].includes(load("layout")) ? load("layout") : "grid",
     analysisWidth: Math.max(280, Math.min(760, num(load("statsW")) || 380)),
     clean: load("cleanHud") === "1",
+    hideGameNotices: load("hideGameNotices") !== "0",
     guard: load("sellguard") !== "0",
   };
   let accounts = [];
@@ -139,6 +140,7 @@
       chat: L("Mostra ou esconde o chat nas contas. A escolha é preservada ao recarregar.", "Show or hide chat in all accounts. The choice survives reloads.", "Muestra u oculta el chat en las cuentas. La elección se conserva al recargar."),
       dock: L("Alterna a barra de ícones do jogo. F2 dentro do jogo alterna apenas aquela conta.", "Toggle the game toolbar. F2 inside the game toggles that account only.", "Alterna la barra del juego. F2 dentro del juego alterna solo esa cuenta."),
       cleanHud: L("Esconde o popup de captura. Nome, Auto-Helper e menu reaparecem ao passar o mouse.", "Hide capture popups. Name, Auto-Helper and menu reappear on hover.", "Oculta ventanas de captura. Nombre, Auto-Helper y menú reaparecen al pasar el ratón."),
+      hideGameNotices: L("Fecha a promoção inicial e oculta o painel de captura e os cartões de Pokémon derrotado. A captura automática e os registros do app continuam ativos. Desative para usar a captura manual pelo painel do jogo.", "Dismiss the initial promotion and hide the capture panel and defeated Pokémon cards. Auto-capture and app records remain active. Disable to use the game's manual capture panel.", "Cierra la promoción inicial y oculta el panel de captura y las tarjetas de Pokémon derrotados. Captura automática y registros siguen activos. Desactiva para usar el panel de captura manual."),
       propNat: L("Mantém o formato original do jogo, sem esticar, na Grade e no Foco.", "Keep the original game aspect ratio in Grid and Focus without stretching.", "Conserva la proporción original del juego en Cuadrícula y Foco sin estirar."),
       layout: L("Alterna entre grade, coluna e linha sem desconectar as contas.", "Switch between grid, column and row without disconnecting accounts.", "Alterna entre cuadrícula, columna y fila sin desconectar cuentas."),
       muteAll: L("Liga ou desliga o áudio das contas. O áudio fica suspenso no Resumo.", "Turn account audio on or off. Audio is suspended in Summary.", "Activa o desactiva el audio de las cuentas. El audio se suspende en Resumen."),
@@ -181,6 +183,7 @@
       dock: ["Menu do jogo", "Game menu", "Menú del juego"],
       chat: ["Chat", "Chat", "Chat"],
       cleanHud: ["Limpar HUD", "Hide HUD", "Ocultar HUD"],
+      hideGameNotices: ["Ocultar avisos do jogo", "Hide game notices", "Ocultar avisos del juego"],
       muteAll: ["Som", "Sound", "Sonido"],
       overlayBtn: ["Overlay", "Overlay", "Overlay"],
       eco: ["Eco", "Eco", "Eco"],
@@ -831,6 +834,7 @@
       chat: options.chat,
       dock: options.dock,
       clean: options.clean,
+      hideGameNotices: options.hideGameNotices,
       guard: options.guard,
       lockedItems: readJson("sellLock", []),
       summary: mode === "summary",
@@ -1145,6 +1149,7 @@
     ["chat", "chat", "chat"],
     ["dock", "dock", "dock"],
     ["cleanHud", "clean", "cleanHud"],
+    ["hideGameNotices", "hideGameNotices", "hideGameNotices"],
     ["sellguard", "guard", "sellguard"],
   ];
   for (const [id, option, key] of bindings) {

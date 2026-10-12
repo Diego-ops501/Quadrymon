@@ -87,6 +87,9 @@ app.whenReady().then(async () => {
       check(document.querySelector('#workspaceAccounts').textContent.includes('Boreal'),'saved names remain visible');
       const original=[...document.querySelectorAll('webview')];
       check(document.body.classList.contains('native-ratio'),'original game ratio is enabled by default');
+      check(document.querySelector('#hideGameNotices').getAttribute('aria-pressed')==='true','game notice hiding starts enabled');
+      document.querySelector('#hideGameNotices').click();check(localStorage.getItem('hideGameNotices')==='0'&&document.querySelector('#hideGameNotices').getAttribute('aria-pressed')==='false','game notices can be restored and preference persists');
+      document.querySelector('#hideGameNotices').click();check(localStorage.getItem('hideGameNotices')==='1','notice hiding can be enabled again');
       document.querySelector('#layout').click();await pause(100);
       check(document.querySelector('#grid').dataset.layout==='col'&&localStorage.getItem('layout')==='col','column layout persists');
       document.querySelector('#layout').click();await pause(100);

@@ -127,6 +127,7 @@ En **Aspecto y juego**, activa el **Overlay** para ver un resumen compacto de la
 
 - **Eco:** reduce la frecuencia de cuadros de los paneles según la vista activa.
 - **Aspecto y juego:** idioma, proporción del juego, chat, menú del juego, HUD y sonido.
+- **Ocultar avisos del juego:** activado por defecto, cierra la promoción inicial y oculta paneles de captura y Pokémon derrotados. La captura automática y los registros siguen activos. Desactiva para usar el panel de captura manual.
 - **Disposición:** cuadrícula, columna o fila; la proporción original también funciona en Foco.
 - **Chat y HUD:** oculta chat o menú; Ocultar HUD elimina ventanas de captura y muestra entrenador, Auto-Helper y menú al pasar el ratón.
 - **Ajustes del análisis:** muestra, oculta y reordena secciones; gestiona objetos fijados y protegidos en ventas. Arrastra el borde del panel para cambiar su ancho.

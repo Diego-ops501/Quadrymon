@@ -65,6 +65,7 @@ const scope = {
   fetch: () => Promise.resolve({}),
   location: { href: "https://poke.idleworld.online/play" },
   document: { createElement: () => ({}), head: { append() {} } },
+  MutationObserver: class { observe() {} },
   URL,
 };
 scope.globalThis = scope;

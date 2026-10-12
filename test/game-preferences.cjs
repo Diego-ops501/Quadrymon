@@ -25,6 +25,18 @@ app.whenReady().then(async()=>{
    PokeMuxGamePreferences.configure({chat:true,dock:true,clean:false,summary:true,fps:0});check(style('.chat-box').display!=='none'&&style('.game-dock').display!=='none','settings restore chat and dock');
    check(style('canvas').visibility==='hidden','summary avoids drawing the game');
    PokeMuxGamePreferences.configure({chat:true,dock:true,clean:false,summary:false,fps:0});await pause();check(style('canvas').visibility==='visible'&&style('.cap-panel').display!=='none','returning to grid restores HUD and canvas');
+   let closes=0;const promotion=document.createElement('div');promotion.className='promo-overlay';const close=document.createElement('button');close.className='promo-close';close.onclick=()=>closes++;promotion.append(close);document.body.append(promotion);
+   const kill=document.createElement('div');kill.className='kc-stack';kill.innerHTML='<div class="kc-card">Pokémon derrotado</div>';document.body.append(kill);
+   const other=document.createElement('div');other.className='shop-confirm captcha';other.innerHTML='<button>Confirmar</button>';document.body.append(other);
+   const state={captures:[{name:'fixture'}],kills:10};window.__poke=state;
+   PokeMuxGamePreferences.configure({hideGameNotices:true,clean:false,fps:0});await pause();
+   check(closes===1&&style('.promo-overlay').display==='none','promotion uses its native close button');
+   check(style('.cap-panel').display==='none'&&style('.kc-stack').display==='none','hide capture and defeated Pokémon panels');
+   check(style('.shop-confirm').display!=='none'&&window.__poke===state&&state.kills===10,'preserve other dialogs and game data');
+   PokeMuxGamePreferences.configure({hideGameNotices:true,clean:false,fps:0});await pause();check(closes===1,'do not repeat the same promotion close');
+   const late=promotion.cloneNode(true);late.querySelector('button').onclick=()=>closes++;promotion.replaceWith(late);await pause();check(closes===2,'dismiss late promotions after React replacement');
+   PokeMuxGamePreferences.configure({hideGameNotices:false,clean:false,fps:0});await pause();check(style('.cap-panel').display!=='none'&&style('.kc-stack').display!=='none','disable restores capture and defeated panels');
+   const enabled=closes;const disabled=late.cloneNode(true);disabled.querySelector('button').onclick=()=>closes++;late.replaceWith(disabled);await pause();check(closes===enabled&&style('.promo-overlay').display!=='none','disabled preference leaves new promotions visible');
   })()`);
   console.log('Game preferences: actual chat/HUD selectors, component replacement, restoration, F2 and summary drawing passed.');app.exit(0);
  }catch(e){console.error(e.stack);app.exit(1)}
