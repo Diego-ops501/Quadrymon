@@ -119,6 +119,15 @@ app.whenReady().then(async () => {
       document.querySelector('#statsBtn').click();
       document.querySelector('[data-mode="summary"]').click();await pause(50);
       check(document.querySelectorAll('#cards .runtime-card').length===4,'summary contains four cards');
+      document.querySelector('#cards [data-panel-action="summary-config"]').click();
+      document.querySelector('#cards [data-summary-section="table"]').click();
+      check(!document.querySelector('#cards [data-s="table"]')&&JSON.parse(localStorage.getItem('cardsCfg')).hide.table===true,'actual runtime accepts native checkbox clicks to hide summary sections');
+      document.querySelector('#cards [data-summary-section="table"]').click();
+      check(document.querySelectorAll('#cards .runtime-card').length===4&&JSON.parse(localStorage.getItem('cardsCfg')).hide.table===false,'actual runtime accepts native checkbox clicks to restore summary sections');
+      const beforeIvRule=document.querySelector('#cards [data-important-rule="ivEnabled"]').checked;
+      document.querySelector('#cards [data-important-rule="ivEnabled"]').click();
+      check(JSON.parse(localStorage.getItem('importantCaptures')).ivEnabled===!beforeIvRule,'actual runtime toggles the IV capture criterion');
+      document.querySelector('#cards [data-important-rule="ivEnabled"]').click();
       check(original.every((view,index)=>document.querySelectorAll('webview')[index]===view),'mode changes preserve live sessions');
       document.querySelector('[data-mode="grid"]').click();await pause(50);
       const count=document.querySelector('#panelCount');count.value='2';count.dispatchEvent(new Event('change'));await pause(50);

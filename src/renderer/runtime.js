@@ -776,12 +776,12 @@
     if (mode !== "summary") return;
     window.PokeMuxSummary.patch($("cards"), richPanels.summary().outerHTML);
   }
-  $("cards").onclick = event => richPanels.handle(event);
+  $("cards").onclick = event => { richPanels.handle(event); };
   $("cards").oninput = event => richPanels.filter(event);
   $("cards").onchange = event => richPanels.filter(event);
   richPanels.bindGestures($("cards"));
   richPanels.bindGestures($("stats"));
-  $("stats").onclick = event => richPanels.handle(event);
+  $("stats").onclick = event => { richPanels.handle(event); };
   $("stats").onchange = event => richPanels.filter(event);
   const setAnalysisWidth = width => { options.analysisWidth = Math.max(280, Math.min(760, Math.round(width))); save("statsW", options.analysisWidth); updateVisualControls(); fitGameViews(); };
   let analysisDrag = null;

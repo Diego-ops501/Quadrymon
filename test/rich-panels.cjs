@@ -29,13 +29,26 @@ app.whenReady().then(async()=>{
    function refresh(){PokeMuxSummary.patch(cards,panels.summary().outerHTML);PokeMuxSummary.patch(stats,panels.analysis().outerHTML)}
    let captureRefreshes=0;
    c.refreshCaptures=()=>{captureRefreshes++;const block=cards.querySelector('[data-s=catches] .cd-sec'),panel=panels.capturePanel();panel.firstChild.classList.add('cd-h');PokeMuxSummary.patch(block,panel.innerHTML);};
-   cards.onclick=stats.onclick=e=>panels.handle(e);cards.onchange=stats.onchange=e=>panels.filter(e);cards.oninput=e=>panels.filter(e);refresh();
+   cards.onclick=stats.onclick=e=>{panels.handle(e);};cards.onchange=stats.onchange=e=>panels.filter(e);cards.oninput=e=>panels.filter(e);refresh();
    panels.bindGestures(cards);panels.bindGestures(stats);
    check([...cards.querySelectorAll('.cd-it')].map(x=>x.dataset.s).join(',')==='kpis,table,today,catches,pinned','original dashboard section order and default visibility');
    check(stats.querySelector('.trainer-avatar .trainer-level').textContent==='100'&&stats.querySelector('.analysis-session-grid').children.length===4,'original trainer header and compact session grid');
    stats.querySelector('[data-panel-action=account][data-account="-1"]').click();check(stats.textContent.includes('4006')&&stats.querySelectorAll('.analysis-account').length===4,'aggregate includes all account balances and account actions');
    stats.querySelector('[data-panel-action=account][data-account="0"]').click();
    cards.querySelector('[data-panel-action=summary-config]').click();
+   for(const key of ['kpis','table','today','catches','pinned','trend','shinies','shinyTried','shared']){
+     const input=cards.querySelector('[data-summary-section='+key+']'),initial=input.checked;
+     input.click();
+     check(saved.cardsCfg.hide[key]===initial&&!!cards.querySelector('[data-s='+key+']')===!initial,'native click changes visibility of '+key);
+     refresh();check(cards.querySelector('[data-summary-section='+key+']').checked===!initial,'periodic refresh keeps visibility preference for '+key);
+     cards.querySelector('[data-summary-section='+key+']').click();
+     check(saved.cardsCfg.hide[key]===!initial&&!!cards.querySelector('[data-s='+key+']')===initial,'native click restores visibility of '+key);
+   }
+   cards.querySelector('[data-important-rule=ivEnabled]').click();
+   check(saved.importantCaptures.ivEnabled===false,'native click disables the IV importance criterion');
+   refresh();check(cards.querySelector('[data-important-rule=ivEnabled]').checked===false,'IV criterion stays disabled after refresh');
+   cards.querySelector('[data-important-rule=ivEnabled]').click();
+   check(saved.importantCaptures.ivEnabled===true,'native click enables the IV importance criterion again');
    const toggle=cards.querySelector('[data-summary-section=trend]');toggle.checked=true;toggle.dispatchEvent(new Event('change',{bubbles:true}));check(!!cards.querySelector('.cd-it[data-s=trend]')&&saved.cardsCfg.hide.trend===false,'summary visibility persists and renders optional trend');
    const transfer=new DataTransfer();cards.querySelector('.cd-it[data-s=pinned] .cd-mv').dispatchEvent(new DragEvent('dragstart',{bubbles:true,dataTransfer:transfer}));cards.querySelector('.cd-it[data-s=today]').dispatchEvent(new DragEvent('drop',{bubbles:true,cancelable:true,dataTransfer:transfer}));check(saved.cardsCfg.order.indexOf('pinned')<saved.cardsCfg.order.indexOf('today'),'dashboard drag order persists');
    const first={...sources[0],ok:true,cid:'daily-fixture',a:{...sources[0].a,epoch:1}};
