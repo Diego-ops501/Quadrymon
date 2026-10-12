@@ -5,6 +5,7 @@ const fs = require("node:fs"),
 const root = path.resolve(__dirname, "..");
 const tests = [
   "display-name.test.js",
+  "health-alerts.test.js",
   "game-auth.test.js",
   "independent-domain.test.js",
   "independent-model.test.js",

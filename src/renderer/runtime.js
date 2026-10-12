@@ -113,6 +113,7 @@
     loginRetryTimer: null,
     loginSubmitted: null,
     events: new Set(),
+    healthAlerts: window.QuadrymonHealthAlerts.create(),
     lastKill: 0,
     lastReload: 0,
   }));
@@ -465,21 +466,18 @@
       save("marketReturn" + index, JSON.stringify(current.previous));
     }
     const health = window.PokeMuxSummary.health(summaryRow(index, data));
-    for (const issue of health.issues) {
-      const key = "issue:" + issue;
-      if (!current.events.has(key) && manualChoices[issue] !== false) {
-        current.events.add(key);
-        notify(
-          name(index) +
-            ": " +
-            (window.PokeMuxSummary.COPY[options.lang]?.[issue] || issue),
-        );
-      }
+    for (const issue of current.healthAlerts.observe({
+      key: current.epoch + ":" + data.cid,
+      live: !!data.live,
+      issues: health.issues,
+      enabled: (issue) => options.alerts && manualChoices[issue] !== false,
+    })) {
+      notify(
+        name(index) +
+          ": " +
+          (window.PokeMuxSummary.COPY[options.lang]?.[issue] || issue),
+      );
     }
-    for (const key of [...current.events].filter((key) =>
-      key.startsWith("issue:"),
-    ))
-      if (!health.issues.includes(key.slice(6))) current.events.delete(key);
   }
   function zoom(index, delta) {
     const view = slots[index].view,
@@ -1204,7 +1202,13 @@
     },
     notifications: (host) => {
       host.replaceChildren();
+      host.append(node("p", L(
+        "Alertas das contas aguardam 60 segundos após conectar ou recarregar o jogo. O problema precisa persistir por 30 segundos para gerar um aviso.",
+        "Account alerts wait 60 seconds after connecting or reloading the game. A problem must persist for 30 seconds before a notification is sent.",
+        "Las alertas de cuentas esperan 60 segundos después de conectar o recargar el juego. El problema debe persistir durante 30 segundos para generar un aviso."
+      )));
       for (const issue of [
+        "idle",
         "faint",
         "lowBalls",
         "emptyBalls",
