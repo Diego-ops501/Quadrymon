@@ -35,6 +35,7 @@ const browser = [
   "market-evolutions.cjs",
   "market-cold-start.cjs",
   "market-refresh.cjs",
+  "market-minute-refresh.cjs",
   "inventory.cjs",
 ];
 const env = { ...process.env };

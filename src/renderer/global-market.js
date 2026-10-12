@@ -100,7 +100,9 @@
     }
     let savedSnapshot = null;
     try { savedSnapshot = JSON.parse(bridge.load('marketPokemonSnapshots') || 'null'); } catch {}
-    const snapshots = M.createSnapshotCache((account,script,valid)=>marketRead(account,script,valid,0), {initial:savedSnapshot,now:bridge.marketSnapshotOptions?.now,save:value=>bridge.save('marketPokemonSnapshots',JSON.stringify(value))});
+    const snapshotRead = (account,script,valid)=>marketRead(account,script,valid,0);
+    snapshotRead.clearPages = account=>marketRead.clearPages(account);
+    const snapshots = M.createSnapshotCache(snapshotRead, {initial:savedSnapshot,now:bridge.marketSnapshotOptions?.now,save:value=>bridge.save('marketPokemonSnapshots',JSON.stringify(value))});
     const snapshotMode = bridge.marketSnapshotOptions?.enabled !== false;
     const syncingSnapshots = new Set();
     const teamData = new Map(), teamJobs = new Map(), teamErrors = new Map();
@@ -430,9 +432,14 @@
       return html;
     }
 
-    async function comparisonResponse(account,cid,own,current) {
-      const ready = snapshotMode && snapshots.get(account,cid);
+    async function comparisonResponse(account,cid,own,current,refresh = false) {
+      let ready = snapshotMode && snapshots.get(account,cid);
       if (ready) {
+        if (refresh) {
+          const response = await snapshots.ensure(account,cid,true);
+          if (!response?.ok) return response;
+          ready = response.snapshot;
+        }
         const list = M.comparable(ready.listings,own,s.tolerance);
         return {ok:true,data:{...ready.data,listings:list,total:list.length,pages:1},book:{listings:list}};
       }
@@ -636,6 +643,7 @@
       if (!s.open || !s.data || s.error || s.priceScanning || s.pending || s.comparePending || s.timer || autoBusy || Date.now() < autoRetryAt) return;
       autoBusy = true;
       const revision = s.revision, account = s.account, cid = s.cid, tab = s.tab;
+      marketRead.clearPages(account);
       const current = () => s.open && s.revision === revision && s.account === account;
       const read = options => current() ? marketRead(account, M.readScript(options, cid)) : Promise.resolve({ ok: false, reason: 'changed' });
       const category = ['compare', 'alerts'].includes(tab) ? 'All' : s.category;
@@ -645,7 +653,7 @@
         if (category !== 'All') add('highlights', read({ category: 'All' }));
         if (tab === 'buy' && category === 'Pokemon') {
           const options = { ...s, browse: 'pokemon', speciesId: s.pickedSpecies === 'all' ? undefined : s.pickedSpecies };
-          add('listings', readMarketPokemon(options,revision,account,cid,tasks[keys.indexOf('highlights')],!snapshotMode));
+          add('listings', readMarketPokemon(options,revision,account,cid,tasks[keys.indexOf('highlights')],true));
         }
         const own = tab === 'compare' && ownedSelection();
         if (own && own.kind === 'pokemon' && s.compareDone) {
@@ -655,7 +663,7 @@
             if (!inventory || !inventory.ok) return inventory;
             const freshOwn = own.account === account ? M.sanitizeResponse(inventory.data).owned.find(x => x.id === (own.sourceId || own.id)) : own;
             if (!freshOwn) return { ok: true, data: { cid, listings: [], total: 0, pages: 1 } };
-            const response = await comparisonResponse(account,cid,freshOwn,current);
+            const response = await comparisonResponse(account,cid,freshOwn,current,true);
             if (!response || !response.ok) return response;
             return { ok: true, data: { ...response.data, listings: response.book.listings, total: response.book.listings.length, pages: 1 } };
           })());
