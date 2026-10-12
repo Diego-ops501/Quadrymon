@@ -36,7 +36,7 @@ const state = {
   ws: {
     pokes: {
       list: [
-        { id: "rare", name: "Dratini", quality: 1.8 },
+        { id: "rare", name: "Dratini", quality: 1.8, ivTotal: 176 },
         { id: "ordinary", name: "Abra", quality: 1.2 },
       ],
     },
@@ -51,8 +51,9 @@ assert.deepEqual(
   preferences.protectedSale({ pokeIds: ["rare"], itemId: 10 }, state, [
     "Locked Loot",
   ]),
-  ["Dratini", "Locked Loot"],
+  ["Dratini · IV 176 · Qualidade Lendária (×1,80)", "Locked Loot"],
 );
+assert.deepEqual(preferences.protectedSale({pokeIds:["a","b"]},{ws:{pokes:{list:[{id:"a",name:"ancient_pinsir",quality:3,ivTotal:0},{id:"b",name:"Abra",shiny:true}]}}}),["ancient pinsir · IV 0 · Qualidade Anciã (×3,00)","Abra · Shiny · IV — · Qualidade não informada"]);
 // All animations scheduled for an accepted display frame must run together.
 const callbacks = new Map();
 let next = 0;

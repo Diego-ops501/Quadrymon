@@ -23,9 +23,15 @@
       .filter(
         (row) => row && protectedNames.has(String(row.name).toLowerCase()),
       );
-    return [...protectedPokemon, ...protectedItems].map((row) =>
-      String(row.name || "#" + row.id),
-    );
+    const qualityLabels = ["Fraca", "Comum", "Incomum", "Rara", "Épica", "Lendária", "Mítica", "Anciã", "Divina"];
+    const pokemonDetails = protectedPokemon.map((row) => {
+      const q = row.quality == null || row.quality === "" ? NaN : Number(String(row.quality).replace(",", "."));
+      const grade = q >= 4 ? 8 : q >= 3 ? 7 : q >= 2 ? 6 : q >= 1.7 ? 5 : q >= 1.5 ? 4 : q >= 1.3 ? 3 : q >= 1.1 ? 2 : q >= 1 ? 1 : 0;
+      const iv = row.ivTotal == null || row.ivTotal === "" ? NaN : Number(row.ivTotal);
+      const quality = Number.isFinite(q) ? qualityLabels[grade] + " (×" + q.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ")" : "não informada";
+      return String(row.name || "#" + row.id).replace(/_/g, " ") + (row.shiny ? " · Shiny" : "") + " · IV " + (Number.isFinite(iv) ? iv : "—") + " · Qualidade " + quality;
+    });
+    return [...pokemonDetails, ...protectedItems.map(row => String(row.name || "#" + row.id))];
   }
   if (typeof module !== "undefined" && module.exports) {
     module.exports = { protectedSale };
@@ -150,7 +156,7 @@
         if (
           names.length &&
           !confirm(
-            "Quadrymon: confirmar venda de " + names.slice(0, 8).join(", ") + "?",
+            "Quadrymon: confirmar venda?\n\n" + names.join("\n"),
           )
         )
           return new Response(

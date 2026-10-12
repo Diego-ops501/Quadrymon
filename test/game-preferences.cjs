@@ -8,9 +8,18 @@ app.whenReady().then(async()=>{
   await win.loadURL('https://poke.idleworld.online/play');
   win.webContents.focus();
   await win.webContents.insertCSS('*{transition:none!important}',{cssOrigin:'user'});
+  await win.webContents.executeJavaScript(`window.saleRequests=0;window.fetch=async()=>{saleRequests++;return new Response('{}',{status:200})};void 0;`);
   await win.webContents.executeJavaScript(fs.readFileSync(path.join(__dirname,'../src/game/preferences.js'),'utf8'));
   await win.webContents.executeJavaScript(`(async()=>{
    const check=(ok,label)=>{if(!ok)throw Error(label)},style=selector=>getComputedStyle(document.querySelector(selector)),pause=()=>new Promise(r=>setTimeout(r,250));
+   let warning='';window.confirm=text=>{warning=text;return false};
+   window.__poke={ws:{pokes:{list:Array.from({length:9},(_,i)=>({id:String(i),name:'Poliwag',quality:1.71+i/100,ivTotal:110+i}))}}};
+   PokeMuxGamePreferences.configure({guard:true});
+   const sale={method:'POST',body:JSON.stringify({pokeIds:Array.from({length:9},(_,i)=>String(i))})};
+   const cancelled=await fetch('/api/game/pokemon/sell',sale);
+   check(cancelled.status===409&&saleRequests===0,'cancelled safe sale never reaches the game');
+   check(warning.includes('Poliwag · IV 110 · Qualidade Lendária (×1,71)')&&warning.includes('Poliwag · IV 118 · Qualidade Lendária (×1,79)')&&warning.split('Poliwag').length===10,'safe sale identifies all nine same-name Pokémon by IV and quality without truncation');
+   window.confirm=()=>true;await fetch('/api/game/pokemon/sell',sale);check(saleRequests===1,'confirmed sale is forwarded exactly once');
    document.body.tabIndex=-1;document.body.focus();
    PokeMuxGamePreferences.configure({chat:false,dock:false,clean:true,fps:0});await pause();
    check(style('.chat-box').display==='none','hide the actual chat-box');
