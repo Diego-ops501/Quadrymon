@@ -156,6 +156,7 @@
         state.sess.sellG += Math.max(0, finite(row.sellValue));
         if (row.shiny) {
           state.sess.shinyCapN++;
+          state.sess.shinyN++;
           state.shinyLog.push({
             n: String(row.name || ""),
             sid: finite(row.speciesId || row.pokeId),
@@ -336,6 +337,7 @@
     const saved = JSON.parse(sessionStorage.getItem("pokemux-observation-v2"));
     if (saved && Date.now() - saved.at < 600000) {
       state.sess = { ...state.sess, ...saved.period };
+      if (saved.shinyCountersVersion !== 1) state.sess.shinyN += state.sess.shinyCapN;
       state.lastSlug = String(saved.slug || "");
       state.knownIds = new Set((saved.ids || []).map(String));
       state.bagInitialized = state.knownIds.size > 0;
@@ -515,6 +517,7 @@
           JSON.stringify({
             at: Date.now(),
             period: state.sess,
+            shinyCountersVersion: 1,
             cid: state.api["/api/characters/me"]?.character?.id,
             slug: state.lastSlug,
             ids: [...state.knownIds].slice(-50000),

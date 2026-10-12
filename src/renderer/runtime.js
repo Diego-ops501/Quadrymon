@@ -120,6 +120,12 @@
   const measurements = readJson("huntStats", {}),
     sampleContexts = [],
     captureLog = readJson("lifeCatch", []);
+  const shinyLog = readJson("lifeShiny", []);
+  const shinyLife = readJson("shinyLife", {}), shinyObservationStarted = Date.now();
+  let recoveredShinies = false;
+  for (const entry of captureLog.filter(x => x.sh))
+    recoveredShinies = window.QuadrymonShinyHistory.merge(shinyLog, [{ ...entry, cap: 1 }], entry.p, entry.cid, entry.account || entry.acc) || recoveredShinies;
+  if (recoveredShinies) save("lifeShiny", JSON.stringify(shinyLog));
   const manualChoices = readJson("pokemux-notification-settings", {});
   const observedPanels = new WeakSet(), gameViewObserver = new ResizeObserver(() => fitGameViews());
   let fitFrame = null;
@@ -450,6 +456,16 @@
         if (shiny.cap) continue;
       }
     }
+    if (window.QuadrymonShinyHistory.merge(shinyLog, [
+      ...(data.captures || []).filter(x => x.sh).map(x => ({ ...x, cap: 1 })),
+      ...(data.shinies || []),
+    ], index, data.cid, name(index), (entry) => {
+      if (data.cid && entry.t >= shinyObservationStarted) {
+        shinyLife[data.cid] = (Number(shinyLife[data.cid]) || 0) + 1;
+        save("shinyLife", JSON.stringify(shinyLife));
+      }
+    }))
+      save("lifeShiny", JSON.stringify(shinyLog));
     if (current.events.size > 5000)
       current.events = new Set([...current.events].slice(-3000));
     if (data.farm?.hunting && !current.lastKillAt)
@@ -719,6 +735,8 @@
     count: () => options.count, focus: () => focus, lang: () => options.lang,
     data: index => slots[index].data, name, summaryRow, sprite,
     captures: () => captureLog,
+    shinies: () => shinyLog,
+    shinyLifetime: (index) => index == null ? Object.values(shinyLife).reduce((n, x) => n + (Number(x) || 0), 0) : shinyLife[slots[index]?.data?.cid] ?? null,
     catalog: () => gameCatalog,
     open: index => { setMode("focus", index); if (!analysis) toggleAnalysis(); },
     recommend: openRecommendations, openCaptures, exportCaptures, reset: resetSessions,
@@ -1321,8 +1339,7 @@
           gph: total.gph + row.gph,
           shiny:
             total.shiny +
-            (slots[row.index]?.data?.shinies?.filter((event) => event.cap)
-              .length || 0),
+            (slots[row.index]?.data?.a?.shinyCap || 0),
         }),
         { xph: 0, gph: 0, shiny: 0 },
       ),

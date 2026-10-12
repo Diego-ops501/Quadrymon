@@ -168,9 +168,16 @@ session.reduce(
 );
 assert.equal(state.catchLog.length, 1);
 assert.equal(state.sess.sellG, 800);
+assert.equal(state.sess.shinyCapN, 1);
+assert.equal(state.sess.shinyN, 1, "a captured shiny is also an encountered shiny");
+session.reduce(state, { type: "poke-delta", poke: { id: "caught", shiny: true } }, 9600);
+assert.equal(state.sess.shinyN, 1, "repeated inventory updates do not count another encounter");
+session.reduce(state, { type: "field-kill", shiny: true, name: "Abra" }, 9700);
+assert.equal(state.sess.shinyN, 2, "defeated and captured shinies both contribute to encounters");
+assert.equal(state.sess.shinyCapN, 1);
 session.reduce(state, { type: "field-init", slug: "slowpoke" }, 10000);
 assert.equal(state.sess.kills, 0);
-assert.equal(state.prev.kills, 1);
+assert.equal(state.prev.kills, 2);
 assert.notEqual(state.sess.epoch, state.prev.epoch);
 session.reduce(
   state,

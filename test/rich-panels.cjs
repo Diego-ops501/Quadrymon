@@ -20,6 +20,11 @@ app.whenReady().then(async()=>{
    check(saved.cdFC.iv===0&&saved.cdFC.q===0&&saved.cdFC.r===''&&!saved.cdFC.sh&&saved.cdFC.allDefaultsVersion===1,'migration persists cleared quality filters');
    const explicit=QuadrymonRichPanels.mount({...c,read:key=>key==='cdFC'?{mode:'all',iv:170,allDefaultsVersion:1}:{}}).summary();
    check(explicit.querySelectorAll('.cd-catches-list .summary-capture').length===1,'explicit filters selected after migration survive reopening');
+   const lifetime=Array.from({length:25},(_,i)=>({p:0,n:'Historic shiny '+i,t:1000+i,cap:i===24?0:1,def:i===24?1:0,acc:'Old account'}));
+   const shinyPanel=QuadrymonRichPanels.mount({...c,shinies:()=>lifetime,shinyLifetime:()=>2837,read:key=>key==='cardsCfg'?{hide:{shinies:false}}:{}}).summary();
+   check(shinyPanel.querySelectorAll('[data-s=shinies] .summary-capture').length===25,'all legacy shiny captures and defeats appear beyond the twelve-entry cutoff');
+   check(shinyPanel.textContent.includes('2837')&&shinyPanel.querySelector('[data-s=shinies] .capture-iv').textContent==='Derrotado','legacy lifetime count is distinct from the bounded event history and captured-only counts');
+   check(shinyPanel.querySelector('[data-s=shinies] h3').textContent.includes('25')&&shinyPanel.querySelector('[data-s=shinies] .capture-account').textContent==='Old account','shiny history exposes its total and retains legacy account names');
    const panels=QuadrymonRichPanels.mount(c),cards=document.querySelector('#cards'),stats=document.querySelector('#stats');
    function refresh(){PokeMuxSummary.patch(cards,panels.summary().outerHTML);PokeMuxSummary.patch(stats,panels.analysis().outerHTML)}
    cards.onclick=stats.onclick=e=>panels.handle(e);cards.onchange=stats.onchange=e=>panels.filter(e);refresh();
