@@ -174,7 +174,6 @@
   function localize() {
     const labels = {
       statsBtn: ["Análise", "Analysis", "Análisis"],
-      recommendTop: ["Hunt", "Hunt", "Hunt"],
       recommendBtn: ["Recomendar hunt", "Recommend hunt", "Recomendar hunt"],
       ivsBtn: ["IV", "IV", "IV"],
       menuBtn: ["Ajustes", "Settings", "Ajustes"],
@@ -1099,7 +1098,7 @@
   $("reloadAll").onclick = () =>
     slots.slice(0, options.count).forEach((current) => reload(current.index));
   $("statsBtn").onclick = toggleAnalysis;
-  $("recommendTop").onclick = $("recommendBtn").onclick = async () => {
+  $("recommendBtn").onclick = async () => {
     await Promise.all(
       slots
         .slice(0, options.count)

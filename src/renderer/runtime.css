@@ -75,9 +75,6 @@ a {
   width: 21px;
   height: 21px;
 }
-#topbar #recommendTop {
-  --tool-art: url("toolbar-icons/hunt.svg");
-}
 #content {
   display: flex;
   position: relative;
