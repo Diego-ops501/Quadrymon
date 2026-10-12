@@ -13,6 +13,7 @@ app.whenReady().then(async()=>{
   await win.webContents.executeJavaScript(`(async()=>{
    const check=(ok,label)=>{if(!ok)throw Error(label)},node=(tag,text,cls)=>{const e=document.createElement(tag);if(text!=null)e.textContent=text;if(cls)e.className=cls;return e},append=(p,...e)=>{p.append(...e);return p},button=(label,handler)=>{const b=node('button',label);b.onclick=handler;return b},L=(pt)=>pt;
    const sources=Array.from({length:4},(_,i)=>({live:true,name:'Conta '+i,level:100+i,gold:1000+i,diamonds:5,hunt:'Hunt '+i,farm:{hunting:true},a:{xph:100+i,gph:50+i,kph:20+i,seconds:3600,captures:3,kills:20,xpg:100,lootGold:80,capturesGold:20,supplyGold:10,balance:90,ballsUsed:2,potsUsed:1},team:[{id:'p'+i,sid:130,name:'Gyarados',level:10,q:1,ivt:192,hp:16,hm:16,ld:true}],bag:[{id:7,name:'Potion',quantity:20,category:'heal'}],balls:[{id:8,name:'Ultra Ball',quantity:100}],drops:[{name:'Loot',qty:2,gold:10}]}));
+   sources[0].balls.push({id:1,name:'Poké Ball',quantity:23,iconUrl:'/assets/markitems/pokeball.png'},{id:7,name:'Golden Idle Ball',quantity:0,infinite:true},{id:2,name:'Great Ball',quantity:0},{id:9,name:'Owned infinite ball',quantity:1,infinite:true});
    const saved={},captures=[{n:'Rare',iv:180,q:1.8,p:0,t:1},{n:'Common',iv:10,q:1,p:0,t:2}];let focused=-1;
    const c={node,append,button,L,format:String,colors:['cyan','gold','blue','white'],read:()=>({}),save:(k,v)=>saved[k]=JSON.parse(v),count:()=>4,focus:()=>0,lang:()=> 'pt',data:i=>sources[i],name:i=>sources[i].name,sprite:()=>'',summaryRow:i=>({st:'on',farm:sources[i].farm,lead:sources[i].team[0],hasBalls:true,balls:100,aBalls:2,hasInv:true,pots:20,aPots:1,secs:3600}),captures:()=>captures,open:i=>focused=i,recommend:()=>{},openCaptures:()=>{},exportCaptures:()=>{},reset:()=>{},closeAnalysis:()=>{},openPokemon:()=>{},refresh:()=>refresh()};
    const migrated=QuadrymonRichPanels.mount({...c,read:key=>key==='cdFC'?{mode:'all',iv:150,q:1.5,r:'epic',sh:true}:{}}).summary();
@@ -35,6 +36,11 @@ app.whenReady().then(async()=>{
    check(stats.querySelector('.trainer-avatar .trainer-level').textContent==='100'&&stats.querySelector('.analysis-session-grid').children.length===4,'original trainer header and compact session grid');
    stats.querySelector('[data-panel-action=account][data-account="-1"]').click();check(stats.textContent.includes('4006')&&stats.querySelectorAll('.analysis-account').length===4,'aggregate includes all account balances and account actions');
    stats.querySelector('[data-panel-action=account][data-account="0"]').click();
+   const bag=stats.querySelector('[data-panel-section=bag]');
+   check(bag.querySelectorAll('.analysis-ball').length===3&&bag.querySelector('[data-ball="1"] b').textContent==='23'&&bag.querySelector('[data-ball="8"] b').textContent==='100','Bag shows each owned ball and its real count');
+   check(!bag.textContent.includes('Golden Idle Ball')&&!bag.textContent.includes('Great Ball')&&bag.querySelector('[data-ball="9"] b').textContent==='∞','catalog-only infinite balls do not hide owned quantities; owned infinite ball is explicit');
+   check(bag.querySelector('[data-ball="1"] img').getAttribute('src')==='https://poke.idleworld.online/assets/markitems/pokeball.png'&&bag.querySelector('.analysis-ball').compareDocumentPosition(bag.querySelector('.analysis-bag-grid'))&Node.DOCUMENT_POSITION_FOLLOWING,'ball icons and counts appear before category totals');
+   check(stats.querySelector('.trainer-wallet>b').textContent==='$1000'&&stats.querySelector('.trainer-coin').getAttribute('src')==='src/renderer/game-icons/dollar.png','wallet uses game currency icon without unsupported emoji or HTML entities');
    cards.querySelector('[data-panel-action=summary-config]').click();
    for(const key of ['kpis','table','today','catches','pinned','trend','shinies','shinyTried','shared']){
      const input=cards.querySelector('[data-summary-section='+key+']'),initial=input.checked;

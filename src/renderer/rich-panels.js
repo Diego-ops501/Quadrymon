@@ -96,24 +96,33 @@
       const box = section(text("pinned"));
       for (const item of config.pinned) {
         const found = (item.t === "ball" ? data?.balls : data?.bag)?.find(x => Number(x.id) === Number(item.id));
-        box.append(row(item.name, data ? found?.infinite ? "∞" : number(found?.quantity || 0) : "—"));
+        box.append(row(item.name, data ? found?.infinite && Number(found.quantity) > 0 ? "∞" : number(found?.quantity || 0) : "—"));
       }
       if (!config.pinned.length) box.append(el("p", L("Use a estrela na Bag para fixar itens.", "Use the star in Bag to pin items.", "Usa la estrella en Bag para fijar objetos."), "runtime-note"));
       return box;
     }
     function bag(data, index) {
-      const box = section("Bag"), items = [...(data?.balls || []).map(x => ({ ...x, category: "Poké Balls", t: "ball" })), ...(data?.bag || []).map(x => ({ ...x, t: "item" }))];
+      const box = section("Bag"), items = [...(data?.balls || []).filter(x => Number(x.quantity) > 0).map(x => ({ ...x, category: "Poké Balls", t: "ball" })), ...(data?.bag || []).map(x => ({ ...x, t: "item" }))];
       const categoryGrid = el("div", null, "analysis-bag-grid");
       for (const category of [...new Set(items.map(x => x.category || L("Outros", "Other", "Otros")))]) {
-        const grouped = items.filter(x => (x.category || L("Outros", "Other", "Otros")) === category); categoryGrid.append(row(category, grouped.some(x => x.infinite) ? "∞" : number(grouped.reduce((n, x) => n + (Number(x.quantity) || 0), 0))));
+        const grouped = items.filter(x => (x.category || L("Outros", "Other", "Otros")) === category);
+        if (category !== "Poké Balls") categoryGrid.append(row(category, number(grouped.reduce((n, x) => n + (Number(x.quantity) || 0), 0))));
         box.append(el("h4", category));
-        for (const item of items.filter(x => (x.category || L("Outros", "Other", "Otros")) === category)) {
+        for (const item of grouped) {
           const line = row(item.name, item.infinite ? "∞" : number(item.quantity));
+          if (item.t === "ball") {
+            line.classList.add("analysis-ball"); line.dataset.ball = item.id;
+            const path = item.iconUrl || item.icon;
+            if (typeof path === "string" && path.startsWith("/assets/")) {
+              const icon = el("img"); icon.src = "https://poke.idleworld.online" + path; icon.alt = ""; icon.loading = "lazy";
+              icon.addEventListener("error", () => icon.remove(), { once: true }); line.firstChild.prepend(icon);
+            }
+          }
           const pin = action(config.pinned.some(x => x.id === item.id && x.t === item.t) ? "★" : "☆", "pin", index);
           pin.dataset.item = item.id; pin.dataset.kind = item.t; pin.dataset.name = item.name; pin.title = text("pinned"); line.append(pin); box.append(line);
         }
       }
-      box.insertBefore(categoryGrid, box.children[1] || null);
+      if (categoryGrid.children.length) box.append(categoryGrid);
       if (!items.length) box.append(el("p", L("Aguardando inventário do jogo.", "Waiting for game inventory.", "Esperando inventario del juego."), "runtime-note"));
       return box;
     }
@@ -221,7 +230,8 @@
       const body = el("div", null, "st-body"), identity = el("div", null, "trainer-head"), avatar = append(el("span", null, "trainer-avatar"), el("span", "", "trainer-ball"), el("b", number(data?.level), "trainer-level"));
       const identityText = el("div", null, "trainer-info"), heading = append(el("div", null, "trainer-name"), el("b", c.name(index))); if (data?.vip) heading.append(el("span", "VIP", "trainer-vip"));
       const clan = typeof data?.clan === "string" ? data.clan : data?.clan?.slug || data?.clan?.name || data?.clan?.tag; if (clan) { const emblem = el("img"); emblem.src = "https://poke.idleworld.online/assets/clans/" + String(clan).toLowerCase().replace(/[^a-z0-9_-]/g, "") + ".png"; emblem.alt = String(clan); emblem.className = "trainer-clan"; heading.append(emblem); }
-      identityText.append(heading, el("div", "⌖ " + (display(data?.hunt) || "—"), "trainer-location"), append(el("div", null, "trainer-wallet"), el("b", "🪙 $" + number(data?.gold)), el("span", "💎 " + number(data?.diamonds)))); identity.append(avatar, identityText); body.append(identity); host.append(body);
+      const gold = el("b", "$" + number(data?.gold)), coin = el("img", null, "trainer-coin"); coin.src = "src/renderer/game-icons/dollar.png"; coin.alt = ""; gold.prepend(coin);
+      identityText.append(heading, el("div", "⌖ " + (display(data?.hunt) || "—"), "trainer-location"), append(el("div", null, "trainer-wallet"), gold, el("span", "💎 " + number(data?.diamonds)))); identity.append(avatar, identityText); body.append(identity); host.append(body);
       const builders = {
         kpis: () => { const box = section(text("kpis")), grid = el("div", null, "restored-kpis"); for (const [label, key, cls] of [["$/h", "gph", "money"], ["XP/h", "xph", "xp"], [L("Abates/h", "Kills/h", "Bajas/h"), "kph", ""]]) grid.append(kpi(label, key === "gph" ? signed(a?.[key]) : key === "kph" ? number(a?.[key]) : compact(a?.[key]), cls)); box.append(grid); return box; },
         session: () => { const box = section(L("Sessão", "Session", "Sesión")), grid = el("div", null, "analysis-session-grid"); box.firstChild.append(el("small", a ? duration(a.seconds) : "—", "section-time")); for (const [label, key] of [[L("Derrotados", "Defeated", "Derrotados"), "kills"], [L("XP ganho", "XP gained", "XP ganado"), "xpg"], [L("Capturas", "Catches", "Capturas"), "captures"], [L("Shinies encontrados", "Shinies found", "Shinies encontrados"), "shinyFound"]]) grid.append(kpi(label, number(a?.[key]), key === "xpg" ? "xp" : "")); box.append(grid, row(L("Shinies capturados", "Shinies caught", "Shinies capturados"), "✨ " + number(a?.shinyCap)), row(L("Shinies encontrados (total)", "Shinies found (total)", "Shinies encontrados (total)"), "✨ " + number(data?.usedList?.reduce((n, x) => n + (x.shiny ? Number(x.attempts) || 0 : 0), 0)))); if (c.shinyLifetime) box.append(row(L("Shinies encontrados · acumulado do app", "Shinies found · app lifetime", "Shinies encontrados · acumulado de la app"), lifetimeShinies(index))); if (a?.lastCatchT) box.append(row(L("Última captura", "Last catch", "Última captura"), new Date(a.lastCatchT).toLocaleTimeString(c.lang(), { hour: "2-digit", minute: "2-digit" }) + " · " + number(a.sinceCatch))); return box; },

@@ -14,4 +14,5 @@ não são transferidas ao Quadrymon.
 
 Os ícones em `src/renderer/game-icons/` são assets originais do Poke Idle World:
 https://poke.idleworld.online/assets/topmenu/inventory.png e
-https://poke.idleworld.online/assets/market/hdr_market.png.
+https://poke.idleworld.online/assets/market/hdr_market.png e
+https://poke.idleworld.online/assets/market/dollar.png.
