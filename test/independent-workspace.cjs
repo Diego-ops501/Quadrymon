@@ -229,6 +229,27 @@ app.whenReady().then(async () => {
       if(submits.length!==4||new Set(submits.map(x=>x.index)).size!==4)throw Error('Account button must submit all four accounts');
       for(let i=0;i<4;i++)if(!submits[i].source.includes('fixture-login-'+i))throw Error('Login credentials crossed account boundaries');
     })()`);
+    await win.webContents.executeJavaScript(`(async()=>{
+      const pause=ms=>new Promise(r=>setTimeout(r,ms)),check=(ok,label)=>{if(!ok)throw Error(label)},views=[...document.querySelectorAll('webview')],originalNow=Date.now;
+      const states=views.map((_,i)=>({ok:true,live:true,cid:'manual-test-'+i,name:'Fixture '+i,hunt:'previous_hunt',currentMap:'previous_hunt',farm:{hunting:true},a:{kills:1},team:[],captures:[],shinies:[],userActivity:0})),reloads=[0,0,0,0],travelScripts=[];
+      views.forEach((view,i)=>{view.getURL=()=> 'https://poke.idleworld.online/play';view.reload=()=>{reloads[i]++;states[i]={...states[i],farm:{hunting:false},currentMap:'cerulean'};};view.executeJavaScript=async source=>{
+        if(source.includes('PokeMuxSession.snapshot'))return states[i];
+        if(source.includes('async function travel(')){travelScripts.push({i,source});return {ok:true};}
+        return states[i].userActivity;
+      };});
+      for(let i=0;i<4;i++)await PokeMuxRuntime.readState(i);
+      const input=new Event('console-message');Object.defineProperty(input,'message',{value:'__QUSER__'});views[0].dispatchEvent(input);
+      states[0].hunt='boss_hunt';states[0].currentMap='boss_hunt';states[1].userActivity=1;states[2].hunt='current_hunt';states[3].farm={hunting:false};
+      if(document.querySelector('#voltaHunt').getAttribute('aria-pressed')!=='true')document.querySelector('#voltaHunt').click();
+      const base=originalNow();Date.now=()=>base+601000;
+      try{
+        for(let i=0;i<120&&!reloads[2];i++)await pause(50);
+        check(reloads[0]===0&&reloads[1]===0&&reloads[2]===1,'manual movement blocks automatic reload only for its accounts; idle stalled account still recovers');
+        for(let i=0;i<120&&!travelScripts.length;i++)await pause(50);
+        check(travelScripts.length===1&&travelScripts[0].i===2&&travelScripts[0].source.includes('current_hunt')&&!travelScripts[0].source.includes('previous_hunt'),'automatic return uses the hunt captured at reload, never the saved old hunt or another account');
+        check(reloads[0]===0&&reloads[1]===0,'boss movement and snapshot input remain protected across recovery ticks');
+      }finally{Date.now=originalNow;views.forEach(view=>view.getURL=()=> 'about:blank');}
+    })()`);
     win.setContentSize(1440, 950);
     await new Promise((resolve) => setTimeout(resolve, 100));
     fs.writeFileSync(
@@ -244,4 +265,4 @@ app.whenReady().then(async () => {
 setTimeout(() => {
   console.error("Independent UI test timed out");
   app.exit(1);
-}, 30000);
+}, 45000);

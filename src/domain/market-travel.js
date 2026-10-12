@@ -6,7 +6,9 @@
   'use strict';
   async function travel(expected, previous, findNavigation) {
     const P = window.__poke, character = () => P?.api?.['/api/characters/me']?.character;
+    const activity = () => window.PokeMuxGamePreferences?.state().userActivity || 0, startActivity = activity();
     const check = () => location.origin !== 'https://poke.idleworld.online' || location.pathname !== '/play' || !P || P.sock?.readyState !== 1 ? 'offline'
+      : activity() !== startActivity || (expected.automatic && (!window.PokeMuxGamePreferences || activity() > 0)) ? 'user-control'
       : String(character()?.id || '') !== expected.cid ? 'changed' : '';
     const pause = () => new Promise(resolve => setTimeout(resolve, 100));
     let failure = check(); if (failure) return {ok:false,reason:failure};
@@ -31,6 +33,7 @@
       if (lead && lead.hp === 0) return {ok:false,reason:'fainted'};
     }
     const target = returning ? hunt.slug : 'shopping', before = P.fiT || 0;
+    if (expected.automatic && !returning) return {ok:false,reason:'changed'};
     // Preserve the exact origin even if the map loads but arrival confirmation times out.
     const result = {returnHunt:hunt || null,atMarket:!returning};
     try {
@@ -57,8 +60,8 @@
       return {ok:false,reason:'unconfirmed',...result};
     } catch { return {ok:false,reason:'navigation',...result}; }
   }
-  function script(cid, previous) {
-    const expected = {cid:String(cid || '').slice(0,100)};
+  function script(cid, previous, automatic = false) {
+    const expected = {cid:String(cid || '').slice(0,100),automatic:!!automatic};
     const hunt = previous && {slug:String(previous.slug || '').slice(0,60),name:String(previous.name || '').slice(0,80)};
     return '('+travel.toString()+')('+JSON.stringify(expected)+','+JSON.stringify(hunt || null)+','+Hunts.findNavigation.toString()+')';
   }

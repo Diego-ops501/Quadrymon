@@ -47,6 +47,9 @@ app.whenReady().then(async()=>{
    PokeMuxGamePreferences.configure({hideGameNotices:false,clean:false,fps:0});await pause();check(style('.cap-panel').display!=='none'&&style('.kc-stack').display!=='none','disable restores capture and defeated panels');
    const enabled=closes;const disabled=late.cloneNode(true);disabled.querySelector('button').onclick=()=>closes++;late.replaceWith(disabled);await pause();check(closes===enabled&&style('.promo-overlay').display!=='none','disabled preference leaves new promotions visible');
   })()`);
-  console.log('Game preferences: actual chat/HUD selectors, component replacement, restoration, F2 and summary drawing passed.');app.exit(0);
+  await win.webContents.executeJavaScript(`dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));if(PokeMuxGamePreferences.state().userActivity!==0)throw Error('synthetic input must not pause recovery');window.__pgVolta=true;window.__pgVoltaTimer=setInterval(()=>{},10000);void 0;`);
+  win.focus();win.webContents.focus();win.webContents.sendInputEvent({type:'keyDown',keyCode:'Right'});win.webContents.sendInputEvent({type:'keyUp',keyCode:'Right'});
+  await win.webContents.executeJavaScript(`new Promise((resolve,reject)=>setTimeout(()=>{if(!(PokeMuxGamePreferences.state().userActivity>0)||window.__pgVolta!==undefined)reject(Error('trusted movement must cancel recovery'));else resolve(true)},100))`);
+  console.log('Game preferences: actual chat/HUD selectors, component replacement, restoration, F2, safe sales and trusted manual movement passed.');app.exit(0);
  }catch(e){console.error(e.stack);app.exit(1)}
 });setTimeout(()=>app.exit(1),30000);

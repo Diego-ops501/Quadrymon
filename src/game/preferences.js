@@ -44,6 +44,17 @@
     acceptedFrame = -1,
     frameId = 0,
     dockOverride = null;
+  let userActivity = 0;
+  function observeUser(event) {
+    if (!event.isTrusted || root.location?.pathname !== "/play") return;
+    userActivity++;
+    // Native user input takes priority over pending app navigation.
+    if (root.__pgVoltaTimer != null) clearInterval(root.__pgVoltaTimer);
+    delete root.__pgVolta;
+    if (userActivity === 1) console.log("__QUSER__");
+  }
+  for (const type of ["pointerdown", "keydown", "wheel", "touchstart"])
+    root.addEventListener?.(type, observeUser, { capture: true, passive: true });
   const dismissedPromotions = new WeakSet();
   let noticeScanPending = false;
   function dismissPromotions() {
@@ -170,5 +181,5 @@
     }
     return original(resource, init);
   };
-  root.PokeMuxGamePreferences = { configure, state: () => ({ ...options }) };
+  root.PokeMuxGamePreferences = { configure, state: () => ({ ...options, userActivity }) };
 })(globalThis);

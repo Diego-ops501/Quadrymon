@@ -53,5 +53,14 @@ function game(options = {}) {
   assert.equal((await recovery.run()).ok,true);assert.equal(recovery.calls[0].cancelReturn,true);assert.equal(recovery.context.window.__pgVolta,undefined,'manual market trip cancels pending auto-return');
   const another=game();another.nav.currentSlug='furious_scyther';another.P.lastSlug='furious_scyther';
   assert.equal((await another.run()).returnHunt.slug,'furious_scyther','accounts keep their own hunt');
+  const manual=game({map:'shopping'});manual.context.window.PokeMuxGamePreferences={state:()=>({userActivity:1})};
+  assert.equal((await vm.runInNewContext(MarketTravel.script('c1',result.returnHunt,true),manual.context)).reason,'user-control');
+  assert.equal(manual.calls.length,0,'automatic return never overrides manual input');
+  const idle=game({map:'shopping'});idle.context.window.PokeMuxGamePreferences={state:()=>({userActivity:0})};
+  assert.equal((await vm.runInNewContext(MarketTravel.script('c1',result.returnHunt,true),idle.context)).ok,true,'idle automatic recovery can return to its exact captured hunt');
+  const hunting=game();hunting.context.window.PokeMuxGamePreferences={state:()=>({userActivity:0})};
+  assert.equal((await vm.runInNewContext(MarketTravel.script('c1',result.returnHunt,true),hunting.context)).reason,'changed');assert.equal(hunting.calls.length,0,'automatic recovery never sends an active hunt to Shopping');
+  const interrupted=game({closed:true});let activity=0;interrupted.context.window.PokeMuxGamePreferences={state:()=>({userActivity:activity})};interrupted.context.setTimeout=fn=>{activity++;fn();return 1;};
+  assert.equal((await interrupted.run()).reason,'user-control');assert.equal(interrupted.calls.length,0,'manual input during map loading cancels delayed navigation');
   console.log('Market travel: native map, market NPC, exact return, account isolation, offline, HP, rejected travel and auth guards passed.');
 })().catch(error=>{console.error(error);process.exitCode=1;});

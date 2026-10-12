@@ -116,6 +116,8 @@
     healthAlerts: window.QuadrymonHealthAlerts.create(),
     lastKill: 0,
     lastReload: 0,
+    manualControl: false,
+    recovery: null,
   }));
   const measurements = readJson("huntStats", {}),
     sampleContexts = [],
@@ -327,6 +329,7 @@
           if (current.data?.cid && data.cid !== current.data.cid) {
             current.events.clear();
             current.previous = null;
+            current.recovery = null;
             current.epoch++;
             sampleContexts[index] = null;
           }
@@ -393,6 +396,10 @@
   function record(index, data) {
     const current = slots[index],
       leader = data.team?.find((row) => row.ld);
+    if (data.userActivity > 0) {
+      current.manualControl = true;
+      current.recovery = null;
+    }
     const sample = window.PokeMuxHuntMeasurements.isolateSample(
       sampleContexts,
       index,
@@ -647,6 +654,10 @@
     });
     view.addEventListener("console-message", (event) => {
       const text = event.message;
+      if (text === "__QUSER__") {
+        current.manualControl = true;
+        current.recovery = null;
+      }
       if (text.startsWith("__PGIVH__") && text.length < 2000) {
         try {
           const point = JSON.parse(text.slice(9));
@@ -689,8 +700,9 @@
         );
     }, index * 3000);
   }
-  function reload(index) {
+  function reload(index, automatic = false) {
     const current = slots[index];
+    if (!automatic) { current.manualControl = true; current.recovery = null; }
     if (current?.view && !current.off) {
       current.epoch++;
       current.data = null;
@@ -824,26 +836,30 @@
       })),
     };
   }
-  async function travel(index) {
+  async function travel(index, automatic = false) {
     const current = slots[index];
+    if (!automatic) { current.manualControl = true; current.recovery = null; }
     if (current.traveling) return;
+    const recovery = automatic ? current.recovery : null;
+    if (automatic && (current.manualControl || !recovery)) return;
     current.traveling = true;
     workspace.refresh();
     try {
       const data = await readState(index);
+      if (automatic && (current.manualControl || current.recovery !== recovery || data?.cid !== recovery.cid)) return;
       if (!data?.live)
         throw Error(
           L("Conta desconectada.", "Account offline.", "Cuenta desconectada."),
         );
       const result = await execute(
         index,
-        window.PokeMuxMarketTravel.script(data.cid, current.previous),
+        window.PokeMuxMarketTravel.script(data.cid, automatic ? recovery.hunt : current.previous, automatic),
       );
       if (result.returnHunt) {
         current.previous = result.returnHunt;
         save("marketReturn" + index, JSON.stringify(current.previous));
       }
-      if (!result.ok)
+      if (!result.ok && result.reason !== "user-control")
         message(
           L(
             "Viagem não confirmada: ",
@@ -855,6 +871,7 @@
     } catch (error) {
       message(error.message);
     } finally {
+      if (automatic) current.recovery = null;
       current.traveling = false;
       workspace.refresh();
     }
@@ -1336,22 +1353,27 @@
         const data = current.data;
         if (
           data?.farm?.hunting &&
+          data.live && !current.manualControl && !current.traveling &&
           current.lastKillAt &&
           Date.now() - current.lastKillAt > 600000 &&
           Date.now() - current.lastReload > 300000
         ) {
+          // Read the input marker again immediately before a destructive refresh.
+          const activity = await execute(current.index, "window.PokeMuxGamePreferences ? window.PokeMuxGamePreferences.state().userActivity : 1").catch(() => 1);
+          if (activity || current.manualControl) { current.manualControl = true; current.recovery = null; return; }
           current.lastReload = Date.now();
-          reload(current.index);
+          current.recovery = data.cid && data.hunt ? { cid: data.cid, hunt: { slug: data.hunt, name: data.hunt.replace(/[_-]/g, " ") } } : null;
+          reload(current.index, true);
         }
         if (
           options.returnHunt &&
           data?.live &&
           !data.farm?.hunting &&
-          current.previous &&
+          current.recovery && !current.manualControl &&
           Date.now() - current.lastReload < 120000 &&
           !current.traveling
         )
-          void travel(current.index);
+          void travel(current.index, true);
       }),
     );
     workspace.refresh();
@@ -1776,6 +1798,8 @@
   async function travelRecommendation(row) {
     const expected = recommendationContext;
     if (!expected || recommendationTravelBusy) return;
+    slots[expected.index].manualControl = true;
+    slots[expected.index].recovery = null;
     if (row.dayUntil && row.dayUntil <= Date.now()) { message(L("O bônus do dia terminou; atualize as recomendações.", "The day bonus expired; refresh recommendations.", "La bonificación terminó; actualiza las recomendaciones.")); return; }
     const data = await readState(expected.index, true),
       leader = data.team?.find((pokemon) => pokemon.ld);

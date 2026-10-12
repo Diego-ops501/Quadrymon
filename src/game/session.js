@@ -279,6 +279,7 @@
       xpMultiplier,
       hunt: state.lastSlug,
       currentMap: state.currentMap,
+      userActivity: finite(root.PokeMuxGamePreferences?.state().userActivity),
       farm: { hunting: state.hunting, lastCombatT: state.lastCombatT },
       team,
       bag,
