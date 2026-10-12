@@ -703,7 +703,11 @@
   function setMode(next, index = focus) {
     mode = next;
     focus = index;
-    if (next === "focus") richPanels.select(index);
+    if (next === "focus") {
+      richPanels.select(index);
+      analysis = true;
+      document.body.classList.add("stats-open");
+    }
     document.body.classList.toggle("cards-on", mode === "summary");
     $("cards").hidden = mode !== "summary";
     $("grid").hidden = mode === "summary";
@@ -713,6 +717,7 @@
     applyPerformance();
     workspace?.refresh();
     if (mode === "summary") renderSummary();
+    if (mode === "focus") renderAnalysis();
     fitGameViews();
   }
   function toggleAnalysis() {
@@ -748,7 +753,7 @@
     shinyLifetime: (index) => index == null ? Object.values(shinyLife).reduce((n, x) => n + (Number(x) || 0), 0) : shinyLife[slots[index]?.data?.cid] ?? null,
     shinyCapturedLifetime: (index) => shinyLog.filter(x => x.cap && (index == null || (x.cid ? x.cid === slots[index]?.data?.cid : Number(x.p) === index))).length,
     catalog: () => gameCatalog,
-    open: index => { setMode("focus", index); if (!analysis) toggleAnalysis(); },
+    open: index => setMode("focus", index),
     recommend: openRecommendations, openCaptures, exportCaptures, reset: resetSessions,
     closeAnalysis: toggleAnalysis,
     openSettings: tab => settings.open(tab),
