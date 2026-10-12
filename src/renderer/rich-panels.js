@@ -329,10 +329,10 @@
     const types = el("div", null, "iv-tipos"); for (const type of d.tipos || []) types.append(el("span", type, "iv-tp")); host.append(types);
     const top = el("div", null, "iv-top"); for (const [label, value] of [[L("Nível", "Level", "Nivel"), number(d.nivel)], [L("Qualidade", "Quality", "Calidad"), "×" + new Intl.NumberFormat(document.documentElement.lang || "pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(d.qualidade)], ["IV total", number(d.ivTotal) + "/" + (d.ivMax || 192)], [d.poderJogo > 0 ? L("Poder no jogo", "Game power", "Poder del juego") : L("Poder estimado", "Estimated power", "Poder estimado"), number(d.poderJogo > 0 ? d.poderJogo : d.poder)]]) top.append(append(el("div", null, "iv-kpi"), el("small", label), el("b", value))); host.append(top);
     const pct = Math.max(0, Math.min(100, Number(d.percentual) || 0)), potential = el("div", null, "iv-pot"), ring = el("div", null, "iv-ring"); ring.style.background = "conic-gradient(#22d3c5 " + pct + "%, #28415e 0)"; ring.append(el("span", Math.round(pct) + "%"));
-    const grade = pct >= 90 ? L("Excelente", "Excellent", "Excelente") : pct >= 75 ? L("Ótimo", "Great", "Muy bueno") : pct >= 60 ? L("Bom", "Good", "Bueno") : L("Regular", "Fair", "Regular"); append(potential, ring, append(el("div"), el("b", L("Potencial de IV", "IV potential", "Potencial de IV") + " · " + grade), el("small", L("IV total informado pelo jogo.", "Total IV reported by the game.", "IV total informado por el juego.")))); host.append(potential);
+    const grade = pct >= 90 ? L("Excelente", "Excellent", "Excelente") : pct >= 75 ? L("Ótimo", "Great", "Muy bueno") : pct >= 60 ? L("Bom", "Good", "Bueno") : L("Regular", "Fair", "Regular"); append(potential, ring, append(el("div"), el("b", L("Potencial de IV", "IV potential", "Potencial de IV") + " · " + grade), el("small", L("IV total informado pelo jogo.", "Total IV reported by the game.", "IV total informado por el juego."))));
     const aptitude = root.PokeMuxAptitude.analyze(d), profile = role => ({ physical: L("Físico", "Physical", "Físico"), special: L("Especial", "Special", "Especial"), balanced: L("Equilibrado", "Balanced", "Equilibrado"), unknown: L("Indeterminado", "Unknown", "Indeterminado") })[role];
-    const apt = el("div", null, "iv-apt"); apt.append(el("b", L("Aptidão natural: ", "Natural aptitude: ", "Aptitud natural: ") + profile(aptitude.natural.role)), el("p", L("Perfil atual: ", "Current profile: ", "Perfil actual: ") + profile(aptitude.current.role)), el("small", L("Golpes alinhados: ", "Aligned moves: ", "Movimientos alineados: ") + aptitude.aligned + "/" + aptitude.usable)); host.append(apt);
-    if (aptitude.lowLevel) host.append(el("p", L("Em níveis baixos, os arredondamentos deixam os IVs individuais menos precisos.", "At low levels, rounding makes individual IVs less precise.", "En niveles bajos, los redondeos reducen la precisión de los IV individuales."), "iv-warning"));
+    const apt = el("div", null, "iv-apt"); apt.append(el("b", L("Aptidão natural: ", "Natural aptitude: ", "Aptitud natural: ") + profile(aptitude.natural.role)), el("p", L("Perfil atual: ", "Current profile: ", "Perfil actual: ") + profile(aptitude.current.role)), el("small", L("Golpes alinhados: ", "Aligned moves: ", "Movimientos alineados: ") + aptitude.aligned + "/" + aptitude.usable)); host.append(append(el("div", null, "iv-overview"), potential, apt));
+    if (aptitude.lowLevel) host.append(el("p", L("Nível baixo: IVs individuais estimados por faixa.", "Low level: individual IVs estimated as ranges.", "Nivel bajo: IV individuales estimados por intervalo."), "iv-warning"));
     host.append(el("h4", L("Atributos e IVs", "Stats and IVs", "Atributos e IVs")));
     const grid = el("div", null, "iv-grid"), keys = ["hp", "atk", "def", "spa", "spd", "vel"], bars = ["#22d3c5", "#f4b942", "#3882f6", "#d890fa", "#64c4ff", "#9dd86b"];
     for (const [i, key] of keys.entries()) {
@@ -342,7 +342,7 @@
       const progress = el("div", null, "iv-bar"), fill = el("i"); fill.style.width = Math.max(0, Math.min(100, Number(value) / (d.ivMaxInd || 32) * 100)) + "%"; fill.style.background = bars[i]; progress.append(fill); box.append(progress);
       box.append(el("small", L("Atual: ", "Current: ", "Actual: ") + number(d.atuais?.[key])), el("small", L("Base: ", "Base: ", "Base: ") + number(d.bases?.[key])));
       const projected = el("small", null, "iv-projected"); projected.dataset.projected = key; box.append(projected); grid.append(box);
-    } host.append(grid, el("p", L("As faixas mostram a incerteza dos IVs individuais; o total vem do jogo.", "Ranges show uncertainty in individual IVs; the total comes from the game.", "Las franjas muestran la incertidumbre de IV individuales; el total viene del juego."), "runtime-note"));
+    } host.append(grid, el("p", L("IVs por faixa; total confirmado pelo jogo.", "IV ranges; total confirmed by the game.", "IV por intervalo; total confirmado por el juego."), "runtime-note"));
     const controls = el("div", null, "iv-controls"), level = el("input"), quality = el("input"); level.type = quality.type = "number"; level.min = 1; level.max = 9999; level.value = d.nivel; quality.min = .01; quality.max = 10; quality.step = .01; quality.value = d.qualidade;
     const power = el("p", null, "iv-projection-power");
     const simulate = () => {
@@ -352,8 +352,14 @@
       power.textContent = L("Poder estimado no nível ", "Estimated power at level ", "Poder estimado en el nivel ") + lv + ": " + (complete ? number(Math.round(sum * q)) : "—");
     };
     append(controls, append(el("label", L("Nível", "Level", "Nivel")), level), append(el("label", L("Qualidade", "Quality", "Calidad")), quality), button(L("Simular nível", "Simulate level", "Simular nivel"), simulate)); host.append(controls, power);
-    const moves = el("div", null, "iv-moves"); moves.append(el("h4", L("Golpes", "Moves", "Movimientos")));
-    for (const move of aptitude.moves) { const line = el("div", null, "iv-mv " + (move.available ? "on" : "off")); line.append(el("b", display(move.nome)), el("small", move.tipo + " · " + (move.categoria || "") + " · Lv" + number(move.nivel) + (move.tm ? " · " + move.tm : "")), el("span", L("Poder ", "Power ", "Poder ") + number(move.poder) + (move.available ? " ✓" : ""))); moves.append(line); } host.append(moves);
+    const moves = el("div", null, "iv-moves"), moveHead = el("div", null, "iv-moves-head"), moveRows = el("div", null, "iv-move-grid");
+    let movePage = 0; const pageSize = innerHeight < 650 ? 2 : 4, pageCount = Math.max(1, Math.ceil(aptitude.moves.length / pageSize));
+    const counter = el("small"), previous = button("‹", () => { movePage--; drawMoves(); }), next = button("›", () => { movePage++; drawMoves(); });
+    previous.title = L("Golpes anteriores", "Previous moves", "Movimientos anteriores"); next.title = L("Próximos golpes", "Next moves", "Próximos movimientos");
+    moveHead.append(el("h4", L("Golpes", "Moves", "Movimientos") + " · " + aptitude.moves.length), previous, counter, next); moves.append(moveHead, moveRows);
+    function drawMoves() { moveRows.replaceChildren(); previous.disabled = movePage <= 0; next.disabled = movePage >= pageCount - 1; counter.textContent = (movePage + 1) + " / " + pageCount;
+    for (const move of aptitude.moves.slice(movePage * pageSize, (movePage + 1) * pageSize)) { const line = el("div", null, "iv-mv " + (move.available ? "on" : "off")); line.append(el("b", display(move.nome)), el("small", move.tipo + " · " + (move.categoria || "") + " · Lv" + number(move.nivel) + (move.tm ? " · " + move.tm : "")), el("span", L("Poder ", "Power ", "Poder ") + number(move.poder) + (move.available ? " ✓" : ""))); moveRows.append(line); }
+    } drawMoves(); host.append(moves);
     return host;
   }
   root.QuadrymonRichPanels = { mount, iv };

@@ -27,6 +27,7 @@ const tests = [
 const browser = [
   "game-preferences.cjs",
   "rich-panels.cjs",
+  "iv-native-market.cjs",
   "login.cjs",
   "independent-game.cjs",
   "independent-main.cjs",

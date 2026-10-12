@@ -12,6 +12,8 @@
   const cleanName = (value) =>
     String(value || "")
       .replace(/\bshiny\b/gi, "")
+      .replace(/[✨⭐]/g, "")
+      .replace(/_+/g, " ")
       .replace(/\b(?:lv|lvl|nv|nível|level)[.\s]*\d+.*$/i, "")
       .trim()
       .toLowerCase();
@@ -35,7 +37,7 @@
       .filter(Boolean);
     const stats = {};
     const cells = [
-      ...element.querySelectorAll(".statcell, .inv-stat, [data-stat]"),
+      ...element.querySelectorAll(".statcell, .inv-stat, [data-stat], .mkt2-statcell"),
     ];
     if (cells.length >= 6)
       labels.forEach((key, index) => {
@@ -61,11 +63,14 @@
           : null;
       }
     if (labels.some((key) => stats[key] == null)) return null;
+    const heading = element.querySelector?.(".mkt2-details-name, .mkt2-card-name, .inv-tip-name");
+    const headingName = heading && [...(heading.childNodes || [])].filter(node => node.nodeType === 3).map(node => node.textContent).join("").trim();
     return {
-      nome: lines[0].replace(/\s*(?:Lv|Nv)\.?\s*\d+.*$/i, ""),
+      nome: String(headingName || heading?.textContent || lines[0]).replace(/\s*(?:Lv|Nv)\.?\s*\d+.*$/i, "").replace(/[✨⭐]/g, "").trim(),
       nivel: Number(level[1]),
       multiplicadorQualidade: number(quality[1]),
-      ivAtual: number(text.match(/\bIV\s*:?\s*(\d+)/i)?.[1]),
+      ivAtual: number(text.match(/\bIV(?:\s*total)?\s*:?\s*(\d+)/i)?.[1]),
+      shiny: /✨|\bshiny\b/i.test(text),
       poder: number(text.match(/(?:Poder|Power)\D*(\d+)/i)?.[1]),
       ...stats,
     };
@@ -255,14 +260,18 @@
   async function inspect() {
     scheduled = null;
     if (!active() || !point) return;
-    const target = [
+    const hovered = document.elementFromPoint(point.x, point.y)?.closest(".mkt2-card, .mkt2-trow, .mkt2-details");
+    const targets = [
       ...document.querySelectorAll(".inv-tip, .market-details"),
-    ].find(
-      (element) =>
-        element.getClientRects().length &&
-        getComputedStyle(element).visibility !== "hidden",
-    );
-    const pokemon = target && parseTooltip(target);
+    ];
+    if (hovered?.matches(".mkt2-card")) targets.unshift(hovered);
+    if (hovered?.matches(".mkt2-details") || hovered?.classList.contains("sel")) targets.push(...document.querySelectorAll(".mkt2-details"));
+    let target, pokemon;
+    for (const element of targets) {
+      if (!element.getClientRects().length || getComputedStyle(element).visibility === "hidden") continue;
+      const parsed = parseTooltip(element);
+      if (parsed) { target = element; pokemon = parsed; break; }
+    }
     if (!pokemon) {
       if (selected) hide();
       return;

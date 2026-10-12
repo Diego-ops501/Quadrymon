@@ -143,7 +143,7 @@ app.whenReady().then(async () => {
       document.querySelector('[name="email1"]').value='fixture@example.invalid';
       const accountForm=document.querySelector('#accountForm');
       check(accountForm.checkValidity(),'account form accepts both username and email');
-      accountForm.requestSubmit();await pause(150);
+      accountForm.requestSubmit();for(let i=0;i<50&&document.querySelector('#accountEditor').open;i++)await pause(20);
       check(!document.querySelector('#accountEditor').open,'native form submission saves usernames');
       document.querySelector('#accounts').click();
       check(document.querySelector('[name="email0"]').value==='azuosd2','username is retained');

@@ -651,7 +651,8 @@
         try {
           const point = JSON.parse(text.slice(9));
           if (!point.ativo) {
-            if (ivSource?.index === index && !ivSource.market) hideIv();
+            const source = ivSource;
+            setTimeout(() => { if (ivSource === source && source?.index === index && !source.market && !$("ivCard").matches(":hover")) hideIv(); }, 100);
             return;
           }
           if (!options.iv || ivSource?.market) return;
@@ -1021,6 +1022,7 @@
     ivSource = null;
     $("ivCard").hidden = true;
   }
+  $("ivCard").addEventListener("mouseleave", () => { if (ivSource && !ivSource.market) hideIv(); });
   function showIv(index, result, point, market = true) {
     if (!options.iv || !result) return;
     ivSource = { index, point, market, result, hoverId: result.hoverId };
@@ -1031,6 +1033,7 @@
     }));
     positionIv(point);
   }
+  window.addEventListener("resize", () => { if (ivSource?.result) showIv(ivSource.index, ivSource.result, ivSource.point, ivSource.market); });
   const ivBridge = {
     isIvEnabled: () => options.iv,
     calculateIv: async (index, pokemon, cid) =>
