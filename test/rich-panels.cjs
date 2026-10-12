@@ -15,6 +15,11 @@ app.whenReady().then(async()=>{
    const sources=Array.from({length:4},(_,i)=>({live:true,name:'Conta '+i,level:100+i,gold:1000+i,diamonds:5,hunt:'Hunt '+i,farm:{hunting:true},a:{xph:100+i,gph:50+i,kph:20+i,seconds:3600,captures:3,kills:20,xpg:100,lootGold:80,capturesGold:20,supplyGold:10,balance:90,ballsUsed:2,potsUsed:1},team:[{id:'p'+i,sid:130,name:'Gyarados',level:10,q:1,ivt:192,hp:16,hm:16,ld:true}],bag:[{id:7,name:'Potion',quantity:20,category:'heal'}],balls:[{id:8,name:'Ultra Ball',quantity:100}],drops:[{name:'Loot',qty:2,gold:10}]}));
    const saved={},captures=[{n:'Rare',iv:180,q:1.8,p:0,t:1},{n:'Common',iv:10,q:1,p:0,t:2}];let focused=-1;
    const c={node,append,button,L,format:String,colors:['cyan','gold','blue','white'],read:()=>({}),save:(k,v)=>saved[k]=JSON.parse(v),count:()=>4,focus:()=>0,lang:()=> 'pt',data:i=>sources[i],name:i=>sources[i].name,sprite:()=>'',summaryRow:i=>({st:'on',farm:sources[i].farm,lead:sources[i].team[0],hasBalls:true,balls:100,aBalls:2,hasInv:true,pots:20,aPots:1,secs:3600}),captures:()=>captures,open:i=>focused=i,recommend:()=>{},openCaptures:()=>{},exportCaptures:()=>{},reset:()=>{},closeAnalysis:()=>{},openPokemon:()=>{},refresh:()=>refresh()};
+   const migrated=QuadrymonRichPanels.mount({...c,read:key=>key==='cdFC'?{mode:'all',iv:150,q:1.5,r:'epic',sh:true}:{}}).summary();
+   check(migrated.querySelectorAll('.cd-catches-list .summary-capture').length===2,'saved All mode clears inherited IV, quality, rarity and shiny thresholds');
+   check(saved.cdFC.iv===0&&saved.cdFC.q===0&&saved.cdFC.r===''&&!saved.cdFC.sh&&saved.cdFC.allDefaultsVersion===1,'migration persists cleared quality filters');
+   const explicit=QuadrymonRichPanels.mount({...c,read:key=>key==='cdFC'?{mode:'all',iv:170,allDefaultsVersion:1}:{}}).summary();
+   check(explicit.querySelectorAll('.cd-catches-list .summary-capture').length===1,'explicit filters selected after migration survive reopening');
    const panels=QuadrymonRichPanels.mount(c),cards=document.querySelector('#cards'),stats=document.querySelector('#stats');
    function refresh(){PokeMuxSummary.patch(cards,panels.summary().outerHTML);PokeMuxSummary.patch(stats,panels.analysis().outerHTML)}
    cards.onclick=stats.onclick=e=>panels.handle(e);cards.onchange=stats.onchange=e=>panels.filter(e);refresh();
@@ -42,8 +47,10 @@ app.whenReady().then(async()=>{
    check(cards.querySelector('[data-panel-filter=mode]').value==='all','selected capture mode stays visible after DOM refresh');
    const minIv=cards.querySelector('[data-catch-filter=iv]');minIv.value=170;minIv.dispatchEvent(new Event('change',{bubbles:true}));check(cards.querySelector('.cd-catches-list').textContent.includes('Rare')&&!cards.querySelector('.cd-catches-list').textContent.includes('Common'),'summary IV filter uses real capture values');
    check(saved.cdFC.iv==='170'&&saved.cdFC.mode==='all','capture filters survive reload');
-   const clearIv=cards.querySelector('[data-catch-filter=iv]');clearIv.value='';clearIv.dispatchEvent(new Event('change',{bubbles:true}));
-   const older=Array.from({length:45},(_,i)=>({n:'Ordinary '+i,iv:20,q:1,p:0,t:100+i}));captures.push(...older);refresh();
+   const backToImportant=cards.querySelector('[data-panel-filter=mode]');backToImportant.value='important';backToImportant.dispatchEvent(new Event('change',{bubbles:true}));
+   const backToAll=cards.querySelector('[data-panel-filter=mode]');backToAll.value='all';backToAll.dispatchEvent(new Event('change',{bubbles:true}));
+   check(cards.querySelector('[data-catch-filter=iv]').value===''&&cards.querySelectorAll('.cd-catches-list .summary-capture').length===2,'selecting All clears important capture thresholds');
+   const older=Array.from({length:45},(_,i)=>({n:'Ordinary '+i,iv:20,q:i===44?null:1,p:0,t:100+i}));captures.push(...older);refresh();
    check(cards.querySelectorAll('.cd-catches-list .summary-capture').length===47,'all mode includes every registered capture beyond the old 30 limit');
    check(cards.querySelector('.cd-catches-list').firstChild.textContent.includes('Ordinary 44'),'all mode uses newest first instead of important-first');
    check(cards.querySelector('.cd-it[data-s=catches] h3').textContent==='Todas as capturas','heading follows selected capture mode');
@@ -52,6 +59,9 @@ app.whenReady().then(async()=>{
    check(cards.querySelector('.cd-catches-list')===scroll&&scroll.scrollTop===180,'new captures preserve the scroll container and position');
    const importantOnly=cards.querySelector('[data-panel-filter=mode]');importantOnly.value='important';importantOnly.dispatchEvent(new Event('change',{bubbles:true}));
    check(cards.querySelectorAll('.cd-catches-list .summary-capture').length===1&&cards.querySelector('.cd-catches-list').textContent.includes('Rare'),'important mode excludes common captures');
+   const accountFilter=cards.querySelector('[data-catch-filter=p]');accountFilter.value='1';accountFilter.dispatchEvent(new Event('change',{bubbles:true}));
+   cards.querySelector('[data-panel-action=clear-capture-filters]').click();
+   check(cards.querySelectorAll('.cd-catches-list .summary-capture').length===48&&saved.cdFC.p===-1&&saved.cdFC.mode==='all','clear filters restores the full registered history including missing quality');
    stats.querySelector('[data-panel-action=account][data-account="1"]').click();check(stats.textContent.includes('1001'),'analysis account changes source data');
    stats.querySelector('[data-panel-action=pin]').click();check(saved.statsCfg.pinned.length===1,'pin items persists config');
    stats.querySelector('[data-panel-action=hide][data-section=bag]').click();check(!stats.querySelector('[data-panel-section=bag]'),'hide analysis section');
