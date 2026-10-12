@@ -49,6 +49,8 @@ app.whenReady().then(async()=>{
    check(cards.querySelectorAll('.summary-account').length===4,'four detailed account cards');
    check(cards.querySelectorAll('.summary-supply').length===4,'supply duration cards restored');
    const capturedRow=cards.querySelector('.summary-capture');check(capturedRow.querySelector('.capture-name').textContent==='Rare'&&capturedRow.querySelector('.capture-iv').textContent==='IV 180'&&capturedRow.querySelector('.capture-quality').textContent.includes('1,80')&&capturedRow.lastChild.classList.contains('capture-account'),'capture row separates Pokémon, IV, quality and trailing account');
+   check(capturedRow.querySelector('.capture-quality').textContent.includes('Lendária')&&capturedRow.querySelector('.capture-quality').style.color==='rgb(255, 140, 60)','capture rarity uses the original game label and legendary color');
+   check(capturedRow.querySelector('time').dateTime===new Date(1).toISOString()&&capturedRow.querySelector('time').title&&/^[0-9]{2}:[0-9]{2}:[0-9]{2}$/.test(capturedRow.querySelector('time').textContent),'capture timestamp shows a clock and a full-date tooltip');
    check(cards.querySelector('.restored-columns').textContent.includes('Rare')&&!cards.querySelector('.restored-columns').textContent.includes('Common'),'important catch filter');
    const mode=cards.querySelector('[data-panel-filter=mode]');mode.value='all';mode.dispatchEvent(new Event('change',{bubbles:true}));check(cards.textContent.includes('Common'),'all catches option');
    check(cards.querySelector('[data-panel-filter=mode]').value==='all','selected capture mode stays visible after DOM refresh');

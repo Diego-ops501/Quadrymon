@@ -8,6 +8,30 @@
     const signed = value => value == null ? "—" : (value >= 0 ? "+" : "") + compact(value);
     const qualityFormatters = new Map();
     const quality = value => { if (value == null) return "—"; const locale = c.lang(); if (!qualityFormatters.has(locale)) qualityFormatters.set(locale, new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })); return qualityFormatters.get(locale).format(value); };
+    const rarityColors = ["#9aa6b3", "#63d873", "#7fd4ff", "#b06cff", "#f0c040", "#ff8c3c", "#6a0dad", "#b8860b", "#dbefff"];
+    function captureQuality(value) {
+      const q = value == null || value === "" ? NaN : Number(String(value).replace(",", "."));
+      const span = el("span", "Q ×" + quality(Number.isFinite(q) ? q : null), "capture-quality");
+      if (Number.isFinite(q)) {
+        const at = q >= 4 ? 8 : q >= 3 ? 7 : q >= 2 ? 6 : q >= 1.7 ? 5 : q >= 1.5 ? 4 : q >= 1.3 ? 3 : q >= 1.1 ? 2 : q >= 1 ? 1 : 0;
+        const labels = [L("Fraca", "Weak", "Débil"), L("Comum", "Common", "Común"), L("Incomum", "Uncommon", "Poco común"), L("Rara", "Rare", "Rara"), L("Épica", "Epic", "Épica"), L("Lendária", "Legendary", "Legendaria"), L("Mítica", "Mythic", "Mítica"), L("Anciã", "Ancient", "Antigua"), L("Divina", "Divine", "Divina")];
+        span.textContent = labels[at] + " · Q ×" + quality(q); span.style.color = rarityColors[at];
+      }
+      return span;
+    }
+    const captureTimeFormatters = new Map();
+    function captureTime(timestamp) {
+      const date = new Date(Number(timestamp)), time = el("time", "—", "capture-time");
+      if (!(Number(timestamp) > 0) || !Number.isFinite(date.getTime())) return time;
+      const locale = c.lang();
+      if (!captureTimeFormatters.has(locale)) captureTimeFormatters.set(locale, {
+        time: new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }),
+        date: new Intl.DateTimeFormat(locale, { dateStyle: "short", timeStyle: "medium" }),
+      });
+      const formatter = captureTimeFormatters.get(locale);
+      time.textContent = formatter.time.format(date); time.dateTime = date.toISOString(); time.title = formatter.date.format(date);
+      return time;
+    }
     const lifetimeShinies = index => number(c.shinyLifetime(index)) + " / " + number(c.shinyCapturedLifetime?.(index) ?? c.shinies?.().filter(x => x.cap && (index == null || Number(x.p) === index)).length ?? 0);
     const duration = seconds => Number.isFinite(seconds) ? Math.floor(seconds / 3600) + "h " + Math.floor(seconds % 3600 / 60) + "m" : seconds === Infinity ? "∞" : "—";
     const sections = ["kpis", "session", "gold", "compare", "drops", "bag", "pinned", "target", "team"];
@@ -58,7 +82,7 @@
     function action(label, type, index) { const b = button(label, () => {}); b.dataset.panelAction = type; if (index != null) b.dataset.account = index; return b; }
     function serializeControls(host) { for (const input of host.querySelectorAll("input")) { input.setAttribute("value", input.value); if (input.type === "checkbox") input.toggleAttribute("checked", input.checked); } for (const option of host.querySelectorAll("option")) option.toggleAttribute("selected", option.selected); return host; }
     function image(id, shiny, name) { const src = c.sprite(id, shiny, name); if (!src) return el("span", "◇", "restored-sprite-placeholder"); const img = el("img"); img.src = src; img.alt = ""; img.loading = "eager"; return img; }
-    function captureRow(entry) { const line = el("div", null, "summary-capture"), account = entry.account || entry.acc || c.name(entry.p || 0); line.dataset.summaryKey = "capture:" + [entry.p, entry.t, entry.id || entry.n].join(":"); line.append(image(entry.sid || entry.speciesId, false, entry.n), el("b", (entry.sh ? "✨ " : "") + display(entry.n), "capture-name"), el("span", "IV " + number(entry.iv), "capture-iv"), el("span", "Q ×" + quality(entry.q), "capture-quality"), el("span", account, "capture-account")); return line; }
+    function captureRow(entry) { const line = el("div", null, "summary-capture"), account = entry.account || entry.acc || c.name(entry.p || 0); line.dataset.summaryKey = "capture:" + [entry.p, entry.t, entry.id || entry.n].join(":"); line.append(image(entry.sid || entry.speciesId, false, entry.n), el("b", (entry.sh ? "✨ " : "") + display(entry.n), "capture-name"), el("span", "IV " + number(entry.iv), "capture-iv"), captureQuality(entry.q), captureTime(entry.t), el("span", account, "capture-account")); return line; }
     function teamCard(p, index) {
       const box = el("article", null, "restored-pokemon" + (p.ld ? " leader" : ""));
       const details = el("div"); details.append(append(el("span", null, "team-line"), el("b", (p.ld ? "⭐ " : "") + (p.shiny ? "✨ " : "") + display(p.name) + " Lv" + number(p.level)), el("small", number(p.hp) + "/" + number(p.hm))));
@@ -98,7 +122,7 @@
       const card = el("article", null, "runtime-card summary-account"); card.dataset.summaryKey = "account-" + index; card.style.setProperty("--account-color", c.colors[index]);
       append(card, append(el("header"), action(c.name(index), "focus", index), el("span", copy[health.status], "summary-status " + health.status)));
       const leader = data?.team?.find(x => x.ld) || data?.team?.[0];
-      const pokemon = append(el("div", null, "summary-pokemon"), image(leader?.sid, false, leader?.name), append(el("div"), el("b", leader ? (leader.shiny ? "✨ " : "") + display(leader.name) : copy.noPokemon), el("small", leader ? "Lv " + number(leader.level) + " · IV " + number(leader.ivt) : "—"))); if (leader?.q != null) { const q = Number(leader.q), labels = [L("Fraca", "Weak", "Débil"), L("Comum", "Common", "Común"), L("Incomum", "Uncommon", "Poco común"), L("Rara", "Rare", "Rara"), L("Épica", "Epic", "Épica"), L("Lendária", "Legendary", "Legendaria"), L("Mítica", "Mythic", "Mítica"), L("Anciã", "Ancient", "Antigua"), L("Divina", "Divine", "Divina")], at = q >= 4 ? 8 : q >= 3 ? 7 : q >= 2 ? 6 : q >= 1.7 ? 5 : q >= 1.5 ? 4 : q >= 1.3 ? 3 : q >= 1.1 ? 2 : q >= 1 ? 1 : 0, rarity = el("strong", labels[at], "summary-rarity"); rarity.style.color = ["#829bb3", "#51ddae", "#79c0ff", "#c297ff", "#f4b942", "#ff9800", "#c297ff", "#f4b942", "#e5e7eb"][at]; rarity.title = "Q ×" + quality(q); pokemon.lastChild.append(rarity); } if (leader) { const details = pokemon.lastChild, title = el("div", null, "summary-leader-line"); title.append(details.firstChild, el("span", "IV " + number(leader.ivt), "capture-iv"), el("span", "Q ×" + quality(leader.q), "capture-quality")); details.prepend(title); details.querySelector("small").textContent = "Lv " + number(leader.level); } card.append(pokemon);
+      const pokemon = append(el("div", null, "summary-pokemon"), image(leader?.sid, false, leader?.name), append(el("div"), el("b", leader ? (leader.shiny ? "✨ " : "") + display(leader.name) : copy.noPokemon), el("small", leader ? "Lv " + number(leader.level) + " · IV " + number(leader.ivt) : "—"))); if (leader?.q != null) { const q = Number(leader.q), labels = [L("Fraca", "Weak", "Débil"), L("Comum", "Common", "Común"), L("Incomum", "Uncommon", "Poco común"), L("Rara", "Rare", "Rara"), L("Épica", "Epic", "Épica"), L("Lendária", "Legendary", "Legendaria"), L("Mítica", "Mythic", "Mítica"), L("Anciã", "Ancient", "Antigua"), L("Divina", "Divine", "Divina")], at = q >= 4 ? 8 : q >= 3 ? 7 : q >= 2 ? 6 : q >= 1.7 ? 5 : q >= 1.5 ? 4 : q >= 1.3 ? 3 : q >= 1.1 ? 2 : q >= 1 ? 1 : 0, rarity = el("strong", labels[at], "summary-rarity"); rarity.style.color = rarityColors[at]; rarity.title = "Q ×" + quality(q); pokemon.lastChild.append(rarity); } if (leader) { const details = pokemon.lastChild, title = el("div", null, "summary-leader-line"); title.append(details.firstChild, el("span", "IV " + number(leader.ivt), "capture-iv"), el("span", "Q ×" + quality(leader.q), "capture-quality")); details.prepend(title); details.querySelector("small").textContent = "Lv " + number(leader.level); } card.append(pokemon);
       card.append(el("p", display(data?.hunt) || copy.noHunt, "summary-hunt"));
       const pace = el("div", null, "summary-rate"); pace.append(kpi("XP/h", health.status === "hunting" ? compact(data.a?.xph) : "—", "xp"), kpi("$/h", health.status === "hunting" ? signed(data.a?.gph) : "—", "money")); card.append(pace);
       card.append(append(el("div", null, "summary-session"), el("span", copy.session + " " + (data?.a ? duration(data.a.seconds) : "—")), el("span", number(data?.a?.captures) + " " + copy.captures)));
