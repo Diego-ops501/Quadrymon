@@ -4,6 +4,18 @@
 
 Primeira publicação do Quadrymon para Windows x64.
 
+### Pacote atualizado em 12/10/2026, mantendo a versão 1.0.0
+
+- Alertas das contas aguardam 60 segundos após a conexão; problemas precisam persistir por 30 segundos.
+- Histórico completo de capturas com rolagem e limpeza dos filtros herdados.
+- Critérios de capturas importantes configuráveis em Ajustes → Resumo: por padrão, IV superior a 170 ou raridade Lendária.
+- Capturas com nome e cor da raridade do jogo, horário e data completa no tooltip.
+- Acumulado e histórico de shinies recuperados, com encontrados / capturados e contagem da sessão corrigida.
+- Filtros de capturas atualizam apenas sua lista, com digitação agrupada e preservação do foco e da rolagem.
+- Ícones originais do Inventário e Mercado Global; removido o atalho redundante de hunt da barra superior.
+
+### Recursos da versão
+
 - Identidade Quadrymon com logo, ícones e paleta azul escuro, ciano, azul elétrico e âmbar.
 - Instalador corrigido para sugerir a pasta Quadrymon, sem reutilizar a pasta antiga PokeMux.
 - Cadastro de contas aceita e-mail ou nome de usuário como login.
