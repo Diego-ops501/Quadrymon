@@ -41,7 +41,7 @@
         ['Gold/h', nf(total.gph)], ['XP/h', nf(total.xph)], ['Shiny', nf(total.shiny)]
       ].map(([k,v]) => `<div class="kpi"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
       const rows = Array.isArray(s.accounts) ? s.accounts.slice(0, 4) : [];
-      document.getElementById('accounts').innerHTML = rows.map(a => `<div class="account${a.online ? '' : ' off'}"><div class="name">${esc(a.name)}</div><div class="rate">${nf(a.gph)} g/h</div><div class="hunt">${esc(a.hunt || (a.online ? 'online' : 'desligada'))}</div><div class="rate">${nf(a.xph)} xp/h</div></div>`).join('');
+      document.getElementById('accounts').innerHTML = rows.map(a => `<div class="account${a.online ? '' : ' off'}"><div class="name">${esc(a.name)}</div><div class="rate">${nf(a.gph)} g/h</div><div class="hunt">${esc((a.hunt && a.hunt.replace(/_/g, " ").replace(/(^|\s)([a-z])/g, (_, s, l) => s + l.toUpperCase())) || (a.online ? 'online' : 'desligada'))}</div><div class="rate">${nf(a.xph)} xp/h</div></div>`).join('');
     }
     document.getElementById('close').onclick = () => window.pokeAPI.closeOverlay();
     window.pokeAPI.onOverlayData(render);

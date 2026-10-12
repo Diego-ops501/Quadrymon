@@ -37,7 +37,7 @@
     return { ok: true, cid, complete, rows };
   }
   function filterRows(rows, filters, rarity) {
-    const normalize = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase();
+    const normalize = value => String(value || '').replace(/_/g,' ').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase();
     const query = normalize(filters.name).trim();
     const min = filters.min == null || filters.min === '' ? null : Number(filters.min), max = filters.max == null || filters.max === '' ? null : Number(filters.max);
     return rows.filter(row => (!query || normalize(row.name).includes(query)) && (!filters.kind || row.kind === filters.kind)
@@ -355,7 +355,7 @@
         if(!rows.length) section.append(el('p',L("Nenhum item ou Pokémon corresponde aos filtros."),'inventory-note'));
         const list = el('div',null,'inventory-list');list.dataset.account=String(i);
         for (const row of rows.slice(page*PAGE,(page+1)*PAGE)) {
-          const item = el('div',null,'inventory-row'), name = el('strong',row.name+(row.shiny?' ✨':'')+(row.team?' ★':'')), info = el('span',row.kind === 'pokemon' ? L("Nível ")+(row.level??'—')+' · IV '+(row.iv??'—')+' · '+(row.quality == null ? L("Raridade desconhecida") : L(bridge.rarity(row.quality))+' · Q '+row.quality) : (row.kind === 'ball' ? L("Pokébola") : row.category || L("Item")));
+          const item = el('div',null,'inventory-row'), name = el('strong',(globalThis.QuadrymonNames?.display(row.name) || String(row.name).replace(/_/g,' '))+(row.shiny?' ✨':'')+(row.team?' ★':'')), info = el('span',row.kind === 'pokemon' ? L("Nível ")+(row.level??'—')+' · IV '+(row.iv??'—')+' · '+(row.quality == null ? L("Raridade desconhecida") : L(bridge.rarity(row.quality))+' · Q '+row.quality) : (row.kind === 'ball' ? L("Pokébola") : row.category || L("Item")));
           if(row.bound) info.append(L(" · Vinculado")); if(row.infinite) info.append(L(" · Infinita")); if(row.expires) info.append(L(" · Validade: ")+row.expires);
           if(row.kind==='item' && row.npcPrice != null) info.append(' · NPC: $ '+Number(row.npcPrice).toLocaleString(locale())+'/un.');
           const picture=el('span',null,'inventory-picture'),placeholder=el('span',row.kind==='pokemon'?'🐾':row.kind==='ball'?'🔴':row.id==='diamonds'?'💎':'📦');placeholder.setAttribute('aria-hidden','true');picture.append(placeholder);
@@ -365,7 +365,7 @@
           if(row.kind==='item' && bridge.itemPrices) {const priceLine=el('span',null,'inventory-market-price');priceLine.dataset.marketItem=row.id;detail.append(priceLine);}
           detail.append(el('small','#'+row.id)); item.append(picture,detail,el('b',row.infinite?'∞':'× '+row.quantity)); list.append(item);
           if(row.kind==='pokemon') {
-            item.tabIndex=0;item.setAttribute('role','button');item.setAttribute('aria-label',row.name+' · '+accounts[i].name+L(" · Calcular IV"));
+            item.tabIndex=0;item.setAttribute('role','button');item.setAttribute('aria-label',(globalThis.QuadrymonNames?.display(row.name) || String(row.name).replace(/_/g,' '))+' · '+accounts[i].name+L(" · Calcular IV"));
             for(const type of ['mouseenter','focus','click'])item.addEventListener(type,event=>inspect(item,row,i,entry,event));
             item.addEventListener('mousemove',event=>{if(ivTarget===item) {if(!same(entry.slot,bridge.slot(i))) {hideIv();return;}ivPoint={x:event.clientX,y:event.clientY};if(ivResult && bridge.isIvEnabled?.())bridge.showIv?.(i,ivResult,ivPoint);else if(!bridge.isIvEnabled?.())hideIv();}});
             item.addEventListener('mouseleave',hideIv);item.addEventListener('blur',hideIv);

@@ -27,11 +27,20 @@ app.whenReady().then(async () => {
     const identifiers = ["azuosd2", "fixture@example.invalid", "azuosd1", "azuosphp"];
     const results = await Promise.all(windows.map((win, i) => win.webContents.executeJavaScript(login.source(identifiers[i], "fixture-only-" + i))));
     assert.deepEqual(results, ["filled", "filled", "filled", "filled"]);
+    assert.equal(await windows[0].webContents.executeJavaScript('window.attempts'), 0);
+    await windows[0].webContents.executeJavaScript(`{
+      const username=document.querySelector('[autocomplete="username"]');
+      username.value='';
+      let resetOnce=true;
+      username.addEventListener('input',()=>{if(resetOnce){resetOnce=false;setTimeout(()=>{username.value=''},20)}});
+    }`);
+    assert.equal(await windows[0].webContents.executeJavaScript(login.source(identifiers[0], "fixture-only-0")), "filled");
+    assert.equal(await windows[0].webContents.executeJavaScript('document.querySelector("[autocomplete=username]").value'), identifiers[0], "hydration reset is repaired before login");
     for (let i = 0; i < 4; i++) {
       const state = await windows[i].webContents.executeJavaScript('({values:[...document.querySelectorAll("input")].map(x=>x.value),attempts:window.attempts,changes:window.changes})');
       assert.deepEqual(state.values, [identifiers[i], "fixture-only-" + i]);
       assert.equal(state.attempts, 0, "automatic filling must not submit without the account button");
-      assert.equal(state.changes, 2);
+      assert.ok(state.changes >= 2);
     }
     assert.deepEqual(await Promise.all(windows.map((win, i) => win.webContents.executeJavaScript(login.source(identifiers[i], "fixture-only-" + i, true)))), ["submitted", "submitted", "submitted", "submitted"]);
     for (const win of windows) assert.equal(await win.webContents.executeJavaScript("window.attempts"), 1);

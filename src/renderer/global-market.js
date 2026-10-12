@@ -1,6 +1,7 @@
 (function (root) {
   'use strict';
   const M = root.PokeMuxGlobalMarket;
+  const display = value => root.QuadrymonNames?.display(value) || String(value ?? '').replace(/_/g, ' ');
   const GAME = 'https://poke.idleworld.online';
   const COLORS = ['#9aa6b3', '#63d873', '#7fd4ff', '#b06cff', '#f0c040', '#ff8c3c', '#b98ee9', '#b8860b', '#dbefff'];
   const PT = {
@@ -238,7 +239,7 @@
       const browsing = s.tab === 'buy' && s.category === 'Pokemon' && s.pickedSpecies != null;
       el('.mk-crumb').hidden = !browsing; el('.mk-filters').hidden = !browsing;
       const sp = (s.species || []).find(x => String(x.speciesId) === String(s.pickedSpecies));
-      el('.mk-crumb').innerHTML = `<span>${esc(s.pickedSpecies === 'all' ? tr('allPokemon') : sp && sp.name || '#' + s.pickedSpecies)} · ${nf(s.total)} ${esc(tr('ads'))}</span>`;
+      el('.mk-crumb').innerHTML = `<span>${esc(s.pickedSpecies === 'all' ? tr('allPokemon') : sp && display(sp.name) || '#' + s.pickedSpecies)} · ${nf(s.total)} ${esc(tr('ads'))}</span>`;
       // Keep inputs in place during asynchronous responses so typing keeps its focus and selection.
       if (!el('#mkIvMin')) {
         el('.mk-filters').innerHTML = `<button id="mkShiny"></button><label class="mk-evolutions" title="${esc(tr('evolutionHint'))}"><input id="mkIncludeEvolutions" type="checkbox"><span></span></label>` + [['iv', 'IV', 0, 192], ['lv', tr('level'), 1, 100000], ['q', 'Q', 0, 100]].map(([key, label, min, max]) =>
@@ -280,8 +281,8 @@
 
     function renderListings(list, offset = 0) {
       if (!list.length) return empty();
-      if (s.mode === 'cards') return `<div class="mk-cards">${list.map(x => `<article class="mk-card${x.id === s.selected ? ' selected' : ''}" tabindex="0" role="button" aria-label="${esc(x.name)}" data-listing="${esc(x.id)}"><div class="mk-row-name">${art(x)}<div><b>${esc(x.name)}</b><small>${esc(tr(x.kind))}</small></div></div><p class="mk-meta">${meta(x)} ${accountLink(x)}</p><div class="mk-card-foot"><span>${esc(x.offerOnly ? tr('offerOnly') : x.kind === 'pokemon' ? 'IV' : tr(x.kind))}</span>${price(x)}</div></article>`).join('')}</div>`;
-      return `<div class="mk-list-head"><span>#</span><span>${esc(tr('name'))}</span><span>${esc(tr('info'))}</span><span>${esc(tr('price'))}</span></div>` + list.map((x, i) => `<div class="mk-row${x.id === s.selected ? ' selected' : ''}" tabindex="0" role="button" aria-label="${esc(x.name)}" data-listing="${esc(x.id)}"><span>${offset + i + 1}</span><div class="mk-row-name">${art(x)}<div><b>${esc(x.name)}</b><small>${esc(tr(x.kind))}</small></div></div><div class="mk-meta">${meta(x)} ${accountLink(x)}</div>${price(x)}</div>`).join('');
+      if (s.mode === 'cards') return `<div class="mk-cards">${list.map(x => `<article class="mk-card${x.id === s.selected ? ' selected' : ''}" tabindex="0" role="button" aria-label="${esc(display(x.name))}" data-listing="${esc(x.id)}"><div class="mk-row-name">${art(x)}<div><b>${esc(display(x.name))}</b><small>${esc(tr(x.kind))}</small></div></div><p class="mk-meta">${meta(x)} ${accountLink(x)}</p><div class="mk-card-foot"><span>${esc(x.offerOnly ? tr('offerOnly') : x.kind === 'pokemon' ? 'IV' : tr(x.kind))}</span>${price(x)}</div></article>`).join('')}</div>`;
+      return `<div class="mk-list-head"><span>#</span><span>${esc(tr('name'))}</span><span>${esc(tr('info'))}</span><span>${esc(tr('price'))}</span></div>` + list.map((x, i) => `<div class="mk-row${x.id === s.selected ? ' selected' : ''}" tabindex="0" role="button" aria-label="${esc(display(x.name))}" data-listing="${esc(x.id)}"><span>${offset + i + 1}</span><div class="mk-row-name">${art(x)}<div><b>${esc(display(x.name))}</b><small>${esc(tr(x.kind))}</small></div></div><div class="mk-meta">${meta(x)} ${accountLink(x)}</div>${price(x)}</div>`).join('');
     }
 
     let ivRevision = 0, ivTarget = null, ivPoint = null, ivResult = null;
@@ -329,10 +330,10 @@
       const snapshot = snapshots.get(s.account, s.cid);
       const candidates = [...gameSearchEntries, ...catalog(), ...(s.data?.alertCatalog || []).map(x=>({...x,kind:'pokemon'})), ...(snapshot?.data?.alertCatalog || []).map(x=>({...x,kind:'pokemon'})), ...(s.species || []).map(x=>({...x,kind:'pokemon'})), ...(s.data?.listings || []), ...s.listings, ...(snapshot?.listings || []), ...teamRows('mine')];
       const variantPrefix = /^(?:(?:nightmare|ancient|orre|brave|furious|charged|freezing|roll|dark)\s+)+/i;
-      const pokemonName = name => String(name).replace(variantPrefix, '').replace(/\s+(?:lv\.?|lvl\.?|level|nv\.?|n[ií]vel)\s*\d+(?:\s.*)?$/i, '').trim();
+      const pokemonName = name => display(name).replace(variantPrefix, '').replace(/\s+(?:lv\.?|lvl\.?|level|nv\.?|n[ií]vel)\s*\d+(?:\s.*)?$/i, '').trim();
       const basePokemon = new Map();
       for (const x of candidates) {
-        if (!(x.kind === 'pokemon' || x.speciesId) || !x.name || variantPrefix.test(x.name)) continue;
+        if (!(x.kind === 'pokemon' || x.speciesId) || !x.name || variantPrefix.test(display(x.name))) continue;
         const name = pokemonName(x.name), key = M.normalized(name);
         if (!basePokemon.has(key)) basePokemon.set(key, {...x,name});
       }
@@ -348,7 +349,7 @@
         if (!unique.has(key)) unique.set(key, pokemon ? basePokemon.get(M.normalized(name)) || {...x,name} : x);
       }
       searchMatches = [...unique.values()].sort((a,b)=>Number(M.normalized(b.name).startsWith(needle))-Number(M.normalized(a.name).startsWith(needle)) || a.name.localeCompare(b.name)).slice(0, 12);
-      list.innerHTML = searchMatches.map((x,i)=>`<button type="button" id="mkSearchOption${i}" role="option" aria-selected="false" tabindex="-1" data-search-option="${i}">${art(x)}<span>${esc(x.name)}</span></button>`).join('');
+      list.innerHTML = searchMatches.map((x,i)=>`<button type="button" id="mkSearchOption${i}" role="option" aria-selected="false" tabindex="-1" data-search-option="${i}">${art(x)}<span>${esc(display(x.name))}</span></button>`).join('');
       list.hidden = !searchMatches.length;
       input.setAttribute('aria-expanded', String(!!searchMatches.length)); input.removeAttribute('aria-activedescendant');
     }
@@ -358,11 +359,11 @@
       hideSearchSuggestions(); el('#mkSearch').focus(); hideSearchSuggestions(); queryChanged(true);
     }
     function requestScreen() {
-      const form = `<section class="mk-form"><h3 class="mk-section-title">◆ ${esc(tr('requestCreate'))}</h3><div class="mk-form-fields"><label>${esc(tr('requestChoose'))}<select id="mkRequestItem"><option value="">${esc(tr('chooseItem'))}</option>${catalog().map((x, i) => `<option value="${i}">${esc(x.name)}</option>`).join('')}</select></label><label>${esc(tr('requestPrice'))}<input id="mkRequestPrice" type="number" min="1" value="100"></label><label>${esc(tr('quantity'))}<input id="mkRequestQty" type="number" min="1" max="100" value="1"></label></div><p class="mk-meta" id="mkRequestTotal"></p><button disabled>${esc(tr('requests'))}</button><p class="mk-note">${esc(tr('readOnly'))}</p></section>`;
+      const form = `<section class="mk-form"><h3 class="mk-section-title">◆ ${esc(tr('requestCreate'))}</h3><div class="mk-form-fields"><label>${esc(tr('requestChoose'))}<select id="mkRequestItem"><option value="">${esc(tr('chooseItem'))}</option>${catalog().map((x, i) => `<option value="${i}">${esc(display(x.name))}</option>`).join('')}</select></label><label>${esc(tr('requestPrice'))}<input id="mkRequestPrice" type="number" min="1" value="100"></label><label>${esc(tr('quantity'))}<input id="mkRequestQty" type="number" min="1" max="100" value="1"></label></div><p class="mk-meta" id="mkRequestTotal"></p><button disabled>${esc(tr('requests'))}</button><p class="mk-note">${esc(tr('readOnly'))}</p></section>`;
       const mine = s.data.myRequests, ids = new Set(mine.map(x => x.id));
       const listings = s.data.requests.filter(x => !ids.has(x.id));
       const filter = x => M.filterListings(x, { q: s.q, sort: s.sort, diamondRate:s.rate });
-      const records = list => list.length ? list.map(x => `<div class="mk-record"><div class="mk-row-name">${art(x)}<div><b>${esc(x.name)}</b><small>${nf(x.amount)}×</small></div></div>${price({ ...x, kind: 'item', currency: 'GOLD' })}</div>`).join('') : empty();
+      const records = list => list.length ? list.map(x => `<div class="mk-record"><div class="mk-row-name">${art(x)}<div><b>${esc(display(x.name))}</b><small>${nf(x.amount)}×</small></div></div>${price({ ...x, kind: 'item', currency: 'GOLD' })}</div>`).join('') : empty();
       return form + `<h3 class="mk-section-title">◆ ${esc(tr('yourRequests'))}</h3>` + records(filter(mine)) + `<h3 class="mk-section-title" style="margin-top:20px">◆ ${esc(tr('openRequests'))}</h3>` + records(filter(listings));
     }
 
@@ -385,7 +386,7 @@
       const slots = visible.map(x => {
         const info = x.kind === 'pokemon' ? `${x.shiny ? '✨ ' : ''}${x.name} · ${tr('level')} ${nf(x.level)} · IV ${x.ivTotal == null ? '—' : nf(x.ivTotal)} · Q ${x.quality == null ? '—' : nf(x.quality)}` : `${x.name} · ${nf(x.quantity)}×`;
         const detail = x.kind === 'pokemon' ? `${tr('level')} ${nf(x.level)} · IV ${x.ivTotal == null ? '—' : nf(x.ivTotal)} · Q ${x.quality == null ? '—' : nf(x.quality)}` : `${esc(tr(x.kind === 'ball' ? 'Poke Balls' : x.kind === 'diamonds' ? 'Diamonds' : 'Items'))} · ${nf(x.quantity)}×`;
-        return `<button class="mk-bag-slot${x.kind === 'pokemon' ? ' pokemon' : ''}${x.id === s.ownedId ? ' selected' : ''}${x.team ? ' team' : ''}" data-owned="${esc(x.id)}" aria-pressed="${x.id === s.ownedId}" aria-label="${esc(info + (x.accountName ? ' · ' + x.accountName : ''))}" title="${esc(info)}">${art(x)}<span class="mk-inventory-description"><b>${esc(x.name)}${x.shiny ? ' ✨' : ''}${x.team ? ' ★' : ''}</b><span>${detail}</span>${x.kind === 'pokemon' ? `<small>${quality(x)} · #${esc((x.sourceId || x.id).replace(/^pokemon:/, ''))}</small>` : ''}<small>${esc(x.accountName || '')}</small></span></button>`;
+        return `<button class="mk-bag-slot${x.kind === 'pokemon' ? ' pokemon' : ''}${x.id === s.ownedId ? ' selected' : ''}${x.team ? ' team' : ''}" data-owned="${esc(x.id)}" aria-pressed="${x.id === s.ownedId}" aria-label="${esc(info + (x.accountName ? ' · ' + x.accountName : ''))}" title="${esc(info)}">${art(x)}<span class="mk-inventory-description"><b>${esc(display(x.name))}${x.shiny ? ' ✨' : ''}${x.team ? ' ★' : ''}</b><span>${detail}</span>${x.kind === 'pokemon' ? `<small>${quality(x)} · #${esc((x.sourceId || x.id).replace(/^pokemon:/, ''))}</small>` : ''}<small>${esc(x.accountName || '')}</small></span></button>`;
       }).join('');
       return `<h4 class="mk-bag-title">${label}</h4><nav class="mk-bag-tabs" aria-label="${esc(label)}">${tabs.map(([kind, icon, key]) => `<button data-own-kind="${kind}" aria-pressed="${s.ownKind === kind}" class="${s.ownKind === kind ? 'active' : ''}"><span class="mk-bag-icon icon-${icon}" aria-hidden="true"></span>${esc(tr(key))}</button>`).join('')}</nav><div class="mk-bag-count"><span>${nf(count)} Pokémon</span><span></span><span>${nf(quantity)} ${esc(tr('Items'))}</span></div><div class="mk-bag-grid">${slots}</div>${!own.length ? `<p class="mk-bag-empty">${esc(tr('ownEmpty'))}</p>` : ''}<div class="mk-bag-paging" ${pages === 1 ? 'hidden' : ''}><button data-own-page="${s.ownPage - 1}" ${s.ownPage === 1 ? 'disabled' : ''}>‹</button><span>${s.ownPage} / ${pages}</span><button data-own-page="${s.ownPage + 1}" ${s.ownPage === pages ? 'disabled' : ''}>›</button></div>`;
     }
@@ -425,7 +426,7 @@
       if (own.kind === 'pokemon') html += `<p class="mk-note">${esc(tr('fetched', { n: nf(s.compareList.length), total: nf(s.compareTotal) }))}</p>`;
       html += `<h3 class="mk-section-title">◆ ${esc(tr('similar'))}</h3>` + renderListings(list);
       if (own.kind === 'pokemon' && s.comparePage < s.comparePages) html += `<button data-compare-more ${s.comparePending ? 'disabled' : ''}>${esc(tr(s.comparePending ? 'loading' : 'more'))}</button>`;
-      if (bids.length) html += `<h3 class="mk-section-title" style="margin-top:20px">◆ ${esc(tr('openRequests'))}</h3>` + bids.map(x => `<div class="mk-record"><div><b>${esc(x.name)}</b><small>${nf(x.amount)}×</small></div>${price(x)}</div>`).join('');
+      if (bids.length) html += `<h3 class="mk-section-title" style="margin-top:20px">◆ ${esc(tr('openRequests'))}</h3>` + bids.map(x => `<div class="mk-record"><div><b>${esc(display(x.name))}</b><small>${nf(x.amount)}×</small></div>${price(x)}</div>`).join('');
       return html;
     }
 
@@ -494,7 +495,7 @@
       const needle = M.normalized(input.value.trim());
       if (!needle) { hideAlertSuggestions(); return; }
       const matches = alertTargets().filter(x => M.normalized(x.name).includes(needle) || String(x.speciesId || x.refId) === needle).slice(0, 30);
-      list.innerHTML = matches.length ? matches.map((x, i) => `<button type="button" role="option" aria-selected="false" tabindex="-1" id="mkAlertOption${i}" data-alert-target="${esc(x.kind + ':' + (x.kind === 'pokemon' ? x.speciesId : x.refId))}">${art(x)}<span>${esc(x.name)}${x.kind === 'pokemon' ? `<small>#${x.speciesId}</small>` : ''}</span></button>`).join('') : `<p role="status">${esc(tr('empty'))}</p>`;
+      list.innerHTML = matches.length ? matches.map((x, i) => `<button type="button" role="option" aria-selected="false" tabindex="-1" id="mkAlertOption${i}" data-alert-target="${esc(x.kind + ':' + (x.kind === 'pokemon' ? x.speciesId : x.refId))}">${art(x)}<span>${esc(display(x.name))}${x.kind === 'pokemon' ? `<small>#${x.speciesId}</small>` : ''}</span></button>`).join('') : `<p role="status">${esc(tr('empty'))}</p>`;
       list.hidden = false; input.setAttribute('aria-expanded', 'true'); input.removeAttribute('aria-activedescendant');
     }
     function chooseAlertTarget(key) {
@@ -515,7 +516,7 @@
       return alertRules.length ? alertRules.map(rule => {
         const state = monitor && monitor.state(rule.id), status = !rule.enabled ? alertText('paused') : state && state.error && state.error !== 'ok' ? tr(state.error) : state && state.ready ? alertText('active') : alertText('waiting');
         const ranges = [['iv', 'IV'], ['lv', tr('level')], ['q', 'Q']].filter(([key]) => rule[key + 'Min'] != null || rule[key + 'Max'] != null).map(([key, label]) => label + ' ' + (rule[key + 'Min'] ?? '—') + '–' + (rule[key + 'Max'] ?? '—')).join(' · ');
-        return `<section class="mk-form mk-alert-rule"><div><h3 class="mk-section-title">${esc(rule.name)}</h3><p class="mk-meta">${esc(rule.accountName)} · ${esc(rule.currency === 'ANY' ? alertText('any') + ' $ / 💎' : rule.currency === 'GOLD' ? 'dollars' : 'diamonds')}${rule.priceMax != null ? ' · ≤ ' + nf(rule.priceMax) : ''}${rule.kind === 'pokemon' ? ' · ' + esc(rule.shiny === 'any' ? alertText('any') + ' shiny' : rule.shiny === 'yes' ? '✨ Shiny' : alertText('normal')) : ''}${rule.includeEvolutions ? ' · ' + esc(tr('includeEvolutions')) + ' (' + rule.speciesIds.map(id => '#' + id).join(', ') + ')' : ''}${ranges ? ' · ' + esc(ranges) : ''}</p><p class="mk-note">${esc(status)}${state && state.checkedAt ? ' · ' + esc(alertText('last')) + ': ' + esc(new Date(state.checkedAt).toLocaleTimeString(locale())) : ''}</p>${state && state.lastHit ? `<p class="mk-meta">${esc(alertText('hit'))}: ${esc(state.lastHit.name)} · ${price(state.lastHit)} · ${esc(new Date(state.lastHitAt).toLocaleTimeString(locale()))}</p>` : ''}</div><div class="mk-alert-actions"><button data-alert-toggle="${esc(rule.id)}">${esc(alertText(rule.enabled ? 'pause' : 'resume'))}</button><button data-alert-remove="${esc(rule.id)}">${esc(alertText('remove'))}</button></div></section>`;
+        return `<section class="mk-form mk-alert-rule"><div><h3 class="mk-section-title">${esc(rule.name)}</h3><p class="mk-meta">${esc(rule.accountName)} · ${esc(rule.currency === 'ANY' ? alertText('any') + ' $ / 💎' : rule.currency === 'GOLD' ? 'dollars' : 'diamonds')}${rule.priceMax != null ? ' · ≤ ' + nf(rule.priceMax) : ''}${rule.kind === 'pokemon' ? ' · ' + esc(rule.shiny === 'any' ? alertText('any') + ' shiny' : rule.shiny === 'yes' ? '✨ Shiny' : alertText('normal')) : ''}${rule.includeEvolutions ? ' · ' + esc(tr('includeEvolutions')) + ' (' + rule.speciesIds.map(id => '#' + id).join(', ') + ')' : ''}${ranges ? ' · ' + esc(ranges) : ''}</p><p class="mk-note">${esc(status)}${state && state.checkedAt ? ' · ' + esc(alertText('last')) + ': ' + esc(new Date(state.checkedAt).toLocaleTimeString(locale())) : ''}</p>${state && state.lastHit ? `<p class="mk-meta">${esc(alertText('hit'))}: ${esc(display(state.lastHit.name))} · ${price(state.lastHit)} · ${esc(new Date(state.lastHitAt).toLocaleTimeString(locale()))}</p>` : ''}</div><div class="mk-alert-actions"><button data-alert-toggle="${esc(rule.id)}">${esc(alertText(rule.enabled ? 'pause' : 'resume'))}</button><button data-alert-remove="${esc(rule.id)}">${esc(alertText('remove'))}</button></div></section>`;
       }).join('') : empty(alertText('empty'));
     }
     function alertsScreen() {
@@ -541,7 +542,7 @@
       } else if (s.tab === 'compare') { content = comparisonScreen(); total = rows().length; from = total ? 1 : 0; to = total; }
       else if (s.tab === 'alerts') content = alertsScreen();
       else if (s.tab === 'requests') content = requestScreen();
-      else if (s.tab === 'history') content = `<h3 class="mk-section-title">◆ ${esc(tr('history'))}</h3>` + (s.data.history.length ? s.data.history.map(x => `<div class="mk-record"><div><b>${esc(tr(x.bought ? 'bought' : 'sold'))} ${nf(x.amount)}× ${esc(x.name)}</b><small>${esc(Number.isNaN(Date.parse(x.at)) ? '—' : new Date(x.at).toLocaleString())}</small></div>${price(x)}</div>`).join('') : empty());
+      else if (s.tab === 'history') content = `<h3 class="mk-section-title">◆ ${esc(tr('history'))}</h3>` + (s.data.history.length ? s.data.history.map(x => `<div class="mk-record"><div><b>${esc(tr(x.bought ? 'bought' : 'sold'))} ${nf(x.amount)}× ${esc(display(x.name))}</b><small>${esc(Number.isNaN(Date.parse(x.at)) ? '—' : new Date(x.at).toLocaleString())}</small></div>${price(x)}</div>`).join('') : empty());
       else content = empty();
       el('#mkResults').innerHTML = content;
       el('#mkCount').textContent = tr('showing', { from: nf(from), to: nf(to), total: nf(total) });

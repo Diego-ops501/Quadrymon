@@ -9,7 +9,7 @@
   const SORTS = ['recent', 'price-asc', 'price-desc', 'iv-desc', 'power-desc', 'level-desc', 'quality-desc'];
   const GRADES = ['Fraca', 'Comum', 'Incomum', 'Rara', 'Épica', 'Lendária', 'Mítica', 'Anciã', 'Divina'];
   const TYPES = ['NORMAL', 'FIRE', 'WATER', 'ELECTRIC', 'GRASS', 'ICE', 'FIGHTING', 'POISON', 'GROUND', 'FLYING', 'PSYCHIC', 'BUG', 'ROCK', 'GHOST', 'DRAGON', 'DARK', 'STEEL', 'FAIRY'];
-  const normalized = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const normalized = s => String(s || '').replace(/_/g, ' ').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   const rarity = q => GRADES[q >= 4 ? 8 : q >= 3 ? 7 : q >= 2 ? 6 : q >= 1.7 ? 5 : q >= 1.5 ? 4 : q >= 1.3 ? 3 : q >= 1.1 ? 2 : q >= 1 ? 1 : 0];
 
   function diamondRate(list) {

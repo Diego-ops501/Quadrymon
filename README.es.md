@@ -15,7 +15,7 @@ La ilustración de presentación fue creada a partir de la referencia visual de 
 1. Descarga **Quadrymon-1.0.0-x64.exe** desde el enlace superior.
 2. Ejecuta el instalador y elige el idioma y la carpeta de instalación.
 3. Abre **Ajustes → Cuentas** (Ajustes → Contas), añade hasta cuatro cuentas y guarda.
-4. La app completa el correo o usuario y la contraseña al cargar cada cuenta. Pulsa **Entrar en las cuentas** para enviar los formularios. Completa CAPTCHA y autenticación adicional en el juego.
+4. La app completa el correo o usuario y la contraseña y entra automáticamente cuando el formulario está listo. El nombre de la cuenta viene del personaje del juego. Completa CAPTCHA y autenticación adicional en el juego; **Entrar en las cuentas** permite reintentar manualmente.
 5. Elige **Cuadrícula**, **Foco** o **Resumen**. Selecciona el idioma en **Ajustes → Aspecto y juego**.
 
 Se necesita Windows x64 y acceso a internet. El instalador incluye el entorno de ejecución; no necesitas Node.js para usar la aplicación.
@@ -38,9 +38,13 @@ Las cuentas utilizan sesiones separadas. La barra superior permite seleccionar u
 
 Cambiar de vista conserva las sesiones. Elige cuántos paneles usar en **Ajustes → Cuentas**.
 
+El **Resumen** incluye suministros y duración estimada, acumulados diarios, metas de saldo y capturas, tendencias, equipos y capturas importantes. Los acumulados usan diferencias entre lecturas, conservan gastos negativos y reutilizan el historial local existente.
+
 ## Análisis e historial de capturas
 
 Abre **Análisis** para seguir los indicadores de las cuentas en el panel lateral. El resumen y el análisis muestran datos observados de la sesión; los datos ausentes no significan rendimiento cero.
+
+Usa las pestañas para elegir una cuenta y consultar sesión, saldo, loot, bag, objetos fijados, objetivo shiny y equipo. Las flechas reordenan secciones; **✕** oculta una sección, que se recupera en **Secciones ocultas**. La estrella en Bag fija un objeto.
 
 ![Panel de análisis](docs/images/analise.png)
 
@@ -87,6 +91,8 @@ Abre **Inventario** para consultar Pokémon, objetos y Poké Balls en columnas s
 
 Con la herramienta de IV activada, pasa el ratón, selecciona o usa Tab para llegar a un Pokémon. La tarjeta muestra nivel, calidad, tipos, atributos e IVs individuales; **Simular nivel** proyecta los atributos en otro nivel.
 
+La tarjeta detallada incluye barras de los seis atributos, potencial por IV total, aptitud física/especial y movimientos disponibles o bloqueados por nivel. Simula nivel y calidad sin alterar atributos observados del juego. Las franjas de IV indican la incertidumbre del cálculo.
+
 ![Tarjeta de IV y simulación](docs/images/ivs.png)
 
 El **IV total** lo informa el juego. Los **IVs individuales** se deducen de los atributos disponibles y pueden ser estimaciones. El cálculo necesita que el juego proporcione los datos necesarios.
@@ -96,6 +102,8 @@ El **IV total** lo informa el juego. Los **IVs individuales** se deducen de los 
 Abre el icono de hunt o **Recomendar hunt** en el resumen. Elige cuenta, objetivo de XP o beneficio, opción de poción y umbral de HP. El análisis considera nivel del líder, atributos, movimientos disponibles, efectividad, datos de hunts y mediciones de la cuenta.
 
 ![Recomendaciones de hunt](docs/images/hunts.png)
+
+La recomendación completa simula **256 escenarios por movimiento disponible**, usa la productividad de los mapas y prioriza mediciones reales. Muestra rangos de golpes, riesgo, XP/h, bajas/h y origen de la estimación. El beneficio incluye loot, ventas esperadas, bolas y pociones. Sin muestra real, la probabilidad de captura es modelada y no está garantizada. [Origen y límites del modelo](NOTICE.md).
 
 Los resultados distinguen valores **medidos** y **estimados**. Una muestra utiliza al menos cinco minutos limpios de observación; cambiar de líder, subir de nivel o reiniciar los contadores cambia la referencia de la medición.
 
@@ -119,6 +127,9 @@ En **Aspecto y juego**, activa el **Overlay** para ver un resumen compacto de la
 
 - **Eco:** reduce la frecuencia de cuadros de los paneles según la vista activa.
 - **Aspecto y juego:** idioma, proporción del juego, chat, menú del juego, HUD y sonido.
+- **Disposición:** cuadrícula, columna o fila; la proporción original también funciona en Foco.
+- **Chat y HUD:** oculta chat o menú; Ocultar HUD elimina ventanas de captura y muestra entrenador, Auto-Helper y menú al pasar el ratón.
+- **Ajustes del análisis:** muestra, oculta y reordena secciones; gestiona objetos fijados y protegidos en ventas. Arrastra el borde del panel para cambiar su ancho.
 - **Evitar suspensión:** mantiene activo el equipo mientras la opción está activada.
 - **Bandeja e inicio:** minimiza en la bandeja y elige iniciar con Windows.
 - **Venta protegida:** añade confirmación a las acciones de venta interceptadas por la aplicación.
@@ -133,6 +144,7 @@ El sistema operativo cifra las credenciales en el perfil local. La exportación 
 | --- | --- |
 | **Ctrl + 1 / 2 / 3 / 4** | Poner en foco la cuenta correspondiente. |
 | **Ctrl + M** | Alternar el sonido de las cuentas. |
+| **F2** | Alternar el menú de la cuenta enfocada en el juego; desde la app, alternar los menús de las cuentas. |
 
 ## Actualizaciones
 

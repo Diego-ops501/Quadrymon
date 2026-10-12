@@ -273,6 +273,8 @@
       level: finite(ch?.level),
       gold: finite(ch?.gold),
       diamonds: finite(ch?.diamonds),
+      vip: !!ch?.vip,
+      clan: ch?.clan || null,
       xpMultiplier,
       hunt: state.lastSlug,
       currentMap: state.currentMap,
@@ -280,6 +282,13 @@
       team,
       bag,
       balls,
+      drops: Object.entries(period.drops).map(([id, row]) => ({ name: row.name || items.get(id)?.name || "#" + id, qty: row.qty, gold: finite(items.get(id)?.npcPrice) * row.qty })),
+      prev: state.prev ? (() => {
+        const previous = state.prev, seconds = Math.max(1, (previous.end - previous.start) / 1000);
+        const loot = Object.entries(previous.drops || {}).reduce((sum, [id, row]) => sum + finite(items.get(id)?.npcPrice) * row.qty, 0);
+        return { hunt: previous.slug, seconds, xph: Math.round(previous.xp * 3600 / seconds), gph: Math.round((loot + previous.sellG - previous.supGold) * 3600 / seconds), kph: Math.round(previous.kills * 3600 / seconds) };
+      })() : null,
+      usedList: state.api["/api/game/used-balls"]?.pokemons?.map(x => ({ sid: x.speciesId, name: x.name, shiny: !!x.shiny, attempts: finite(x.attempts), total: finite(x.total), caught: !!x.caught })) || [],
       events:
         state.api["/api/game/events"]?.events ||
         state.api["/api/game/events"] ||
@@ -297,6 +306,8 @@
         kph: rate(kills),
         hpk: kills ? period.hits / kills : 0,
         captures: useServer ? Math.max(0, delta("captures")) : period.captures,
+        shinyFound: period.shinyN,
+        shinyCap: period.shinyCapN,
         lootGold: loot,
         capturesGold: captureGold,
         supplyGold: supply,
@@ -484,6 +495,7 @@
     for (const address of [
       "/api/characters/me",
       "/api/game/events",
+      "/api/game/used-balls",
       "/game/items.json",
     ])
       if (address.startsWith("/api/") || !state.api[address])

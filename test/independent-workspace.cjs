@@ -18,7 +18,7 @@ const runtime = [
   .join("\n");
 const fixtures = {
   "creds:load": () => [
-    { name: "Aurora", email: "one", senha: "" },
+    { name: "one", email: "", senha: "fixture-recovered" },
     { name: "Boreal", email: "two", senha: "" },
     { name: "Citrino", email: "three", senha: "" },
     { name: "Dourado", email: "four", senha: "" },
@@ -73,6 +73,7 @@ app.whenReady().then(async () => {
       contextIsolation: true,
       sandbox: true,
       webviewTag: true,
+      backgroundThrottling: false,
     },
   });
   try {
@@ -81,11 +82,36 @@ app.whenReady().then(async () => {
       const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms)),check=(condition,label)=>{if(!condition)throw Error(label);};
       for(let i=0;i<100&&!window.PokeMuxRuntime;i++)await pause(50);
       check(window.PokeMuxRuntime,'new runtime boots');await pause(100);
+      for(let i=0;i<100&&!document.querySelector('#workspaceAccounts').textContent.includes('Boreal');i++)await pause(50);
       check(document.querySelectorAll('webview').length===4,'four game partitions');
-      check(document.querySelector('#workspaceAccounts').textContent.includes('Aurora'),'saved names remain visible');
+      check(document.querySelector('#workspaceAccounts').textContent.includes('Boreal'),'saved names remain visible');
       const original=[...document.querySelectorAll('webview')];
+      check(document.body.classList.contains('native-ratio'),'original game ratio is enabled by default');
+      document.querySelector('#layout').click();await pause(100);
+      check(document.querySelector('#grid').dataset.layout==='col'&&localStorage.getItem('layout')==='col','column layout persists');
+      document.querySelector('#layout').click();await pause(100);
+      check(document.querySelector('#grid').dataset.layout==='row','row layout is restored');
+      document.querySelector('#layout').click();await pause(100);
+      check(original.every((view,index)=>document.querySelectorAll('webview')[index]===view),'layout changes preserve all game sessions');
+      document.querySelector('#propNat').click();check(localStorage.getItem('propNat')==='0'&&!document.body.classList.contains('native-ratio'),'aspect ratio toggle persists');
+      document.querySelector('#propNat').click();
+      const shownChat=document.querySelector('#chat').getAttribute('aria-pressed');document.querySelector('#chat').click();
+      check(document.querySelector('#chat').getAttribute('aria-pressed')!==shownChat&&localStorage.getItem('chat')===(shownChat==='true'?'0':'1'),'chat settings state and storage agree');
+      document.querySelector('#chat').click();
+      document.querySelector('#statsBtn').click();
+      const initialWidth=parseInt(document.querySelector('#stats').style.width);
+      document.querySelector('#analysisResize').dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowLeft',bubbles:true}));
+      check(Number(localStorage.getItem('statsW'))===initialWidth+20,'analysis pane width remains adjustable and persistent');
+      document.querySelector('#analysisResize').dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));
+      document.querySelector('#statsBtn').click();
       document.querySelector('#workspaceAccounts [data-account="1"]').click();await pause(50);
       check(document.body.dataset.workspaceMode==='focus','focus switches');
+      const focusGrid=document.querySelector('#grid').getBoundingClientRect(),focusRail=document.querySelector('#focusAccounts').getBoundingClientRect();
+      check(focusRail.top>=focusGrid.bottom-1&&focusRail.height<100,'focus accounts form a compact strip below the game');
+      document.querySelector('#statsBtn').click();await pause(100);
+      const railWithAnalysis=document.querySelector('#focusAccounts').getBoundingClientRect(),analysisRect=document.querySelector('#stats').getBoundingClientRect();
+      check(railWithAnalysis.right<=analysisRect.left+1,'bottom accounts stay inside game width when analysis opens');
+      document.querySelector('#statsBtn').click();
       document.querySelector('[data-mode="summary"]').click();await pause(50);
       check(document.querySelectorAll('#cards .runtime-card').length===4,'summary contains four cards');
       check(original.every((view,index)=>document.querySelectorAll('webview')[index]===view),'mode changes preserve live sessions');
@@ -94,13 +120,20 @@ app.whenReady().then(async () => {
       check(document.querySelectorAll('webview').length===2,'panel count decreases');
       check(original[0]===document.querySelectorAll('webview')[0]&&original[1]===document.querySelectorAll('webview')[1],'remaining sessions survive a count change');
       count.value='4';count.dispatchEvent(new Event('change'));await pause(50);
+      count.value='3';count.dispatchEvent(new Event('change'));await pause(50);
+      check(getComputedStyle(document.querySelector('#grid')).gridTemplateColumns.split(' ').length===2,'three accounts use the original two-column grid');
+      count.value='4';count.dispatchEvent(new Event('change'));await pause(50);
       const untouched=document.querySelectorAll('webview')[1],power=document.querySelector('#grid .panel-header button:last-child');power.click();await pause(30);power.click();await pause(30);
       check(untouched===document.querySelectorAll('webview')[1],'turning one account back on preserves the other accounts');
       document.querySelector('#menuBtn').click();check(document.querySelector('#menu').open,'settings dialog opens');
+      document.querySelector('#menu .settings-nav [data-section="analysis"]').click();
+      check(document.querySelectorAll('#analysisSettings input[type="checkbox"]').length===9,'analysis sections are configurable in settings');
       document.querySelector('#menu .settings-search').value='Eco';document.querySelector('#menu .settings-search').dispatchEvent(new Event('input'));
       check(!document.querySelector('[data-section="performance"].settings-section').hidden,'settings search works');
       document.querySelector('#menu header button').click();check(!document.querySelector('#menu').open,'settings dialog closes');
       document.querySelector('#accounts').click();
+      check(document.querySelector('[name="name0"]').readOnly,'game name cannot be mistaken for an editable login');
+      check(document.querySelector('[name="email0"]').value==='one','legacy login in name field is recovered');
       document.querySelector('[name="email0"]').value='azuosd2';
       document.querySelector('[name="email1"]').value='fixture@example.invalid';
       const accountForm=document.querySelector('#accountForm');
@@ -110,6 +143,12 @@ app.whenReady().then(async () => {
       document.querySelector('#accounts').click();
       check(document.querySelector('[name="email0"]').value==='azuosd2','username is retained');
       check(document.querySelector('[name="email1"]').value==='fixture@example.invalid','email is retained');
+      const namedView=document.querySelectorAll('webview')[0];
+      namedView.getURL=()=> 'https://poke.idleworld.online/play';
+      namedView.executeJavaScript=async()=>({ok:true,name:'OfficialTrainer',cid:'fixture-character',team:[],captures:[],shinies:[]});
+      await PokeMuxRuntime.readState(0);
+      check(document.querySelector('[name="name0"]').value==='OfficialTrainer','game snapshot fills the display name automatically');
+      namedView.getURL=()=> 'about:blank';
       document.querySelector('#accountEditor').close();
       document.querySelector('#inventoryBtn').click();await pause(100);check(document.querySelector('#inventoryDialog')?.open,'inventory opens');document.querySelector('#inventoryDialog').close();
       document.querySelector('#marketBtn').click();await pause(120);check(document.querySelector('#pmMarket').classList.contains('show'),'market opens without connected accounts');
@@ -139,17 +178,24 @@ app.whenReady().then(async () => {
       for(let i=0;i<4;i++)document.querySelector('[name="senha'+i+'"]').value='fixture-login-'+i;
       document.querySelector('#accountForm').requestSubmit();await pause(100);
       const calls=[];
+      let waitingForChallenge=true;
+      await pause(10000); // Let staggered real webview navigation settle before mocking login readiness.
       const views=[...document.querySelectorAll('webview')];
       views.forEach((view,index)=>{
         view.getURL=()=> 'https://poke.idleworld.online/login';
         view.executeJavaScript=async source=>{
           if(source.includes('async function loginInPage'))calls.push({index,submit:source.endsWith(',true)'),source});
+          if(index===0&&waitingForChallenge&&source.endsWith(',true)'))return 'challenge';
           return source.endsWith(',true)')?'submitted':'filled';
         };
         view.dispatchEvent(new Event('dom-ready'));
       });
       await pause(100);
-      if(calls.filter(x=>!x.submit).length!==4)throw Error('Login autofill must run for all four loaded accounts');
+      if(calls.filter(x=>x.submit).length!==4)throw Error('Automatic login must fill and submit all four loaded accounts');
+      waitingForChallenge=false;await pause(2200);
+      if(calls.filter(x=>x.submit&&x.index===0).length!==2)throw Error('Automatic login must retry after a pending challenge becomes ready');
+      if(calls.filter(x=>x.submit&&x.index!==0).length!==3)throw Error('Already submitted accounts must not be retried');
+      calls.length=0;
       document.querySelector('#loginAll').click();await pause(100);
       const submits=calls.filter(x=>x.submit);
       if(submits.length!==4||new Set(submits.map(x=>x.index)).size!==4)throw Error('Account button must submit all four accounts');

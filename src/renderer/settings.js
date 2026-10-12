@@ -14,7 +14,7 @@
     const body = el('div', 'settings-body'), nav = el('nav', 'settings-nav'), content = el('div', 'settings-content'), footer = el('p', 'settings-foot');
     const groups = [
       ['accounts', 2, ['accounts', 'loginAll', 'count', 'voltaHunt']],
-      ['appearance', 3, ['langRow', 'propNat', 'dock', 'chat', 'cleanHud', 'muteAll', 'overlayBtn']],
+      ['appearance', 3, ['langRow', 'layout', 'propNat', 'dock', 'chat', 'cleanHud', 'muteAll', 'overlayBtn']],
       ['performance', 4, ['eco', 'awake', 'minTray', 'autoStart']],
       ['notifications', 5, ['alerts', 'sndShiny', 'voiceAlerts', 'shotShiny']],
       ['analysis', 6, ['sellguard']], ['summary', 7, []],

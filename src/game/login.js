@@ -16,15 +16,25 @@
     }
     if (!username || !password || !form) return "not-ready";
     const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set;
-    for (const [input, value] of [[username, credentials.login], [password, credentials.password]]) {
+    const fill = (input, value) => {
       setter.call(input, value);
       input.dispatchEvent(new Event("input", { bubbles: true }));
       input.dispatchEvent(new Event("change", { bubbles: true }));
-    }
-    if (!submit) return "filled";
-    // Allow the native page's state handlers to enable its login button.
+    };
+    fill(username, credentials.login);
+    await pause();
+    fill(password, credentials.password);
+    await pause();
+    // Hydration or language changes can reset the first rendered form.
     for (let attempt = 0; attempt < 50; attempt++) {
-      if (!loginPage() || !form.isConnected) return "wrong-page";
+      if (!loginPage()) return "wrong-page";
+      password = document.querySelector('input[type="password"]');
+      form = password?.closest("form");
+      username = form?.querySelector('input[autocomplete="username"], input[name="username"], input[name="email"], input[name="login"], input[type="email"], input[placeholder="Email or username"]');
+      if (!username || !password || !form) { await pause(); continue; }
+      if (username.value !== credentials.login) { fill(username, credentials.login); await pause(); continue; }
+      if (password.value !== credentials.password) { fill(password, credentials.password); await pause(); continue; }
+      if (!submit) return "filled";
       const captcha = form.querySelector('[name="cf-turnstile-response"], [name="g-recaptcha-response"], [name="h-captcha-response"]');
       if (captcha && !captcha.value) return "challenge";
       const button = form.querySelector('button[aria-label="Log in"], button[type="submit"], button:not([type])');

@@ -93,6 +93,8 @@
     attack,
     throughput,
     capture,
+    mapThroughput: (...args) => (typeof module !== "undefined" && module.exports ? require("./hunt-map-model") : root.PokeMuxHuntMapModel).throughput(...args),
+    captureEstimate: (...args) => (typeof module !== "undefined" && module.exports ? require("./hunt-map-model") : root.PokeMuxHuntMapModel).capture(...args),
     source: "official-move-cadence-and-account-measurements",
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;

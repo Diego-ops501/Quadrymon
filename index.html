@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="src/renderer/settings.css" />
     <link rel="stylesheet" href="src/renderer/runtime.css" />
     <link rel="stylesheet" href="src/renderer/brand.css" />
+    <link rel="stylesheet" href="src/renderer/rich-panels.css" />
   </head>
   <body>
     <header id="topbar">
@@ -50,8 +51,10 @@
       </div>
     </header>
     <main id="content">
+      <div id="gameWorkspace">
       <section id="grid"></section>
       <section id="cards" hidden></section>
+      </div>
       <aside id="stats"></aside>
     </main>
     <dialog id="menu"></dialog>
@@ -167,10 +170,13 @@
     </div>
     <script src="src/domain/iv-math.js"></script>
     <script src="src/domain/pokemon-state.js"></script>
+    <script src="src/domain/display-name.js"></script>
     <script src="src/domain/pokemon-aptitude.js"></script>
     <script src="src/domain/capture-filters.js"></script>
     <script src="src/domain/hunt-measurements.js"></script>
     <script src="src/domain/hunt-catalog.js"></script>
+    <script src="src/domain/hunt-map-rates.js"></script>
+    <script src="src/domain/hunt-map-model.js"></script>
     <script src="src/domain/hunt-combat-model.js"></script>
     <script src="src/domain/hunt-recommendations.js"></script>
     <script src="src/domain/market-travel.js"></script>
@@ -182,6 +188,7 @@
     <script src="src/renderer/summary.js"></script>
     <script src="src/renderer/settings.js"></script>
     <script src="src/game/login.js"></script>
+    <script src="src/renderer/rich-panels.js"></script>
     <script src="src/renderer/runtime.js"></script>
   </body>
 </html>

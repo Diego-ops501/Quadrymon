@@ -1,0 +1,11 @@
+"use strict";
+const assert = require("node:assert/strict"), names = require("../src/domain/display-name");
+for (const [raw, expected] of [["ancient_pinsir", "Ancient Pinsir"], ["enigmatic_girafarig", "Enigmatic Girafarig"], ["Nightmare_Dratini", "Nightmare Dratini"], ["Porygon-Z", "Porygon-Z"], ["Ho-Oh", "Ho-Oh"]]) assert.equal(names.display(raw), expected);
+const entries = [{ kind:"pokemon",name:"Pinsir",speciesId:127 }, { kind:"pokemon",name:"ancient_pinsir",speciesId:10001 }, { kind:"pokemon",name:"Dratini",speciesId:147 }, { kind:"pokemon",name:"Dragonair",speciesId:148 }];
+assert.equal(names.spriteId(10001, null, entries),127);
+assert.equal(names.spriteId(0,"Nightmare Dratini",entries),147);
+assert.equal(names.spriteId(13148,null,entries),148);
+assert.equal(names.spriteId(19000,"Unknown species",entries),0);
+assert.equal(names.spriteId(10001,"ancient_pinsir",entries,{10001:127}),127);
+assert.equal(entries[1].name,"ancient_pinsir");
+console.log("Display names: variants, punctuation, basic sprites, missing species and raw catalog preservation passed.");

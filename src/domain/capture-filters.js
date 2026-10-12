@@ -27,7 +27,7 @@
     const list = Array.isArray(entries) ? entries : [];
     const f = filters && typeof filters === 'object' ? filters : {};
     const account = Number.isInteger(Number(f.p)) ? Number(f.p) : -1;
-    const name = String(f.n || '').trim().toLowerCase().slice(0, 30);
+    const name = String(f.n || '').replace(/_/g, ' ').trim().toLowerCase().slice(0, 30);
     const rarity = String(f.r || '');
     const minIv = Math.max(0, parseLooseNumber(f.iv));
     const minQuality = Math.max(0, parseLooseNumber(f.q));
@@ -38,7 +38,7 @@
     return list.filter((entry) => {
       const x = entry && typeof entry === 'object' ? entry : {};
       return (account < 0 || Number(x.p) === account)
-        && (!name || String(x.n || '').toLowerCase().includes(name))
+        && (!name || String(x.n || '').replace(/_/g, ' ').toLowerCase().includes(name))
         && (!f.sh || !!x.sh)
         && (!rarity || rarityKey(x.q) === rarity)
         && parseLooseNumber(x.iv) >= minIv

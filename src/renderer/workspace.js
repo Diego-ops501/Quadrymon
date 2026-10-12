@@ -115,7 +115,7 @@
           button.setAttribute('aria-label', button.title);
         }
         links[index].hidden = focused === index;
-        text(links[index].querySelector('.account-detail'), account.hunt || status);
+        text(links[index].querySelector('.account-detail'), globalThis.QuadrymonNames?.display(account.hunt) || account.hunt || status);
         const panel = grid.children[index];
         if (!panel) return;
         const panelName = panel.querySelector('.name'); text(panelName, name);
@@ -135,10 +135,10 @@
         text(travel, trip.busy ? copy.traveling : trip.outsideHunt ? copy.backHunt : copy.goMarket);
         travel.disabled = !account.live || account.off || trip.busy || trip.outsideHunt && !trip.previous;
         travel.dataset.returning = String(!!trip.outsideHunt);
-        travel.title = trip.outsideHunt ? trip.previous ? copy.backHunt + ' · ' + trip.previous.name : copy.noPrevious : copy.goMarket;
+        travel.title = trip.outsideHunt ? trip.previous ? copy.backHunt + ' · ' + (globalThis.QuadrymonNames?.display(trip.previous.name) || trip.previous.name) : copy.noPrevious : copy.goMarket;
         travel.setAttribute('aria-label', travel.title);
         travel.setAttribute('aria-busy', String(!!trip.busy));
-        strip.title = data ? account.hunt : account.live ? copy.stale : copy.noData;
+        strip.title = data ? globalThis.QuadrymonNames?.display(account.hunt) || account.hunt : account.live ? copy.stale : copy.noData;
         const statusEl = panel.querySelector('.status'); if (statusEl) text(statusEl, status);
       });
       for (const [panel, strip] of metrics) if (!panel.isConnected) { strip.remove(); metrics.delete(panel); }
@@ -160,5 +160,9 @@
     refresh();
     return { refresh, destroy() { destroyed = true; if (frame !== null) clearTimeout(frame); observer.disconnect(); metrics.clear(); rail.remove(); footer.remove(); } };
   }
-  return { mount, accountLabel, frameRate, createStateReader };
+  function gameDimensions(width, height) {
+    const scale = Math.min(Math.max(0, width) / 1600, Math.max(0, height) / 832);
+    return { width: Math.floor(1600 * scale), height: Math.floor(832 * scale) };
+  }
+  return { mount, accountLabel, frameRate, createStateReader, gameDimensions };
 });

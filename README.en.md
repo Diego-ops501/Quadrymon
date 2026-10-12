@@ -15,7 +15,7 @@ The promotional illustration was inspired by the Quadrymon visual reference. The
 1. Download **Quadrymon-1.0.0-x64.exe** using the link above.
 2. Run the installer and choose its language and installation directory.
 3. Open **Settings → Accounts** (Ajustes → Contas), add up to four accounts and save.
-4. The app fills each account's email or username and password when its login page loads. Click **Log in to accounts** to submit the forms. Complete CAPTCHA and additional authentication in the game.
+4. The app fills each account's email or username and password and logs in automatically when the form is ready. Account names come from the in-game character. Complete CAPTCHA and additional authentication in the game; **Log in to accounts** lets you retry manually.
 5. Choose **Grid**, **Focus** or **Summary**. Select the interface language under **Settings → Appearance and game**.
 
 Windows x64 and internet access are required. The installer includes the application runtime; Node.js is not required to use the app.
@@ -38,9 +38,13 @@ Accounts use separate sessions. The top bar lets you select an account, switch v
 
 Switching views preserves sessions. Choose the number of panels under **Settings → Accounts**.
 
+**Summary** includes supplies and estimated duration, daily totals, balance and capture goals, trends, teams and important catches. Daily totals use differences between readings, retain negative expenses and reuse existing local history.
+
 ## Analysis and capture history
 
 Open **Analysis** to monitor account indicators in the side panel. Summary and analysis show observed session data; missing data does not mean zero performance.
+
+Select an account with the tabs to inspect its session, balance, loot, bag, pinned items, shiny target and team. Arrows reorder sections; **✕** hides a section, which can be restored under **Hidden sections**. Use the star in Bag to pin an item.
 
 ![Analysis panel](docs/images/analise.png)
 
@@ -87,6 +91,8 @@ Open **Inventory** to browse Pokémon, items and Poké Balls in separate account
 
 With the IV tool enabled, hover over, select or use Tab to reach a Pokémon. Its card shows level, quality, types, stats and individual IVs; **Simulate level** projects stats at another level.
 
+The detailed card includes six stat bars, total-IV potential, physical/special aptitude and available or level-locked moves. Simulate level and quality without changing observed game stats. Individual IV ranges show uncertainty in the calculation.
+
 ![IV card and simulation](docs/images/ivs.png)
 
 **Total IV** is reported by the game. **Individual IVs** are inferred from available stats and may be estimates. The calculation requires the game to supply the necessary data.
@@ -98,6 +104,8 @@ Open the hunt icon or **Recommend hunt** in Summary. Choose an account, XP or pr
 ![Hunt recommendations](docs/images/hunts.png)
 
 Results distinguish **measured** values from **estimated** ones. Samples require at least five clean minutes of observation; changing the leader, leveling up or resetting counters changes the measurement baseline.
+
+The complete recommendation simulates **256 scenarios per available move**, uses map productivity and prioritizes real measurements. It shows hit ranges, risk, XP/h, kills/h and the estimate's source. Profit mode includes loot, expected capture sales, balls and potions. Capture probability is modeled when no real sample is available; it is not guaranteed. [Model origin and limitations](NOTICE.md).
 
 Progression limits the options: below level 150, the Pokémon's level limits the tier; levels 150–599 use level-150 hunts; level 600 and above considers the Orre 500–600 tier when available. A recommendation for today's type appears when the game reports an active event and a suitable option exists.
 
@@ -119,6 +127,9 @@ Under **Appearance and game**, enable the **Overlay** to monitor a compact accou
 
 - **Eco:** reduces panel frame rates according to the active view.
 - **Appearance and game:** language, game aspect ratio, chat, game menu, HUD and sound.
+- **Arrangement:** grid, column or row; original aspect ratio also works in Focus.
+- **Chat and HUD:** hide chat or the game menu; Hide HUD removes capture popups and reveals trainer, Auto-Helper and menu on hover.
+- **Analysis settings:** show, hide and reorder sections; manage pinned items and protected sale items. Drag the panel edge to resize it.
 - **Prevent sleep:** keeps the computer awake while enabled.
 - **Tray and startup:** minimize to the tray and choose whether to start with Windows.
 - **Protected selling:** adds confirmation to selling actions intercepted by the app.
@@ -133,6 +144,7 @@ The operating system encrypts credentials in the local profile. Settings exports
 | --- | --- |
 | **Ctrl + 1 / 2 / 3 / 4** | Focus the corresponding account. |
 | **Ctrl + M** | Toggle account sound. |
+| **F2** | Toggle the menu for the focused game account; from the app interface, toggle account menus. |
 
 ## Updates
 

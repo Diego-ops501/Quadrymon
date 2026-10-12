@@ -64,8 +64,11 @@
     returnHunt: load("voltaHunt") === "1",
     awake: load("awake") === "1",
     minTray: load("minTray") !== "0",
-    chat: load("chat") !== "0",
-    dock: load("dock") !== "0",
+    chat: load("chat") == null ? load("chatHidden") !== "1" : load("chat") !== "0",
+    dock: load("dock") == null ? load("dockHidden") !== "1" : load("dock") !== "0",
+    ratio: load("propNat") !== "0",
+    layout: ["grid", "col", "row"].includes(load("layout")) ? load("layout") : "grid",
+    analysisWidth: Math.max(280, Math.min(760, num(load("statsW")) || 380)),
     clean: load("cleanHud") === "1",
     guard: load("sellguard") !== "0",
   };
@@ -74,6 +77,16 @@
     accounts = await ipc.loadCreds();
   } catch {}
   while (accounts.length < 4) accounts.push({ name: "", email: "", senha: "" });
+  // Recover logins entered in the old editable display-name field.
+  let recoveredLogins = false;
+  for (const account of accounts) {
+    if (!account.email && account.name && account.senha) {
+      account.email = account.name;
+      account.name = "";
+      recoveredLogins = true;
+    }
+  }
+  if (recoveredLogins) await ipc.saveCreds(accounts);
   let mode = "grid",
     focus = 0,
     analysis = false,
@@ -96,6 +109,8 @@
     traveling: false,
     loginRequested: false,
     loginTask: null,
+    loginRetryTimer: null,
+    loginSubmitted: null,
     events: new Set(),
     lastKill: 0,
     lastReload: 0,
@@ -104,8 +119,49 @@
     sampleContexts = [],
     captureLog = readJson("lifeCatch", []);
   const manualChoices = readJson("pokemux-notification-settings", {});
+  const observedPanels = new WeakSet(), gameViewObserver = new ResizeObserver(() => fitGameViews());
+  let fitFrame = null;
   const L = (pt, en, es) =>
     options.lang === "en" ? en || pt : options.lang === "es" ? es || pt : pt;
+  function updateVisualControls() {
+    document.body.classList.toggle("native-ratio", options.ratio);
+    $("grid").dataset.layout = options.layout;
+    $("stats").style.width = options.analysisWidth + "px";
+    document.body.style.setProperty("--statsw", options.analysisWidth + "px");
+    for (const [id, value, visible, hidden] of [
+      ["chat", options.chat, L("Chat visível", "Chat visible", "Chat visible"), L("Chat oculto", "Chat hidden", "Chat oculto")],
+      ["dock", options.dock, L("Menu visível · F2", "Menu visible · F2", "Menú visible · F2"), L("Menu oculto · F2", "Menu hidden · F2", "Menú oculto · F2")],
+      ["propNat", options.ratio, L("Proporção original", "Original aspect ratio", "Proporción original"), L("Preencher painel", "Fill panel", "Llenar panel")],
+      ["muteAll", !options.muted, L("Som ligado", "Sound on", "Sonido activo"), L("Som desligado", "Sound off", "Sonido desactivado")],
+    ]) { const control = $(id); control.textContent = value ? visible : hidden; control.classList.toggle("on", value); control.setAttribute("aria-pressed", String(value)); }
+    $("layout").textContent = options.layout === "col" ? L("Grade: coluna", "Grid: column", "Cuadrícula: columna") : options.layout === "row" ? L("Grade: linha", "Grid: row", "Cuadrícula: fila") : L("Grade: 2 × 2", "Grid: 2 × 2", "Cuadrícula: 2 × 2");
+    const help = {
+      chat: L("Mostra ou esconde o chat nas contas. A escolha é preservada ao recarregar.", "Show or hide chat in all accounts. The choice survives reloads.", "Muestra u oculta el chat en las cuentas. La elección se conserva al recargar."),
+      dock: L("Alterna a barra de ícones do jogo. F2 dentro do jogo alterna apenas aquela conta.", "Toggle the game toolbar. F2 inside the game toggles that account only.", "Alterna la barra del juego. F2 dentro del juego alterna solo esa cuenta."),
+      cleanHud: L("Esconde o popup de captura. Nome, Auto-Helper e menu reaparecem ao passar o mouse.", "Hide capture popups. Name, Auto-Helper and menu reappear on hover.", "Oculta ventanas de captura. Nombre, Auto-Helper y menú reaparecen al pasar el ratón."),
+      propNat: L("Mantém o formato original do jogo, sem esticar, na Grade e no Foco.", "Keep the original game aspect ratio in Grid and Focus without stretching.", "Conserva la proporción original del juego en Cuadrícula y Foco sin estirar."),
+      layout: L("Alterna entre grade, coluna e linha sem desconectar as contas.", "Switch between grid, column and row without disconnecting accounts.", "Alterna entre cuadrícula, columna y fila sin desconectar cuentas."),
+      muteAll: L("Liga ou desliga o áudio das contas. O áudio fica suspenso no Resumo.", "Turn account audio on or off. Audio is suspended in Summary.", "Activa o desactiva el audio de las cuentas. El audio se suspende en Resumen."),
+    };
+    for (const [id, title] of Object.entries(help)) { $(id).title = title; const hint = document.querySelector('[data-help-for="' + id + '"]'); if (hint) hint.textContent = title; }
+  }
+  function fitGameViews() {
+    if (fitFrame != null) return;
+    fitFrame = requestAnimationFrame(() => {
+      fitFrame = null;
+      for (const current of slots.slice(0, options.count)) {
+        const panel = current.panel, view = current.view;
+        if (!panel?.isConnected) continue;
+        if (!observedPanels.has(panel)) { observedPanels.add(panel); gameViewObserver.observe(panel); }
+        if (!view) continue;
+        if (!options.ratio || mode === "summary") { view.style.width = view.style.height = ""; continue; }
+        const height = panel.clientHeight - (panel.querySelector('.panel-header')?.offsetHeight || 0) - (panel.querySelector('.panel-metrics')?.offsetHeight || 0);
+        if (panel.clientWidth < 8 || height < 8) continue;
+        const size = window.PokeMuxWorkspace.gameDimensions(panel.clientWidth, height);
+        for (const key of ["width", "height"]) if (view.style[key] !== size[key] + "px") view.style[key] = size[key] + "px";
+      }
+    });
+  }
   function localize() {
     const labels = {
       statsBtn: ["Análise", "Analysis", "Análisis"],
@@ -121,6 +177,7 @@
         "Game aspect ratio",
         "Proporción del juego",
       ],
+      layout: ["Disposição da grade", "Grid arrangement", "Disposición de cuadrícula"],
       dock: ["Menu do jogo", "Game menu", "Menú del juego"],
       chat: ["Chat", "Chat", "Chat"],
       cleanHud: ["Limpar HUD", "Hide HUD", "Ocultar HUD"],
@@ -166,6 +223,7 @@
         element.title = L(...values);
       }
     }
+    updateVisualControls();
     for (const [selector, values] of [
       ["#accountEditor h2", ["Contas", "Accounts", "Cuentas"]],
       [
@@ -264,6 +322,14 @@
           }
           current.data = data;
           current.at = Date.now();
+          richPanels.observe(index, data);
+          if (data.name && accounts[index].name !== data.name) {
+            accounts[index].name = data.name;
+            void ipc.saveCreds(accounts);
+            const displayName = document.querySelector('#accountFields [name="name' + index + '"]');
+            if (displayName) displayName.value = data.name;
+            workspace?.refresh();
+          }
           record(index, data);
         }
         return data;
@@ -358,7 +424,7 @@
         notify(
           name(index) +
             ": " +
-            capture.n +
+            window.QuadrymonNames.display(capture.n) +
             ", IV " +
             format(capture.iv) +
             (capture.sh
@@ -443,6 +509,7 @@
   function build() {
     const grid = $("grid");
     grid.dataset.count = String(options.count);
+    grid.style.setProperty("--panel-count", options.count);
     for (let index = 0; index < 4; index++) {
       const current = slots[index];
       if (index >= options.count) {
@@ -499,6 +566,8 @@
         workspace?.refresh();
       });
       header.append(power);
+      const descriptions = [L("Diminuir zoom", "Zoom out", "Reducir zoom"), L("Aumentar zoom", "Zoom in", "Aumentar zoom"), L("Recarregar conta", "Reload account", "Recargar cuenta"), L("Recomendar hunt", "Recommend hunt", "Recomendar hunt"), L("Ampliar / voltar à grade", "Expand / return to grid", "Ampliar / volver a cuadrícula"), L("Desligar / ligar conta", "Turn account off / on", "Apagar / encender cuenta")];
+      [...header.querySelectorAll('button')].forEach((control, at) => { control.title = descriptions[at]; control.setAttribute("aria-label", descriptions[at]); });
       panel.append(header);
       grid.insertBefore(panel, grid.children[index] || null);
       if (current.off) {
@@ -514,6 +583,7 @@
       attachView(index, panel);
     }
     setMode(mode, Math.min(focus, options.count - 1));
+    fitGameViews();
     workspace?.refresh();
   }
   function attachView(index, panel) {
@@ -534,12 +604,13 @@
         view.setAudioMuted(options.muted || mode === "summary");
         view.setZoomFactor(num(load("zoom" + index)) || 1);
       } catch {}
+      fitGameViews();
       void inject(index);
-      void login(index);
+      void login(index, true);
     });
     view.addEventListener("did-navigate-in-page", () => {
       void inject(index);
-      void login(index);
+      void login(index, true);
     });
     view.addEventListener("did-start-navigation", (event) => {
       if (event.isMainFrame && !event.isInPlace) {
@@ -606,6 +677,7 @@
   function setMode(next, index = focus) {
     mode = next;
     focus = index;
+    if (next === "focus") richPanels.select(index);
     document.body.classList.toggle("cards-on", mode === "summary");
     $("cards").hidden = mode !== "summary";
     $("grid").hidden = mode === "summary";
@@ -615,6 +687,7 @@
     applyPerformance();
     workspace?.refresh();
     if (mode === "summary") renderSummary();
+    fitGameViews();
   }
   function toggleAnalysis() {
     analysis = !analysis;
@@ -640,126 +713,52 @@
       secs: data?.a?.seconds || 0,
     };
   }
-  function metricsCard(index) {
-    const data = slots[index].data,
-      card = node("article", null, "runtime-card");
-    card.dataset.summaryKey = "account-" + index;
-    card.append(node("h3", name(index)));
-    const status = window.PokeMuxSummary.health(summaryRow(index));
-    card.append(
-      node(
-        "p",
-        window.PokeMuxSummary.COPY[options.lang][status.status] ||
-          status.status,
-        "runtime-note",
-      ),
-    );
-    const dl = node("dl");
-    for (const [label, value] of [
-      ["Hunt", data?.hunt],
-      ["XP/h", data?.a?.xph],
-      ["$/h", data?.a?.gph],
-      [L("Capturas", "Captures", "Capturas"), data?.a?.captures],
-      [L("Abates/h", "Kills/h", "Bajas/h"), data?.a?.kph],
-    ])
-      append(
-        dl,
-        node("dt", label),
-        node("dd", typeof value === "string" ? value : format(value)),
-      );
-    card.append(dl);
-    const leader = data?.team?.find((row) => row.ld);
-    if (leader)
-      card.append(
-        node(
-          "p",
-          leader.name +
-            " Lv" +
-            leader.level +
-            " · IV " +
-            format(leader.ivt) +
-            " · Q " +
-            format(leader.q) +
-            " · HP " +
-            format(leader.hp) +
-            "/" +
-            format(leader.hm),
-        ),
-      );
-    const buttons = node("div", null, "buttons");
-    append(
-      buttons,
-      button(L("Abrir conta", "Open account", "Abrir cuenta"), () =>
-        setMode("focus", index),
-      ),
-      button(L("Recomendar hunt", "Recommend hunt", "Recomendar hunt"), () =>
-        openRecommendations(index),
-      ),
-    );
-    card.append(buttons);
-    buttons.children[0].dataset.summaryAction = "account";
-    buttons.children[1].dataset.summaryAction = "recommend";
-    for (const control of buttons.children)
-      control.dataset.account = String(index);
-    return card;
-  }
+  const richPanels = window.QuadrymonRichPanels.mount({
+    node, button, append, L, format, colors, read: readJson, save,
+    count: () => options.count, focus: () => focus, lang: () => options.lang,
+    data: index => slots[index].data, name, summaryRow, sprite,
+    captures: () => captureLog,
+    catalog: () => gameCatalog,
+    open: index => { setMode("focus", index); if (!analysis) toggleAnalysis(); },
+    recommend: openRecommendations, openCaptures, exportCaptures, reset: resetSessions,
+    closeAnalysis: toggleAnalysis,
+    openSettings: tab => settings.open(tab),
+    refresh: () => { renderSummary(); renderAnalysis(); },
+    openPokemon: async (index, id) => {
+      const p = slots[index].data?.team?.find(row => row.id === id);
+      if (!p) return;
+      const result = await ivBridge.calculateIv(index, {
+        kind: "Pokemon", name: p.name, speciesId: p.sid, level: p.level,
+        quality: p.q, ivTotal: p.ivt, shiny: p.shiny,
+        stats: { hp: p.hm, atk: p.stats?.atk, def: p.stats?.def, spAtk: p.stats?.spa, spDef: p.stats?.spd, speed: p.stats?.speed },
+      }, slots[index].data.cid);
+      if (result) showIv(index, result, { x: Math.max(10, (innerWidth - 470) / 2), y: 100 }, true);
+    },
+  });
   function renderSummary() {
     if (mode !== "summary") return;
-    const container = node("div");
-    container.append(
-      node(
-        "h2",
-        L("Resumo das contas", "Account summary", "Resumen de cuentas"),
-      ),
-    );
-    const groups = node("div", null, "summary-accounts");
-    for (let i = 0; i < options.count; i++) groups.append(metricsCard(i));
-    const captures = button(
-        L("Histórico de capturas", "Capture history", "Historial de capturas"),
-        openCaptures,
-      ),
-      reset = button(
-        L("Zerar sessão", "Reset session", "Reiniciar sesión"),
-        resetSessions,
-      );
-    captures.dataset.summaryAction = "captures";
-    reset.dataset.summaryAction = "reset";
-    container.append(groups, captures, reset);
-    window.PokeMuxSummary.patch($("cards"), container.innerHTML);
+    window.PokeMuxSummary.patch($("cards"), richPanels.summary().outerHTML);
   }
-  $("cards").onclick = (event) => {
-    const control = event.target.closest("[data-summary-action]");
-    if (!control) return;
-    const index = Number(control.dataset.account);
-    if (control.dataset.summaryAction === "account") {
-      setMode("focus", index);
-      if (!analysis) toggleAnalysis();
-    } else if (control.dataset.summaryAction === "recommend")
-      void openRecommendations(index);
-    else if (control.dataset.summaryAction === "captures") openCaptures();
-    else if (control.dataset.summaryAction === "reset") resetSessions();
+  $("cards").onclick = event => richPanels.handle(event);
+  $("cards").oninput = event => richPanels.filter(event);
+  $("cards").onchange = event => richPanels.filter(event);
+  richPanels.bindGestures($("cards"));
+  richPanels.bindGestures($("stats"));
+  $("stats").onclick = event => richPanels.handle(event);
+  $("stats").onchange = event => richPanels.filter(event);
+  const setAnalysisWidth = width => { options.analysisWidth = Math.max(280, Math.min(760, Math.round(width))); save("statsW", options.analysisWidth); updateVisualControls(); fitGameViews(); };
+  let analysisDrag = null;
+  $("stats").addEventListener("pointerdown", event => { if (!event.target.closest('[data-analysis-resize]')) return; event.preventDefault(); analysisDrag = { x: event.clientX, width: $("stats").offsetWidth }; $("stats").setPointerCapture(event.pointerId); });
+  $("stats").addEventListener("pointermove", event => { if (analysisDrag) setAnalysisWidth(analysisDrag.width + analysisDrag.x - event.clientX); });
+  $("stats").addEventListener("pointerup", () => { analysisDrag = null; });
+  $("stats").addEventListener("lostpointercapture", () => { analysisDrag = null; });
+  for (const host of [$("cards"), $("stats")]) host.onkeydown = event => {
+    if (event.target.dataset.analysisResize && ["ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); setAnalysisWidth(options.analysisWidth + (event.key === "ArrowLeft" ? 20 : -20)); return; }
+    if (event.key === "Enter" && event.target.matches('.restored-pokemon')) richPanels.handle(event);
   };
   function renderAnalysis() {
     if (!analysis) return;
-    const host = $("stats");
-    host.replaceChildren(
-      append(
-        node("div", null, "dialog-head"),
-        node("h2", L("Análise", "Analysis", "Análisis")),
-        button("✕", toggleAnalysis),
-      ),
-    );
-    for (let i = 0; i < options.count; i++) host.append(metricsCard(i));
-    host.append(
-      button(
-        L("Histórico de capturas", "Capture history", "Historial de capturas"),
-        openCaptures,
-      ),
-      button(
-        L("Exportar histórico", "Export history", "Exportar historial"),
-        exportCaptures,
-      ),
-    );
+    window.PokeMuxSummary.patch($("stats"), richPanels.analysis().outerHTML);
   }
   function workspaceState() {
     return {
@@ -847,19 +846,27 @@
       "window.PokeMuxGamePreferences?.configure(" + JSON.stringify(value) + ")",
     );
   }
-  async function login(index, submit = false) {
+  async function login(index, submit = false, manual = false) {
     const account = accounts[index],
       current = slots[index];
     if (!current.view || current.off) return "off";
     if (!account.email || !account.senha) return "missing";
+    clearTimeout(current.loginRetryTimer);
     if (submit) current.loginRequested = true;
     if (current.loginTask) return current.loginTask;
     const view = current.view;
     try {
       const url = new URL(view.getURL());
       if (url.origin !== "https://poke.idleworld.online" || !/^\/login\/?$/.test(url.pathname)) {
-        if (url.origin === "https://poke.idleworld.online") current.loginRequested = false;
+        if (url.origin === "https://poke.idleworld.online") {
+          current.loginRequested = false;
+          current.loginSubmitted = null;
+        }
         return "wrong-page";
+      }
+      if (!manual && current.loginSubmitted?.view === view && current.loginSubmitted.epoch === current.epoch) {
+        current.loginRequested = false;
+        return "already-submitted";
       }
       const send = current.loginRequested;
       current.loginRequested = false;
@@ -870,18 +877,28 @@
       let result;
       try { result = await task; }
       finally { if (current.loginTask === task) current.loginTask = null; }
+      if (current.view === view && result === "submitted") {
+        current.loginSubmitted = { view, epoch: current.epoch };
+        current.loginRequested = false;
+      }
       if (current.view === view && result === "filled" && current.loginRequested) return login(index, true);
+      if (send && current.view === view && ["challenge", "not-ready"].includes(result)) {
+        current.loginRetryTimer = setTimeout(() => {
+          if (current.view === view && !current.off) void login(index, true);
+        }, 2000);
+      }
       return result;
     } catch { return "not-ready"; }
   }
   function openAccounts() {
     const host = $("accountFields");
     host.replaceChildren();
+    host.append(node("p", L("Preencha apenas e-mail ou usuário e senha. O nome é identificado automaticamente no jogo.", "Enter only email or username and password. The name is detected automatically in the game.", "Completa solo correo o usuario y contraseña. El nombre se detecta automáticamente en el juego."), "runtime-note"));
     for (let index = 0; index < 4; index++) {
       const row = node("div", null, "account-fields");
       row.append(node("b", index + 1));
       for (const [field, type, placeholder] of [
-        ["name", "text", "Nome"],
+        ["name", "text", L("Nome no jogo (automático)", "Game name (automatic)", "Nombre en el juego (automático)")],
         ["email", "text", L("E-mail ou usuário", "Email or username", "Correo o usuario")],
         ["senha", "password", "Senha"],
       ]) {
@@ -891,6 +908,12 @@
         input.name = field + index;
         input.placeholder = placeholder;
         input.autocomplete = "off";
+        if (field === "name") {
+          input.readOnly = true;
+          input.tabIndex = -1;
+          input.title = placeholder;
+          input.value = slots[index].data?.name || accounts[index].name || "";
+        }
         row.append(input);
       }
       row.append(
@@ -920,7 +943,7 @@
         Object.fromEntries(
           ["name", "email", "senha"].map((field) => [
             field,
-            String(fields.get(field + index) || ""),
+            field === "name" ? (slots[index].data?.name || accounts[index].name || "") : String(fields.get(field + index) || ""),
           ]),
         ),
       );
@@ -942,9 +965,10 @@
         slots[index].previous = null;
       }
     accounts = next;
+    slots.forEach(current => { current.loginSubmitted = null; });
     $("accountEditor").close();
     build();
-    slots.slice(0, options.count).forEach(current => void login(current.index));
+    slots.slice(0, options.count).forEach(current => void login(current.index, true));
   };
   function positionIv(point) {
     const card = $("ivCard");
@@ -964,118 +988,10 @@
     if (!options.iv || !result) return;
     ivSource = { index, point, market, result, hoverId: result.hoverId };
     const card = $("ivCard");
-    card.replaceChildren();
     card.hidden = false;
-    append(card, button("✕", hideIv), node("h3", result.nome || ""));
-    if (result.erro) {
-      card.append(
-        node(
-          "p",
-          L(
-            "Não foi possível calcular: ",
-            "Unable to calculate: ",
-            "No se pudo calcular: ",
-          ) + result.erro,
-        ),
-      );
-      positionIv(point);
-      return;
-    }
-    if (
-      /^https:\/\/raw\.githubusercontent\.com\/PokeAPI\/sprites\/[a-z0-9/_.-]+$/i.test(
-        result.sprite?.still || "",
-      )
-    ) {
-      const image = node("img");
-      image.src = result.sprite.still;
-      image.alt = "";
-      card.append(image);
-    }
-    card.append(
-      node(
-        "p",
-        "Lv" +
-          result.nivel +
-          " · IV " +
-          format(result.ivTotal) +
-          "/192 · Q " +
-          format(result.qualidade),
-      ),
-      node("p", result.tipos?.join(" / ") || ""),
-    );
-    const table = node("table"),
-      head = node("tr");
-    for (const label of ["Stat", "Base", "Atual", "IV"])
-      head.append(node("th", label));
-    table.append(head);
-    for (const key of ["hp", "atk", "def", "spa", "spd", "vel"]) {
-      const row = node("tr");
-      for (const value of [
-        key.toUpperCase(),
-        result.bases?.[key],
-        result.atuais?.[key],
-        result.ivs?.[key],
-      ])
-        row.append(
-          node("td", typeof value === "string" ? value : format(value)),
-        );
-      table.append(row);
-    }
-    card.append(
-      table,
-      node(
-        "p",
-        L(
-          "IVs individuais estimados; o IV total é o informado pelo jogo.",
-          "Individual IVs are estimated; total IV comes from the game.",
-          "IV individuales estimados; el IV total viene del juego.",
-        ),
-        "runtime-note",
-      ),
-    );
-    const controls = node("div", null, "iv-controls"),
-      level = node("input");
-    level.type = "number";
-    level.min = 1;
-    level.value = result.nivel;
-    append(
-      controls,
-      level,
-      button(
-        L("Simular nível", "Simulate level", "Simular nivel"),
-        async () => {
-          const data = await execute(
-            index,
-            "window.__pokemuxIv.calc(" +
-              JSON.stringify({
-                pokemon: result.pokemon,
-                bases: result.bases,
-                nivel: Number(level.value),
-              }) +
-              ")",
-          );
-          if (ivSource?.index === index) showIv(index, data, point, market);
-        },
-      ),
-    );
-    card.append(controls);
-    const aptitude = window.PokeMuxAptitude.analyze(result);
-    for (const move of aptitude.moves) {
-      card.append(
-        node(
-          "p",
-          move.nome +
-            " · " +
-            move.tipo +
-            " · " +
-            move.poder +
-            " · Lv" +
-            move.nivel +
-            (move.tm ? " · " + move.tm : "") +
-            (move.available ? " ✓" : ""),
-        ),
-      );
-    }
+    card.replaceChildren(window.QuadrymonRichPanels.iv({
+      data: result, account: name(index), node, button, append, L, format, close: hideIv,
+    }));
     positionIv(point);
   }
   const ivBridge = {
@@ -1085,10 +1001,10 @@
     showIv: (index, data, point) => showIv(index, data, point, true),
     hideIv,
   };
-  function sprite(id, shiny) {
-    const value =
-      gameCatalog?.dex?.[id] ||
-      (+id >= 13000 && +id < 14000 ? +id - 13000 : +id);
+  let spriteEntries = [];
+  void ipc.loadGameCatalog().then(cache => { spriteEntries = cache?.entries || []; renderSummary(); renderAnalysis(); }).catch(() => {});
+  function sprite(id, shiny, pokemonName) {
+    const value = window.QuadrymonNames.spriteId(id, pokemonName, spriteEntries, gameCatalog?.dex);
     return value > 0 && value < 10000
       ? "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" +
           (shiny ? "shiny/" : "") +
@@ -1197,15 +1113,15 @@
         ),
       );
   $("propNat").onclick = () => {
-    document.body.classList.toggle("native-ratio");
-    $("propNat").classList.toggle(
-      "on",
-      document.body.classList.contains("native-ratio"),
-    );
+    options.ratio = !options.ratio;
+    save("propNat", options.ratio ? "1" : "0");
+    updateVisualControls(); fitGameViews();
   };
+  $("layout").onclick = () => { options.layout = options.layout === "grid" ? "col" : options.layout === "col" ? "row" : "grid"; save("layout", options.layout); updateVisualControls(); fitGameViews(); };
+  document.addEventListener("keydown", event => { if (event.key === "F2") { event.preventDefault(); $("dock").click(); } });
   $("accounts").onclick = openAccounts;
   $("loginAll").onclick = async () => {
-    const results = await Promise.all(slots.slice(0, options.count).map(current => login(current.index, true)));
+    const results = await Promise.all(slots.slice(0, options.count).map(current => login(current.index, true, true)));
     if (results.includes("challenge")) message(L("Conclua o CAPTCHA no jogo e tente entrar novamente.", "Complete the CAPTCHA in the game and try again.", "Completa el CAPTCHA en el juego e inténtalo de nuevo."));
     else if (results.includes("not-ready")) message(L("Aguarde a página de login carregar e tente novamente.", "Wait for the login page to load and try again.", "Espera a que cargue la página de acceso e inténtalo de nuevo."));
   };
@@ -1234,10 +1150,13 @@
   for (const [id, option, key] of bindings) {
     const element = $(id);
     element.classList.toggle("on", options[option]);
+    element.setAttribute("aria-pressed", String(options[option]));
     element.onclick = () => {
       options[option] = !options[option];
       save(key, options[option] ? "1" : "0");
       element.classList.toggle("on", options[option]);
+      element.setAttribute("aria-pressed", String(options[option]));
+      updateVisualControls();
       applyPerformance();
       void ipc.setAwake(options.awake);
       void ipc.setMinToTray(options.minTray);
@@ -1245,6 +1164,7 @@
         void applyGamePreferences(current.index).catch(() => {});
     };
   }
+  updateVisualControls();
   $("autoStart").onclick = async () => {
     const current = await ipc.getAutoStart();
     const on = await ipc.setAutoStart(!current.on);
@@ -1272,16 +1192,10 @@
     },
     panel: $("analysisSettings"),
     renderPanel: () => {
-      $("analysisSettings").replaceChildren(
-        button(
-          L(
-            "Histórico de capturas",
-            "Capture history",
-            "Historial de capturas",
-          ),
-          openCaptures,
-        ),
-      );
+      const host = $("analysisSettings");
+      richPanels.settings(host);
+      const protectedItems = node("textarea"); protectedItems.rows = 3; protectedItems.value = readJson("sellLock", []).join("\n"); protectedItems.onchange = () => { save("sellLock", JSON.stringify(protectedItems.value.split(/\r?\n/).map(x => x.trim()).filter(Boolean).slice(0, 100))); applyPerformance(); };
+      host.append(append(node("label", L("Itens protegidos na venda (um nome por linha)", "Protected sale items (one name per line)", "Objetos protegidos en ventas (un nombre por línea)"), "settings-field"), protectedItems), button(L("Histórico de capturas", "Capture history", "Historial de capturas"), () => { $("menu").close(); openCaptures(); }));
     },
     notifications: (host) => {
       host.replaceChildren();
@@ -1320,18 +1234,13 @@
         save("webhook", JSON.stringify({ ...configured, url: webhook.value }));
       host.append(webhook);
     },
-    summary: (host) =>
-      host.replaceChildren(
-        button(L("Ver resumo", "Show summary", "Ver resumen"), () =>
-          setMode("summary"),
-        ),
-      ),
+    summary: host => richPanels.summarySettings(host),
   });
   localize();
   build();
   workspace = window.PokeMuxWorkspace.mount({
     state: workspaceState,
-    resize: () => {},
+    resize: fitGameViews,
     focus: (index) => setMode("focus", index),
     mode: (value, index) => setMode(value, index),
     travelMarket: travel,
@@ -1411,12 +1320,15 @@
     });
   }
   const tickTimer = setInterval(() => void tick(), 5000);
-  window.addEventListener("beforeunload", () => clearInterval(tickTimer));
+  window.addEventListener("beforeunload", () => { clearInterval(tickTimer); gameViewObserver.disconnect(); if (fitFrame != null) cancelAnimationFrame(fitFrame); });
   void tick();
   // Tool implementations below operate on the same guarded per-account reads.
   let recommendationRevision = 0,
     recommendationRows = [],
-    recommendationContext = null;
+    recommendationContext = null,
+    recommendationTravelBusy = false,
+    recommendationDayTimer = null;
+  const recommendationFingerprint = (data, p) => JSON.stringify([data.cid,p.id,p.level,p.q,p.ivt,p.tms,p.stats]);
   const strong = {
     NORMAL: ["ROCK STEEL", "GHOST", ""],
     FIRE: ["FIRE WATER ROCK DRAGON", "", "GRASS ICE BUG STEEL"],
@@ -1539,9 +1451,13 @@
         .map((current, i) => new Option(name(i), String(i))),
     );
     $("hrAccount").value = String(index);
+    $("hrFocus").value = load("hrFocus") === "gold" ? "gold" : "xp";
+    $("hrThreshold").value = Math.max(1, Math.min(100, num(load("hrThreshold")) || 50));
     await refreshRecommendations();
   }
   async function refreshRecommendations() {
+    if (recommendationTravelBusy) return;
+    clearTimeout(recommendationDayTimer);
     const revision = ++recommendationRevision,
       index = Number($("hrAccount").value);
     recommendationRows = [];
@@ -1575,6 +1491,7 @@
       const attacker = {
         sp: pokemon.name
           .toLowerCase()
+          .replace(/_/g, " ")
           .replace(/\bshiny\b/g, "")
           .trim(),
         level: pokemon.level,
@@ -1586,6 +1503,8 @@
         tms: pokemon.tms,
         stats: { ...pokemon.stats, hp: pokemon.hm },
       };
+      for (const item of definitions.items.filter(item => num(item.healAmount || item.heal) > 0)) if (![...$("hrPotion").options].some(option => option.value === String(item.id))) $("hrPotion").add(new Option(window.QuadrymonNames.display(item.name), String(item.id)));
+      const savedPotion = load("hrPotion"); if (savedPotion && [...$("hrPotion").options].some(option => option.value === savedPotion)) $("hrPotion").value = savedPotion;
       const engine = window.PokeMuxHuntRecommendations,
         day = engine.dayBonus(data.events),
         cached = engine.combatCache(
@@ -1621,7 +1540,7 @@
           bases: definitions.bs,
           moves: definitions.mv,
           items: definitions.items,
-          model: "local",
+          model: "piw",
         },
         xpMultiplier: data.xpMultiplier || 1,
         measurements: window.PokeMuxHuntMeasurements.recommendationStatsFor(
@@ -1646,6 +1565,8 @@
         cid: data.cid,
         id: pokemon.id,
         level: pokemon.level,
+        epoch: slots[index].epoch,
+        fingerprint: recommendationFingerprint(data, pokemon),
       };
       const body = $("hrBody");
       body.replaceChildren(
@@ -1653,7 +1574,7 @@
           "p",
           name(index) +
             " · " +
-            pokemon.name +
+            window.QuadrymonNames.display(pokemon.name) +
             " Lv" +
             pokemon.level +
             " · HP " +
@@ -1664,6 +1585,8 @@
         ),
       );
       const band = engine.progressionBand(attacker);
+      const shown = { ...project(attacker.sp, attacker.level, attacker.q, attacker.ivt), ...attacker.stats };
+      body.firstChild.append(node("br"), document.createTextNode(L("Nível da conta: ", "Account level: ", "Nivel de cuenta: ") + format(data.level) + " · IV " + format(pokemon.ivt) + " · Q ×" + Number(pokemon.q).toFixed(2)), node("br"), document.createTextNode([attacker.t1, attacker.t2].filter(Boolean).join(" / ") + " · Atk " + format(shown.atk) + " · Def " + format(shown.def) + " · SpA " + format(shown.spa) + " · SpD " + format(shown.spd) + " · Vel " + format(shown.speed)), node("br"), document.createTextNode(L("Atributos do jogo; dados ausentes são projetados.", "Game stats; missing values are projected.", "Atributos del juego; datos faltantes se proyectan.")));
       body.append(
         node(
           "p",
@@ -1688,10 +1611,10 @@
               " · " +
               day.label,
           ),
-          node("p", "+" + day.xp + "% XP · +" + day.loot + "% loot"),
+          node("p", "+" + day.xp + "% XP · +" + day.loot + "% loot · " + L("Bônus até ", "Bonus until ", "Bonificación hasta ") + new Date(day.until).toLocaleTimeString(options.lang, {hour:"2-digit", minute:"2-digit"})),
         );
         const best = engine.bestForDay(viable, day);
-        if (best) section.append(recommendationCard(best));
+        if (best) section.append(recommendationCard({...best, dayUntil: day.until}));
         else
           section.append(
             node(
@@ -1704,6 +1627,7 @@
             ),
           );
         body.append(section);
+        recommendationDayTimer = setTimeout(() => { if ($("huntRecommend").open) void refreshRecommendations(); }, Math.min(2147483647, Math.max(100, day.until - Date.now() + 100)));
       }
       if (!recommendationRows.length)
         body.append(
@@ -1716,6 +1640,7 @@
             ),
           ),
         );
+      body.append(node("h3", L("Recomendações gerais", "General recommendations", "Recomendaciones generales")));
       recommendationRows.forEach((row, i) =>
         body.append(recommendationCard(row, i === 0)),
       );
@@ -1723,9 +1648,9 @@
         node(
           "p",
           L(
-            "Simulações são estimativas; medições reais da conta têm prioridade.",
-            "Simulations are estimates; actual account measurements take priority.",
-            "Las simulaciones son estimaciones; las mediciones reales tienen prioridad.",
+            "Simulação interna de 256 cenários por golpe disponível. Produtividade dos mapas e probabilidade de captura são estimativas. Medições reais por conta, Pokémon, nível e hunt têm prioridade. Lucro inclui loot, capturas, Pokébolas e poções; XP e dólares são objetivos separados.",
+            "Internal simulation of 256 scenarios per available move. Map productivity and capture probability are estimates. Actual account, Pokémon, level and hunt measurements take priority. Profit includes loot, catches, balls and potions; XP and dollars are separate objectives.",
+            "Simulación interna de 256 escenarios por movimiento disponible. Productividad y probabilidad de captura son estimaciones. Las mediciones por cuenta, Pokémon, nivel y hunt tienen prioridad. Beneficio incluye loot, capturas, bolas y pociones; XP y dólares son objetivos separados.",
           ),
           "runtime-note",
         ),
@@ -1753,18 +1678,15 @@
     );
     append(
       card,
-      node("h3", (best ? "★ " : "") + row.hunt.name + " · Lv" + row.hunt.level),
+      node("h3", (best ? "★ " : "") + window.QuadrymonNames.display(row.hunt.name) + " · Lv" + row.hunt.level),
       node(
         "p",
-        row.attack.nome +
+        L("Melhor golpe: ", "Best move: ", "Mejor movimiento: ") + window.QuadrymonNames.display(row.attack.nome) +
           " · ×" +
           row.attack.eff.toFixed(2) +
-          " · ≈" +
-          (row.observedHits || row.simulation?.meanHits || 0).toFixed(1) +
-          " " +
-          L("golpes/abate", "hits/kill", "golpes/baja"),
+          (row.observedHits > 0 ? " · ≈" + row.observedHits.toFixed(1) + " " + L("golpes por abate medidos", "measured hits per kill", "golpes por baja medidos") : row.simulation ? " · ≈" + row.simulation.meanHits.toFixed(1) + " " + L("golpes estimados", "estimated hits", "golpes estimados") + " (" + row.simulation.lowHits + "–" + row.simulation.highHits + ")" : " · " + L("golpes sem amostra real", "hits without a real sample", "golpes sin muestra real")),
       ),
-      node("p", L("Risco: ", "Risk: ", "Riesgo: ") + row.risk),
+      node("p", L("Risco: ", "Risk: ", "Riesgo: ") + ({low:L("baixo","low","bajo"),medium:L("moderado","moderate","moderado"),high:L("alto","high","alto")}[row.risk] || L("não determinado","undetermined","no determinado")) + (row.exposure != null && row.combatKnown ? " · ≈" + Math.round(row.exposure * 100) + "% HP / " + L("abate","kill","baja") : ""), "hr-risk " + row.risk),
       node(
         "p",
         "XP / abate: " +
@@ -1778,7 +1700,7 @@
         ($("hrFocus").value === "gold" ? "$/h: " : "XP/h: ") +
           format($("hrFocus").value === "gold" ? row.gph : row.xph) +
           " · " +
-          (row.kphSource === "measured"
+          (($("hrFocus").value === "gold" ? row.goldSource : row.kphSource) === "measured"
             ? L("medido", "measured", "medido")
             : L("estimado", "estimated", "estimado")),
       ),
@@ -1786,17 +1708,24 @@
         travelRecommendation(row),
       ),
     );
+    if (row.kph != null) card.append(node("p", L("Abates por hora: ", "Kills per hour: ", "Bajas por hora: ") + "≈" + format(Math.round(row.kph)) + " · " + (row.kphSource === "measured" ? L("medição real da conta", "actual account measurement", "medición real de cuenta") : row.kphSource === "map-model" ? L("modelo de produtividade do mapa", "map productivity model", "modelo de productividad del mapa") : L("modelo calibrado pela conta", "account-calibrated model", "modelo calibrado por cuenta"))));
+    if ($("hrFocus").value === "gold" && row.goldSource !== "measured" && row.captureModel) card.append(node("p", L("Captura estimada: ", "Estimated capture: ", "Captura estimada: ") + window.QuadrymonNames.display(row.captureModel.ball) + " · " + (row.captureModel.probability * 100).toFixed(2) + "%"));
+    if (row.potionsPerHour != null) card.append(node("p", L("Poções por hora: ", "Potions per hour: ", "Pociones por hora: ") + "≈" + format(Math.ceil(row.potionsPerHour))));
+    const travelButton = card.querySelector("button"); card.append(travelButton);
     return card;
   }
   async function travelRecommendation(row) {
     const expected = recommendationContext;
-    if (!expected) return;
-    const data = await readState(expected.index),
+    if (!expected || recommendationTravelBusy) return;
+    if (row.dayUntil && row.dayUntil <= Date.now()) { message(L("O bônus do dia terminou; atualize as recomendações.", "The day bonus expired; refresh recommendations.", "La bonificación terminó; actualiza las recomendaciones.")); return; }
+    const data = await readState(expected.index, true),
       leader = data.team?.find((pokemon) => pokemon.ld);
     if (
       data.cid !== expected.cid ||
       leader?.id !== expected.id ||
-      leader.level !== expected.level
+      leader.level !== expected.level ||
+      slots[expected.index].epoch !== expected.epoch ||
+      recommendationFingerprint(data, leader) !== expected.fingerprint
     ) {
       message(
         L(
@@ -1812,11 +1741,14 @@
       row.hunt,
     );
     if (!script) return;
+    recommendationTravelBusy = true;
+    for (const element of $("huntRecommend").querySelectorAll("button,select,input")) element.disabled = true;
+    try {
     const result = await execute(expected.index, script);
     if (result?.ok) {
       $("hrStatus").textContent =
         L("Viagem confirmada: ", "Travel confirmed: ", "Viaje confirmado: ") +
-        row.hunt.name;
+        window.QuadrymonNames.display(row.hunt.name);
       sampleContexts[expected.index] = null;
     } else
       message(
@@ -1826,11 +1758,12 @@
           "Viaje no confirmado: ",
         ) + result.reason,
       );
+    } finally { recommendationTravelBusy = false; for (const element of $("huntRecommend").querySelectorAll("button,select,input")) element.disabled = false; }
   }
   $("hrAccount").onchange = refreshRecommendations;
   $("hrRefresh").onclick = refreshRecommendations;
   for (const id of ["hrFocus", "hrPotion", "hrThreshold"])
-    $(id).onchange = refreshRecommendations;
+    $(id).onchange = () => { save(id, $(id).value); void refreshRecommendations(); };
   function openCaptures() {
     const select = $("captureAccount");
     select.replaceChildren(
@@ -1883,7 +1816,7 @@
       for (const value of [
         new Date(row.t).toLocaleString(),
         row.account || name(row.p),
-        row.n + (row.sh ? " ✨" : ""),
+        window.QuadrymonNames.display(row.n) + (row.sh ? " ✨" : ""),
         row.iv,
         row.q,
       ])

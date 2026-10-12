@@ -36,7 +36,8 @@
     sheet,
     lastFrame = 0,
     acceptedFrame = -1,
-    frameId = 0;
+    frameId = 0,
+    dockOverride = null;
   const nativeFrame = root.requestAnimationFrame.bind(root),
     nativeCancel = root.cancelAnimationFrame.bind(root),
     frames = new Map();
@@ -67,6 +68,7 @@
     }
   };
   function configure(value) {
+    if (value.dock !== options.dock) dockOverride = null;
     options = { ...value };
     if (!sheet) {
       sheet = document.createElement("style");
@@ -80,18 +82,24 @@
       );
     if (options.chat === false)
       rules.push(
-        '.chat-float,.chat-panel,[data-guide="chat"]{display:none!important}',
+        '.chat-box,.chat-float,.chat-panel,[data-guide="chat"]{display:none!important}',
       );
-    if (options.dock === false)
+    if ((dockOverride ?? options.dock) === false)
       rules.push(
-        '.dock,.game-dock,[data-guide="dock"]{opacity:0;pointer-events:none}',
+        'nav.game-dock,.game-dock,.dock,[data-guide="dock"]{display:none!important}',
       );
     if (options.clean)
       rules.push(
-        ".auto-helper,.autohelper,.capture-popup,.game-hud{opacity:0!important}",
+        ".cap-panel,.capture-popup{display:none!important}.ah-panel,.auto-helper,.autohelper,.game-hud-tl,nav.game-dock{opacity:0!important;transition:opacity .18s ease!important}.ah-panel:hover,.ah-panel:focus-within,.auto-helper:hover,.autohelper:hover,.game-hud-tl:hover,.game-hud-tl:focus-within,nav.game-dock:hover,nav.game-dock:focus-within{opacity:1!important}",
       );
     sheet.textContent = rules.join("\n");
   }
+  root.addEventListener?.("keydown", event => {
+    if (event.key !== "F2" || root.location?.pathname !== "/play") return;
+    event.preventDefault();
+    dockOverride = !((dockOverride ?? options.dock) !== false);
+    configure(options);
+  }, true);
   const original = root.fetch.bind(root);
   root.fetch = async function (resource, init) {
     const url = new URL(
@@ -124,7 +132,7 @@
         if (
           names.length &&
           !confirm(
-            "PokeMux: confirmar venda de " + names.slice(0, 8).join(", ") + "?",
+            "Quadrymon: confirmar venda de " + names.slice(0, 8).join(", ") + "?",
           )
         )
           return new Response(
@@ -138,5 +146,5 @@
     }
     return original(resource, init);
   };
-  root.PokeMuxGamePreferences = { configure };
+  root.PokeMuxGamePreferences = { configure, state: () => ({ ...options }) };
 })(globalThis);

@@ -1,6 +1,8 @@
 'use strict';
 const assert = require('node:assert/strict');
-const { accountLabel, frameRate, createStateReader } = require('../src/renderer/workspace');
+const { accountLabel, frameRate, createStateReader, gameDimensions } = require('../src/renderer/workspace');
+assert.deepEqual(gameDimensions(800, 800), {width:800,height:416}, 'original canvas fits by width');
+assert.deepEqual(gameDimensions(1000, 208), {width:400,height:208}, 'original canvas fits by height without cropping');
 assert.equal(accountLabel('  Azuosjava  ', 0), 'Azuosjava');
 assert.equal(accountLabel('', 1), 'Conta 2');
 assert.equal(accountLabel('', 0, 'en'), 'Account 1');

@@ -103,6 +103,13 @@ const measurements = {
     metricVersion: 2,
   },
 };
+const restored = engine.rank({ ...settings, attacker:pinsir, simulation:{ ...settings.simulation, model:"piw" }, measurements, objective:"xp" });
+assert(restored.length>0,"restored map model produces recommendations from the game catalog");
+assert(restored.some(row=>row.simulation?.samples===256&&row.simulation.kph>0&&row.kphSource==="calibrated"),"256 scenarios use the original map productivity table");
+const restoredMeasured = restored.find(row=>row.hunt.sl==="enigmatic_girafarig");
+assert.equal(restoredMeasured.xph,5596835,"actual Girafarig hourly XP overrides the restored model");
+assert.equal(restoredMeasured.kph,276,"actual kills per hour override the map table");
+assert.equal(restoredMeasured.observedHits,1.5,"actual hits per kill remain authoritative");
 const rows = engine.rank({
   ...settings,
   attacker: pinsir,

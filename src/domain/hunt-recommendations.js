@@ -142,7 +142,7 @@
   function simulateCombat({attacker,hunt,own,observed = {},catalog,offense,effectiveness}) {
     const base = catalog?.bases?.[hunt.sp], learned = catalog?.moves?.[hunt.sp]?.a;
     if (!base || base.length !== 6 || base.some(v=>!(v>0)) || !learned) return null;
-    const localModel=catalog.model==='local';
+    const localModel=['local','piw'].includes(catalog.model);
     const key = JSON.stringify([2,catalog.model,catalog.fixedMove,attacker,hunt,own,observed,base,learned,catalog.moves[attacker.sp],catalog.bases[attacker.sp]]);
     if (simulations.has(key)) return simulations.get(key);
     if(localModel&&!catalog.fixedMove){
@@ -184,7 +184,7 @@
     }
     hits.sort((a,b)=>a-b);losses.sort((a,b)=>a-b);
     const mean = xs=>xs.reduce((a,b)=>a+b,0)/xs.length;
-    const result={meanHits:mean(hits),lowHits:hits[Math.floor(hits.length*.05)],highHits:hits[Math.floor(hits.length*.95)],exposure:mean(losses),conservativeExposure:losses[Math.floor(losses.length*.9)],incoming:mean(incomingHits),hp:mean(hpSamples),samples:hits.length,source:'simulation',...(localModel?{attack:chosenAttack,hits,kph:combatModel.throughput({hitIntervalMs:chosenAttack.cooldownMs,spawnDelayMs:hunt.spawnDelayMs},hits)}:{})};
+    const result={meanHits:mean(hits),lowHits:hits[Math.floor(hits.length*.05)],highHits:hits[Math.floor(hits.length*.95)],exposure:mean(losses),conservativeExposure:losses[Math.floor(losses.length*.9)],incoming:mean(incomingHits),hp:mean(hpSamples),samples:hits.length,source:'simulation',...(localModel?{attack:chosenAttack,hits,kph:catalog.model === 'piw' ? combatModel.mapThroughput(hunt.pokeId||catalog.moves[hunt.sp]?.id,hits,!!chosenAttack.tm) : combatModel.throughput({hitIntervalMs:chosenAttack.cooldownMs,spawnDelayMs:hunt.spawnDelayMs},hits)}:{})};
     if(simulations.size>=1000)simulations.delete(simulations.keys().next().value);
     simulations.set(key,result);
     return result;
@@ -212,7 +212,7 @@
       let attack = offense(attacker, {...hunt,combatStats:observed,...(health > 0 ? {combatHp:health} : {})});
       if (!attack || !(attack.ritmo > 0)) continue;
       const simulated = simulation ? simulateCombat({attacker,hunt,own,observed,catalog:simulation,offense,effectiveness}) : null;
-      if(simulation?.model==='local'&&!simulated)continue;
+      if(['local','piw'].includes(simulation?.model)&&!simulated)continue;
       if (simulated) {
         const rhythm=1/simulated.meanHits;
         attack={...(simulated.attack||attack),ritmo:rhythm,xph:number(hunt.xp)*rhythm};
@@ -240,7 +240,7 @@
       const offenseStat = attack.fis ? own.atk : own.spa;
       const difficulty = wild.hp * defense / Math.max(1, number(offenseStat));
       const observedHits = measured && !measured.estimated && number(measured.hpk) > 0 ? number(measured.hpk) : null;
-      rows.push({ hunt, attack, incoming, exposure:observedHits&&simulation?.model==='local'&&incoming!=null?incoming*observedHits/own.hp:exposure, safety, difficulty, maxHuntLevel, band, observedHits, simulation:simulated, hpSource:health > 0 ? 'observed' : simulated ? 'simulated' : 'unknown', combatKnown:['hp','atk','def','spa','spd'].every(k=>observed[k]>0), measured: measured || null });
+      rows.push({ hunt, attack, incoming, exposure:observedHits&&['local','piw'].includes(simulation?.model)&&incoming!=null?incoming*observedHits/own.hp:exposure, safety, difficulty, maxHuntLevel, band, observedHits, simulation:simulated, hpSource:health > 0 ? 'observed' : simulated ? 'simulated' : 'unknown', combatKnown:['hp','atk','def','spa','spd'].every(k=>observed[k]>0), measured: measured || null });
     }
     const exact = rows.filter(r => r.measured && !r.measured.estimated);
     const calibrated = exact.length ? exact : rows.filter(r => r.measured && !r.measured.legacy);
@@ -251,9 +251,9 @@
     const killAnchors = calibrated.filter(r => r.measured.kph > 0 && (!simulation || r.observedHits > 0))
       .map(r => r.observedHits > 0 ? r.measured.kph*r.observedHits : r.measured.kph/r.attack.ritmo).sort((a, b) => a - b);
     const killAnchor = killAnchors.length ? killAnchors[Math.floor(killAnchors.length / 2)] : 0;
-    const localModel=simulation?.model==='local';
+    const localModel=['local','piw'].includes(simulation?.model);
     const mapAnchors=calibrated.filter(r=>r.observedHits>0&&r.measured.kph>0).map(r=>{
-      const expected=combatModel.throughput({hitIntervalMs:r.attack.cooldownMs,spawnDelayMs:r.hunt.spawnDelayMs},[r.observedHits]);
+      const expected=simulation?.model === 'piw' ? combatModel.mapThroughput(r.hunt.pokeId||simulation.moves[r.hunt.sp]?.id,[r.observedHits],!!r.attack.tm) : combatModel.throughput({hitIntervalMs:r.attack.cooldownMs,spawnDelayMs:r.hunt.spawnDelayMs},[r.observedHits]);
       return expected>0?r.measured.kph/expected:null;
     }).filter(v=>v>0).sort((a,b)=>a-b);
     const mapFactor=mapAnchors.length?mapAnchors[Math.floor(mapAnchors.length/2)]:1;
@@ -262,7 +262,7 @@
       const xpFactor=Math.max(1,number(xpMultiplier))+(activeDay?number(day.xp)/100:0);
       const fresh=r.measured&&!r.measured.estimated;
       r.kph = r.measured && r.measured.kph > 0 && (!localModel||fresh) ? r.measured.kph : localModel&&r.simulation?.kph>0 ? r.simulation.kph*mapFactor : killAnchor > 0 ? r.attack.ritmo * killAnchor : null;
-      r.kphSource=fresh?'measured':localModel&&r.simulation?.kph>0?(mapAnchors.length?'calibrated':'move-cadence-model'):killAnchor>0?'calibrated':'unknown';
+      r.kphSource=fresh?'measured':localModel&&r.simulation?.kph>0?(mapAnchors.length?'calibrated':simulation?.model === 'piw'?'map-model':'move-cadence-model'):killAnchor>0?'calibrated':'unknown';
       r.xph = r.measured && (localModel ? fresh&&known(r.measured.xph)&&r.measured.xph>=0 : r.measured.xph>0) ? r.measured.xph
         : localModel&&r.kph!=null ? r.kph*number(r.hunt.xp)*xpFactor
         : killAnchor > 0 ? r.kph * number(r.hunt.xp) * xpFactor
@@ -275,7 +275,7 @@
         ? Math.max(0,Number(r.measured.capturePerKill))
         : captureRate != null && known(r.hunt.sv) ? captureRate * Math.max(0,Number(r.hunt.sv))
         : !(r.hunt.sv > 0) ? 0 : null;
-      const modeledCapture=localModel?combatModel.capture(number(r.hunt.sv),simulation.items):null;
+      const modeledCapture=localModel?(simulation?.model === 'piw' ? combatModel.captureEstimate(number(r.hunt.sv),simulation.items) : combatModel.capture(number(r.hunt.sv),simulation.items)):null;
       if(localModel&&!fresh&&modeledCapture)r.capturePerKill=modeledCapture.perKill;
       r.captureModel=modeledCapture;
       // Poção informada permite uma estimativa conservadora sem presumir regeneração natural.

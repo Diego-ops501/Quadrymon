@@ -4,6 +4,7 @@ const fs = require("node:fs"),
   { spawnSync } = require("node:child_process");
 const root = path.resolve(__dirname, "..");
 const tests = [
+  "display-name.test.js",
   "game-auth.test.js",
   "independent-domain.test.js",
   "independent-model.test.js",
@@ -22,6 +23,8 @@ const tests = [
   "game-catalog.test.js",
 ];
 const browser = [
+  "game-preferences.cjs",
+  "rich-panels.cjs",
   "login.cjs",
   "independent-game.cjs",
   "independent-main.cjs",
