@@ -152,4 +152,4 @@ Para verificar el código y generar el instalador:
 
 El instalador de Windows se genera en <code>dist/</code>. <code>npm run docs:screenshots</code> recrea las imágenes de documentación en un perfil temporal con datos de demostración, sin acceder a cuentas reales.
 
-Desarrollo y mantenimiento: **Diego-ops501**. Código propio con todos los derechos reservados, sin concesión de licencia de código abierto. Las dependencias mantienen sus propias condiciones.
+Desarrollo y mantenimiento: **Diego-ops501**. El código propio de Quadrymon se distribuye bajo la [licencia MIT](LICENSE). Las dependencias y los recursos de terceros mantienen sus propias condiciones y avisos.

@@ -152,4 +152,4 @@ To check the codebase and build the installer:
 
 The Windows installer is generated in <code>dist/</code>. <code>npm run docs:screenshots</code> recreates documentation images in a temporary profile using demonstration data, without accessing real accounts.
 
-Development and maintenance: **Diego-ops501**. All rights reserved for the original code; no open-source license is granted. Dependencies retain their own terms.
+Development and maintenance: **Diego-ops501**. Quadrymon's original code is distributed under the [MIT license](LICENSE). Dependencies and third-party assets retain their own terms and notices.
