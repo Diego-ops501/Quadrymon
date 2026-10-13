@@ -50,6 +50,9 @@ app.whenReady().then(async()=>{
   await win.webContents.executeJavaScript(`dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));if(PokeMuxGamePreferences.state().userActivity!==0)throw Error('synthetic input must not pause recovery');window.__pgVolta=true;window.__pgVoltaTimer=setInterval(()=>{},10000);void 0;`);
   win.focus();win.webContents.focus();win.webContents.sendInputEvent({type:'keyDown',keyCode:'Right'});win.webContents.sendInputEvent({type:'keyUp',keyCode:'Right'});
   await win.webContents.executeJavaScript(`new Promise((resolve,reject)=>setTimeout(()=>{if(!(PokeMuxGamePreferences.state().userActivity>0)||window.__pgVolta!==undefined)reject(Error('trusted movement must cancel recovery'));else resolve(true)},100))`);
+  await win.webContents.executeJavaScript(`window.firstPauseUntil=PokeMuxGamePreferences.state().manualPauseUntil;window.fixtureNow=Date.now;Date.now=()=>firstPauseUntil-300000+10000;void 0;`);
+  win.webContents.sendInputEvent({type:'keyDown',keyCode:'Right'});win.webContents.sendInputEvent({type:'keyUp',keyCode:'Right'});
+  await win.webContents.executeJavaScript(`new Promise((resolve,reject)=>setTimeout(()=>{const renewed=PokeMuxGamePreferences.state().manualPauseUntil;Date.now=fixtureNow;if(renewed!==firstPauseUntil+10000)reject(Error('each trusted movement must renew the five-minute pause'));else resolve(true)},100))`);
   console.log('Game preferences: actual chat/HUD selectors, component replacement, restoration, F2, safe sales and trusted manual movement passed.');app.exit(0);
  }catch(e){console.error(e.stack);app.exit(1)}
 });setTimeout(()=>app.exit(1),30000);

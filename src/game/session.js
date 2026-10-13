@@ -280,6 +280,7 @@
       hunt: state.lastSlug,
       currentMap: state.currentMap,
       userActivity: finite(root.PokeMuxGamePreferences?.state().userActivity),
+      manualPauseUntil: finite(root.PokeMuxGamePreferences?.state().manualPauseUntil),
       farm: { hunting: state.hunting, lastCombatT: state.lastCombatT },
       team,
       bag,

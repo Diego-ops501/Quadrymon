@@ -8,7 +8,7 @@
     const P = window.__poke, character = () => P?.api?.['/api/characters/me']?.character;
     const activity = () => window.PokeMuxGamePreferences?.state().userActivity || 0, startActivity = activity();
     const check = () => location.origin !== 'https://poke.idleworld.online' || location.pathname !== '/play' || !P || P.sock?.readyState !== 1 ? 'offline'
-      : activity() !== startActivity || (expected.automatic && (!window.PokeMuxGamePreferences || activity() > 0)) ? 'user-control'
+      : activity() !== startActivity || (expected.automatic && (!window.PokeMuxGamePreferences || window.PokeMuxGamePreferences.state().manualPauseUntil > Date.now())) ? 'user-control'
       : String(character()?.id || '') !== expected.cid ? 'changed' : '';
     const pause = () => new Promise(resolve => setTimeout(resolve, 100));
     let failure = check(); if (failure) return {ok:false,reason:failure};

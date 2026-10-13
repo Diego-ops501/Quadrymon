@@ -116,7 +116,7 @@
     healthAlerts: window.QuadrymonHealthAlerts.create(),
     lastKill: 0,
     lastReload: 0,
-    manualControl: false,
+    manualUntil: 0,
     recovery: null,
   }));
   const measurements = readJson("huntStats", {}),
@@ -396,8 +396,8 @@
   function record(index, data) {
     const current = slots[index],
       leader = data.team?.find((row) => row.ld);
-    if (data.userActivity > 0) {
-      current.manualControl = true;
+    if (data.manualPauseUntil > current.manualUntil) {
+      current.manualUntil = data.manualPauseUntil;
       current.recovery = null;
     }
     const sample = window.PokeMuxHuntMeasurements.isolateSample(
@@ -655,7 +655,7 @@
     view.addEventListener("console-message", (event) => {
       const text = event.message;
       if (text === "__QUSER__") {
-        current.manualControl = true;
+        current.manualUntil = Date.now() + 300000;
         current.recovery = null;
       }
       if (text.startsWith("__PGIVH__") && text.length < 2000) {
@@ -702,7 +702,7 @@
   }
   function reload(index, automatic = false) {
     const current = slots[index];
-    if (!automatic) { current.manualControl = true; current.recovery = null; }
+    if (!automatic) { current.manualUntil = Date.now() + 300000; current.recovery = null; }
     if (current?.view && !current.off) {
       current.epoch++;
       current.data = null;
@@ -838,15 +838,15 @@
   }
   async function travel(index, automatic = false) {
     const current = slots[index];
-    if (!automatic) { current.manualControl = true; current.recovery = null; }
+    if (!automatic) { current.manualUntil = Date.now() + 300000; current.recovery = null; }
     if (current.traveling) return;
     const recovery = automatic ? current.recovery : null;
-    if (automatic && (current.manualControl || !recovery)) return;
+    if (automatic && (Date.now() < current.manualUntil || !recovery)) return;
     current.traveling = true;
     workspace.refresh();
     try {
       const data = await readState(index);
-      if (automatic && (current.manualControl || current.recovery !== recovery || data?.cid !== recovery.cid)) return;
+      if (automatic && (Date.now() < current.manualUntil || current.recovery !== recovery || data?.cid !== recovery.cid)) return;
       if (!data?.live)
         throw Error(
           L("Conta desconectada.", "Account offline.", "Cuenta desconectada."),
@@ -1353,14 +1353,14 @@
         const data = current.data;
         if (
           data?.farm?.hunting &&
-          data.live && !current.manualControl && !current.traveling &&
+          data.live && Date.now() >= current.manualUntil && !current.traveling &&
           current.lastKillAt &&
           Date.now() - current.lastKillAt > 600000 &&
           Date.now() - current.lastReload > 300000
         ) {
           // Read the input marker again immediately before a destructive refresh.
-          const activity = await execute(current.index, "window.PokeMuxGamePreferences ? window.PokeMuxGamePreferences.state().userActivity : 1").catch(() => 1);
-          if (activity || current.manualControl) { current.manualControl = true; current.recovery = null; return; }
+          const pauseUntil = await execute(current.index, "window.PokeMuxGamePreferences ? window.PokeMuxGamePreferences.state().manualPauseUntil : Date.now() + 300000").catch(() => Date.now() + 300000);
+          if (Date.now() < Math.max(pauseUntil || 0, current.manualUntil)) { current.manualUntil = Math.max(pauseUntil || 0, current.manualUntil); current.recovery = null; return; }
           current.lastReload = Date.now();
           current.recovery = data.cid && data.hunt ? { cid: data.cid, hunt: { slug: data.hunt, name: data.hunt.replace(/[_-]/g, " ") } } : null;
           reload(current.index, true);
@@ -1369,7 +1369,7 @@
           options.returnHunt &&
           data?.live &&
           !data.farm?.hunting &&
-          current.recovery && !current.manualControl &&
+          current.recovery && Date.now() >= current.manualUntil &&
           Date.now() - current.lastReload < 120000 &&
           !current.traveling
         )
@@ -1798,7 +1798,7 @@
   async function travelRecommendation(row) {
     const expected = recommendationContext;
     if (!expected || recommendationTravelBusy) return;
-    slots[expected.index].manualControl = true;
+    slots[expected.index].manualUntil = Date.now() + 300000;
     slots[expected.index].recovery = null;
     if (row.dayUntil && row.dayUntil <= Date.now()) { message(L("O bônus do dia terminou; atualize as recomendações.", "The day bonus expired; refresh recommendations.", "La bonificación terminó; actualiza las recomendaciones.")); return; }
     const data = await readState(expected.index, true),

@@ -53,9 +53,11 @@ function game(options = {}) {
   assert.equal((await recovery.run()).ok,true);assert.equal(recovery.calls[0].cancelReturn,true);assert.equal(recovery.context.window.__pgVolta,undefined,'manual market trip cancels pending auto-return');
   const another=game();another.nav.currentSlug='furious_scyther';another.P.lastSlug='furious_scyther';
   assert.equal((await another.run()).returnHunt.slug,'furious_scyther','accounts keep their own hunt');
-  const manual=game({map:'shopping'});manual.context.window.PokeMuxGamePreferences={state:()=>({userActivity:1})};
+  const manual=game({map:'shopping'});manual.context.window.PokeMuxGamePreferences={state:()=>({userActivity:1,manualPauseUntil:Date.now()+300000})};
   assert.equal((await vm.runInNewContext(MarketTravel.script('c1',result.returnHunt,true),manual.context)).reason,'user-control');
   assert.equal(manual.calls.length,0,'automatic return never overrides manual input');
+  manual.context.window.PokeMuxGamePreferences={state:()=>({userActivity:1,manualPauseUntil:Date.now()-1})};
+  assert.equal((await vm.runInNewContext(MarketTravel.script('c1',result.returnHunt,true),manual.context)).ok,true,'automatic recovery resumes after the last user input cooldown expires');
   const idle=game({map:'shopping'});idle.context.window.PokeMuxGamePreferences={state:()=>({userActivity:0})};
   assert.equal((await vm.runInNewContext(MarketTravel.script('c1',result.returnHunt,true),idle.context)).ok,true,'idle automatic recovery can return to its exact captured hunt');
   const hunting=game();hunting.context.window.PokeMuxGamePreferences={state:()=>({userActivity:0})};
