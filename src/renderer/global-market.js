@@ -640,9 +640,23 @@
     }
 
     async function autoRefresh() {
-      if (!s.open || !s.data || s.error || s.priceScanning || s.pending || s.comparePending || s.timer || autoBusy || Date.now() < autoRetryAt) return;
+      if (!s.open || s.priceScanning || s.pending || s.comparePending || s.timer || autoBusy || Date.now() < autoRetryAt) return;
       autoBusy = true;
       const revision = s.revision, account = s.account, cid = s.cid, tab = s.tab;
+      if (!s.data || s.error || ['offline','auth','changed'].includes(autoError)) {
+        try {
+          const accounts = await bridge.accounts();
+          if (!s.open || s.revision !== revision) return;
+          s.accounts = accounts;
+          const available = accounts.map((x,i)=>({...x,index:i})).filter(x=>x.live && !x.off && x.cid);
+          const next = available.find(x=>x.index===account) || available.find(x=>x.focused) || available[0];
+          if (!next) { s.error = 'offline'; status(); return; }
+          if (next.index !== account || String(next.cid) !== cid) { accountChanged(next.index); return; }
+          await load(true);
+        } catch { if (s.open && s.revision === revision) { s.error='network'; status(); } }
+        finally { autoBusy = false; }
+        return;
+      }
       marketRead.clearPages(account);
       const current = () => s.open && s.revision === revision && s.account === account;
       const read = options => current() ? marketRead(account, M.readScript(options, cid)) : Promise.resolve({ ok: false, reason: 'changed' });
@@ -673,7 +687,7 @@
         const failed = responses.find(response => !response || !response.ok);
         if (responses.some(response => !response || !response.ok)) {
           autoError = failed && failed.reason || 'network';
-          if (autoError === 'limited') autoRetryAt = Date.now() + 300000;
+          if (autoError === 'limited') autoRetryAt = Date.now() + Math.max(300000,Number(failed?.retryAfterMs)||0);
           status(); return;
         }
         const data = responses.map(response => M.sanitizeResponse(response.data));
@@ -718,6 +732,7 @@
         for (let i = 0; i < responses.length; i++) {
           const response = responses[i];
           if (!response || !response.ok) {
+            if (response?.reason === 'limited') autoRetryAt = Date.now() + Math.max(300000,Number(response.retryAfterMs)||0);
             if (['offline','auth','denied','email'].includes(response?.reason)) {
               sourceFailures.add(account);
               const next = s.accounts.findIndex((x,i)=>x.live && !x.off && !sourceFailures.has(i));

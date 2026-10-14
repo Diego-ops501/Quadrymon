@@ -9,20 +9,25 @@ app.whenReady().then(async()=>{
   for(const file of ["src/domain/pokemon-state.js","src/domain/global-market.js","src/renderer/global-market.js"])await win.webContents.executeJavaScript(fs.readFileSync(path.join(root,file),"utf8"));
   const result=await win.webContents.executeJavaScript(`(async()=>{
     const check=(ok,message)=>{if(!ok)throw Error(message)},pause=ms=>new Promise(r=>setTimeout(r,ms||40));
-    let now=1000000,version=1,requests=0,tick;
+    let now=1000000,version=1,requests=0,tick,failure='network',live=true;
     Date.now=()=>now;window.setInterval=(fn,ms)=>{check(ms===60000,'market interval is one minute');tick=fn;return 1;};window.clearInterval=()=>{tick=null};
     window.PokeMuxMarketAlerts={normalize:x=>x,create:()=>({setRules(){},state(){},check(){},stop(){}})};
     const ui=PokeMuxMarketUI.mount({load:()=>'',save(){},language:()=> 'pt',sprite:()=>'',preferred:()=>0,rememberFocus(){},
       marketReaderOptions:{interval:0,now:()=>now},marketSnapshotOptions:{background:false,now:()=>now},
-      accounts:async()=>[{cid:'c1',name:'Fixture',focused:true,live:true,off:false}],
+      accounts:async()=>[{cid:'c1',name:'Fixture',focused:true,live,off:false}],
       read:async(_account,script)=>{
-        requests++;const q=JSON.parse(script.match(/\\}\\)\\((\\{[^\\n]*?\\}),/)[1]);
+        requests++;if(failure)return {ok:false,reason:failure,retryAfterMs:300000};const q=JSON.parse(script.match(/\\}\\)\\((\\{[^\\n]*?\\}),/)[1]);
         let listings=[{id:'quote',kind:'diamonds',quantity:1,price:10000,currency:'GOLD'}],total=1,pages=1;
         if(q.browse){const start=q.page==='2'?12:0;listings=Array.from({length:12},(_,j)=>{const i=start+j;return {id:'listing'+(version===1?i:i===23?99:i+1),kind:'pokemon',name:'Abra',speciesId:63,level:20,quality:1.8,ivTotal:180,price:version*100+i,currency:'GOLD',at:new Date(now-i*1000).toISOString()};});total=24;pages=2;if(q.currency==='DIAMONDS'){listings=[];total=0;pages=1;}}
         return {ok:true,data:{cid:'c1',listings,total,pages,ownedReady:true,owned:[{id:'pokemon:owned',kind:'pokemon',name:'Abra',speciesId:63,level:20,quality:1.8,ivTotal:180,quantity:1}],alertCatalog:[]}};
       }});
     const el=s=>document.querySelector(s);
-    await ui.open();await pause();await ui.warmCache();await pause();el('[data-category="Pokemon"]').click();await pause();
+    await ui.open();await pause();check(el('.mk-status').classList.contains('error'),'initial request failure is shown');
+    const initialFailed=requests;failure=null;live=false;now+=61000;tick();await pause(120);
+    check(requests===initialFailed,'automatic recovery waits for a connected account');
+    live=true;now+=61000;tick();await pause(120);
+    check(requests>initialFailed&&!el('.mk-status').classList.contains('error'),'minute timer recovers from initial error and reconnect without clicking refresh');
+    await ui.warmCache();await pause();el('[data-category="Pokemon"]').click();await pause();
     check(el('[data-listing="listing0"]'),'initial full snapshot shown');
     el('#mkIvMin').value='150';el('#mkIvMin').dispatchEvent(new Event('input',{bubbles:true}));await pause(800);el('#mkIvMin').focus();
     const before=requests;version=2;now+=61000;tick();await pause(120);
@@ -35,6 +40,12 @@ app.whenReady().then(async()=>{
     el('[data-tab="compare"]').click();await pause();el('[data-owned="pokemon:owned"]').click();await pause();
     const comparing=requests;version=4;now+=61000;tick();await pause(120);
     check(requests>comparing&&el('.mk-sale-recommendation').textContent.includes('412'),'minute refresh also renews the Pokémon comparison snapshot and sale recommendation');
+    const currentPrice=el('.mk-sale-recommendation').textContent;failure='limited';now+=61000;tick();await pause(120);
+    check(el('.mk-sale-recommendation').textContent===currentPrice,'a rate limit preserves the last complete comparison');
+    const limitedReads=requests;failure=null;now+=61000;tick();await pause(120);
+    check(requests===limitedReads,'automatic recovery respects the rate-limit cooldown');
+    version=5;now+=300000;tick();await pause(120);
+    check(requests>limitedReads&&el('.mk-sale-recommendation').textContent.includes('512'),'automatic refresh resumes after rate-limit cooldown without manual intervention');
     ui.close();const closed=requests;check(tick===null,'closing stops the visible-market timer');await pause();check(requests===closed,'closing does not cause another automatic read');
     return 'Market minute refresh: default page/snapshot caches, two consecutive fresh scans, removals, new prices, filters, focus and close passed.';
   })()`);
