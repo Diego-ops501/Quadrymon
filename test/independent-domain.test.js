@@ -96,6 +96,13 @@ const changedQuality=reader.calculate({pokemon:parsedPinsir,bases:pinsir.bases,q
 assert.deepEqual(changedQuality.ivs,pinsir.ivs,'simulated quality must not change the original inferred IVs');
 assert.equal(reader.parseTooltip({...pinsirElement,__reactFiber$fixture:{memoizedProps:{poke:{...rawPinsir,name:'Abra'}}}}).multiplicadorQualidade,1.78,'unrelated component props cannot override the hovered Pokémon');
 assert.equal(reader.parseTooltip({...pinsirElement,__reactFiber$fixture:null}).poder,10144,'grouped power is read correctly without React metadata');
+globalThis.__poke={ws:{pokes:{list:[{...rawPinsir,quality:1.78,ivTotal:170},rawPinsir]}}};
+const inlineTip={...pinsirElement,__reactFiber$fixture:{memoizedProps:{props:{children:'inline tooltip'}}},matches:selector=>selector==='.inv-tip'};
+assert.equal(reader.parseTooltip(inlineTip).multiplicadorQualidade,1.779,'inline native inventory tooltip recovers full precision from the matching owned Pokémon');
+assert.equal(reader.parseTooltip({...inlineTip,innerText:inlineTip.innerText.replace('Def 1.104','Def 1.105')}).multiplicadorQualidade,1.78,'another stat combination cannot borrow a local Pokémon quality');
+globalThis.__poke.ws.pokes.list.push({...rawPinsir,quality:1.781});
+assert.equal(reader.parseTooltip(inlineTip).multiplicadorQualidade,1.78,'ambiguous rounded quality is not guessed');
+delete globalThis.__poke;
 assert.equal(projected.poder, 9824);
 assert.deepEqual(projected.ivs, inferred.ivs);
 assert.equal(

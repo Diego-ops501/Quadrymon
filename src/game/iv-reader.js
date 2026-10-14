@@ -40,6 +40,20 @@
           ...Object.fromEntries(labels.map((key, i) => [key, number(raw.stats?.[["hp","atk","def","spAtk","spDef","speed"][i]]) ?? parsed[key]])) };
       }
     }
+    if (element.matches?.(".inv-tip")) {
+      const statKeys = ["hp", "atk", "def", "spAtk", "spDef", "speed"];
+      const matches = (root.__poke?.ws?.pokes?.list || []).filter(raw => {
+        const q = number(raw.quality);
+        return cleanName(raw.name) === cleanName(parsed.nome) && Number(raw.level) === parsed.nivel
+          && Number(raw.ivTotal) === parsed.ivAtual && !!raw.shiny === parsed.shiny
+          && q > 0 && q.toFixed(2) === parsed.multiplicadorQualidade.toFixed(2)
+          && labels.every((key,i) => number(raw.stats?.[statKeys[i]]) === parsed[key])
+          && (!(parsed.poder > 0) || number(raw.power) === parsed.poder);
+      });
+      if (matches.length && new Set(matches.map(raw => number(raw.quality))).size === 1)
+        return { ...parsed, multiplicadorQualidade: number(matches[0].quality), speciesId: matches[0].speciesId || matches[0].pokeId,
+          ...(matches.length === 1 ? { tms: matches[0].tms } : {}) };
+    }
     return parsed;
   }
   function parseTooltip(element) {
