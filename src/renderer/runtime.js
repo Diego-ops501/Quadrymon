@@ -783,8 +783,8 @@
       if (!p) return;
       const result = await ivBridge.calculateIv(index, {
         kind: "Pokemon", name: p.name, speciesId: p.sid, level: p.level,
-        quality: p.q, ivTotal: p.ivt, shiny: p.shiny,
-        stats: { hp: p.hm, atk: p.stats?.atk, def: p.stats?.def, spAtk: p.stats?.spa, spDef: p.stats?.spd, speed: p.stats?.speed },
+        quality: p.q, ivTotal: p.ivt, shiny: p.shiny, power: p.power,
+        stats: { hp: p.stats?.hp, atk: p.stats?.atk, def: p.stats?.def, spAtk: p.stats?.spa, spDef: p.stats?.spd, speed: p.stats?.speed },
       }, slots[index].data.cid);
       if (result) showIv(index, result, { x: Math.max(10, (innerWidth - 470) / 2), y: 100 }, true);
     },

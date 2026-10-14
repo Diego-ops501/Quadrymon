@@ -84,6 +84,18 @@ const tooltip = reader.parseTooltip({
 assert.equal(tooltip.hp, 9504);
 assert.equal(tooltip.atk, 1013);
 assert.equal(tooltip.multiplicadorQualidade, 1.78);
+const rawPinsir = {name:'Pinsir',level:430,quality:1.779,ivTotal:156,power:10144,speciesId:127,stats:{hp:944,atk:1207,def:1104,spAtk:566,spDef:818,speed:1063}};
+const pinsirElement = {innerText:'Pinsir Lv430\nQualidade ×1,78\nIV 156/192\nHP 944\nAtk 1.207\nDef 1.104\nSpA 566\nSpD 818\nVel 1.063\nPoder 10.144',querySelectorAll:()=>[],__reactFiber$fixture:{memoizedProps:{poke:rawPinsir}}};
+const parsedPinsir=reader.parseTooltip(pinsirElement);
+assert.equal(parsedPinsir.multiplicadorQualidade,1.779);
+assert.equal(parsedPinsir.poder,10144);
+const pinsir=reader.calculate({pokemon:parsedPinsir,bases:{hp:65,atk:125,def:100,spa:55,spd:70,vel:85}},math,{pokeId:127});
+assert.deepEqual(pinsir.ivs,{hp:31,atk:26,def:31,spa:14,spd:25,vel:29});
+assert.equal(pinsir.ivExact,true);assert.equal(Object.values(pinsir.ivs).reduce((a,b)=>a+b,0),156);
+const changedQuality=reader.calculate({pokemon:parsedPinsir,bases:pinsir.bases,qualidade:2,nivel:500},math,{pokeId:127});
+assert.deepEqual(changedQuality.ivs,pinsir.ivs,'simulated quality must not change the original inferred IVs');
+assert.equal(reader.parseTooltip({...pinsirElement,__reactFiber$fixture:{memoizedProps:{poke:{...rawPinsir,name:'Abra'}}}}).multiplicadorQualidade,1.78,'unrelated component props cannot override the hovered Pokémon');
+assert.equal(reader.parseTooltip({...pinsirElement,__reactFiber$fixture:null}).poder,10144,'grouped power is read correctly without React metadata');
 assert.equal(projected.poder, 9824);
 assert.deepEqual(projected.ivs, inferred.ivs);
 assert.equal(
@@ -112,7 +124,8 @@ session.reduce(
         ivTotal: 176,
         hp: 202,
         maxHp: 312,
-        stats: { atk: 23, def: 25, spAtk: 24, spDef: 25 },
+        power: 150,
+        stats: { hp: 26, atk: 23, def: 25, spAtk: 24, spDef: 25 },
       },
     ],
   },
@@ -143,6 +156,9 @@ assert.equal(snapshot.a.kills, 1);
 assert.equal(snapshot.a.xpg, 68);
 assert.equal(snapshot.a.hits, 2);
 assert.equal(snapshot.team[0].stats.spa, 24);
+assert.equal(snapshot.team[0].stats.hp,26,'IV inference uses the unscaled HP stat, not combat max HP');
+assert.equal(snapshot.team[0].hm,312,'combat health remains separate from the IV stat');
+assert.equal(snapshot.team[0].power,150);
 // Importing a Pokémon via the market is not counted as a capture.
 session.reduce(
   state,

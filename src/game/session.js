@@ -223,6 +223,7 @@
         level: finite(row.level),
         q: finite(row.quality),
         ivt: finite(row.ivTotal),
+        power: row.power == null ? null : finite(row.power),
         hp: finite(row.hp),
         hm: finite(row.maxHp || row.hpMax || row.totalHp),
         t1: row.type1 || "",
@@ -230,6 +231,7 @@
         dt: !!row.isDitto,
         tms: row.tms || [],
         stats: {
+          hp: row.stats?.hp == null ? null : finite(row.stats.hp),
           atk: finite(row.atk ?? row.stats?.atk),
           def: finite(row.def ?? row.stats?.def),
           spa: finite(

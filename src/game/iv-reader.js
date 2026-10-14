@@ -24,6 +24,24 @@
   };
   const statNumber = (value) =>
     number(String(value ?? "").replace(/[.,](?=\d{3}(?:\D|$))/g, ""));
+  function exactTooltip(element, parsed) {
+    const fiberKey = Object.keys(element || {}).find(key => key.startsWith("__reactFiber$"));
+    let fiber = fiberKey && element[fiberKey];
+    for (let depth = 0; fiber && depth < 20; depth++, fiber = fiber.return) {
+      const props = fiber.memoizedProps;
+      for (const raw of [props?.poke, props?.l]) {
+        if (!raw || cleanName(raw.name) !== cleanName(parsed.nome) || Number(raw.level) !== parsed.nivel) continue;
+        const q = number(raw.quality);
+        if (!(q > 0) || q.toFixed(2) !== parsed.multiplicadorQualidade.toFixed(2)) continue;
+        if (parsed.ivAtual != null && Number(raw.ivTotal) !== parsed.ivAtual) continue;
+        return { ...parsed, multiplicadorQualidade: q, ivAtual: number(raw.ivTotal) ?? parsed.ivAtual,
+          poder: number(raw.power) ?? parsed.poder, speciesId: raw.speciesId || raw.pokeId,
+          shiny: !!raw.shiny, tms: raw.tms,
+          ...Object.fromEntries(labels.map((key, i) => [key, number(raw.stats?.[["hp","atk","def","spAtk","spDef","speed"][i]]) ?? parsed[key]])) };
+      }
+    }
+    return parsed;
+  }
   function parseTooltip(element) {
     const text = String(element?.innerText || element?.textContent || "");
     const level = text.match(/(?:\bLv(?:l)?\.?|\bNv\.?|Nível|Level)\s*(\d+)/i);
@@ -65,15 +83,15 @@
     if (labels.some((key) => stats[key] == null)) return null;
     const heading = element.querySelector?.(".mkt2-details-name, .mkt2-card-name, .inv-tip-name");
     const headingName = heading && [...(heading.childNodes || [])].filter(node => node.nodeType === 3).map(node => node.textContent).join("").trim();
-    return {
+    return exactTooltip(element, {
       nome: String(headingName || heading?.textContent || lines[0]).replace(/\s*(?:Lv|Nv)\.?\s*\d+.*$/i, "").replace(/[✨⭐]/g, "").trim(),
       nivel: Number(level[1]),
       multiplicadorQualidade: number(quality[1]),
       ivAtual: number(text.match(/\bIV(?:\s*total)?\s*:?\s*(\d+)/i)?.[1]),
       shiny: /✨|\bshiny\b/i.test(text),
-      poder: number(text.match(/(?:Poder|Power)\D*(\d+)/i)?.[1]),
+      poder: statNumber(text.match(/(?:Poder|Power)\D*([\d.,]+)/i)?.[1]),
       ...stats,
-    };
+    });
   }
   function calculate(input, math, species) {
     const pokemon = input?.pokemon;
@@ -85,7 +103,7 @@
           labels.map((key, index) => [key, Number(species[statFields[index]])]),
         ));
     if (!bases) return { erro: "noSpecies", nome: pokemon.nome };
-    const quality = number(input.qualidade ?? pokemon.multiplicadorQualidade);
+    const observedQuality = number(pokemon.multiplicadorQualidade), quality = number(input.qualidade ?? observedQuality);
     const actualLevel = number(pokemon.nivel),
       level = number(input.nivel ?? actualLevel);
     const observation = input.atuais || pokemon;
@@ -99,7 +117,7 @@
     const keys = math.STAT_KEYS;
     const source = {
       level: actualLevel,
-      quality,
+      quality: observedQuality,
       ivTotal: pokemon.ivAtual,
       species: {
         baseStats: Object.fromEntries(
@@ -112,7 +130,7 @@
     };
     const normalized = math.normalizeIvs(source),
       projected = math.projectPokemon(
-        { ...source, ivs: normalized.values },
+        { ...source, quality, ivs: normalized.values },
         level,
       );
     const ivs = Object.fromEntries(
