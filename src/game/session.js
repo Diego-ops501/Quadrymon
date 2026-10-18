@@ -261,6 +261,7 @@
           id: item.itemId,
           name: definition.name || "#" + item.itemId,
           category: definition.category || "",
+          icon: definition.icon || "",
           quantity: item.quantity,
         });
     }
@@ -287,7 +288,7 @@
       team,
       bag,
       balls,
-      drops: Object.entries(period.drops).map(([id, row]) => ({ name: row.name || items.get(id)?.name || "#" + id, qty: row.qty, gold: finite(items.get(id)?.npcPrice) * row.qty })),
+      drops: Object.entries(period.drops).map(([id, row]) => ({ id, name: items.get(id)?.name || row.name || "#" + id, qty: row.qty, gold: finite(items.get(id)?.npcPrice) * row.qty })),
       prev: state.prev ? (() => {
         const previous = state.prev, seconds = Math.max(1, (previous.end - previous.start) / 1000);
         const loot = Object.entries(previous.drops || {}).reduce((sum, [id, row]) => sum + finite(items.get(id)?.npcPrice) * row.qty, 0);

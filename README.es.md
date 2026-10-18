@@ -1,8 +1,8 @@
 <p align="center"><img src="quadrymon-logo.png" alt="Quadrymon" width="600"></p>
 
 <p align="center"><a href="README.md">Português</a> · <a href="README.en.md">English</a> · <strong>Español</strong></p>
-<p align="center">Central multicuenta para Poke Idle World · Windows x64 · Versión 1.0.0</p>
-<p align="center"><a href="https://github.com/Diego-ops501/Quadrymon/releases/download/v1.0.0/Quadrymon-1.0.0-x64.exe"><strong>Descargar Quadrymon 1.0.0</strong></a> · <a href="https://github.com/Diego-ops501/Quadrymon/releases/latest">Última versión</a></p>
+<p align="center">Central multicuenta para Poke Idle World · Windows x64 · Versión 1.1.0</p>
+<p align="center"><a href="https://github.com/Diego-ops501/Quadrymon/releases/download/v1.1.0/Quadrymon-1.1.0-x64.exe"><strong>Descargar Quadrymon 1.1.0</strong></a> · <a href="https://github.com/Diego-ops501/Quadrymon/releases/latest">Última versión</a></p>
 
 ![Quadrymon — cuatro aventuras en una central](docs/art/quadrymon-banner.png)
 
@@ -12,7 +12,7 @@ La ilustración de presentación fue creada a partir de la referencia visual de 
 
 ## Instalación y primeros pasos
 
-1. Descarga **Quadrymon-1.0.0-x64.exe** desde el enlace superior.
+1. Descarga **Quadrymon-1.1.0-x64.exe** desde el enlace superior.
 2. Ejecuta el instalador y elige el idioma y la carpeta de instalación.
 3. Abre **Ajustes → Cuentas** (Ajustes → Contas), añade hasta cuatro cuentas y guarda.
 4. La app completa el correo o usuario y la contraseña y entra automáticamente cuando el formulario está listo. El nombre de la cuenta viene del personaje del juego. Completa CAPTCHA y autenticación adicional en el juego; **Entrar en las cuentas** permite reintentar manualmente.
@@ -40,13 +40,14 @@ Cambiar de vista conserva las sesiones. Elige cuántos paneles usar en **Ajustes
 
 El **Resumen** incluye suministros y duración estimada, acumulados diarios, metas de saldo y capturas, tendencias, equipos y capturas importantes. Los acumulados usan diferencias entre lecturas, conservan gastos negativos y reutilizan el historial local existente.
 
-## Análisis e historial de capturas
+## Indicadores de cuentas y notificaciones
 
-Abre **Análisis** para seguir los indicadores de las cuentas en el panel lateral. El resumen y el análisis muestran datos observados de la sesión; los datos ausentes no significan rendimiento cero.
+En **Foco**, la cuenta seleccionada ocupa la izquierda y las demás siguen funcionando en miniaturas en la columna derecha. Haz clic en una miniatura para ampliarla sin recargar las sesiones. Con Eco activo, las miniaturas funcionan a 8 cuadros por segundo.
 
-Usa las pestañas para elegir una cuenta y consultar sesión, saldo, loot, bag, objetos fijados, objetivo shiny y equipo. Las flechas reordenan secciones; **✕** oculta una sección, que se recupera en **Secciones ocultas**. La estrella en Bag fija un objeto.
+Los indicadores aparecen en los bordes de cada cuenta, sin panel lateral. El encabezado muestra diamantes, dólares totales, total de Poké Balls y total de curación, en ese orden y sin una franja adicional. En paneles pequeños se abrevian los valores; al pasar el ratón se ven los totales exactos. Las bolas infinitas disponibles se indican junto al stock finito. La franja inferior muestra XP/h, $/h, capturas y bajas/h. Los datos ausentes aparecen como no disponibles.
 
-![Panel de análisis](docs/images/analise.png)
+
+El botón de notificaciones muestra el contador de avisos sin leer por cuenta y parpadea ante capturas importantes, incluidos shinies, y objetos raros. Abrir la lista marca sus avisos como leídos. **Strange Pheromone** y **Boss Token** se supervisan por defecto; edita la lista en **Ajustes → Avisos del farm**. Los criterios de capturas están en **Ajustes → Resumen**. Se guardan localmente las últimas 200 notificaciones por personaje.
 
 El **Historial de capturas** reúne los Pokémon registrados por la aplicación. Filtra por cuenta, nombre, rareza, IV mínimo y shiny. Exporta CSV para consultar el historial en una hoja de cálculo. **Reiniciar sesión** reinicia los indicadores.
 
@@ -130,7 +131,7 @@ En **Aspecto y juego**, activa el **Overlay** para ver un resumen compacto de la
 - **Ocultar avisos del juego:** activado por defecto, cierra la promoción inicial y oculta paneles de captura y Pokémon derrotados. La captura automática y los registros siguen activos. Desactiva para usar el panel de captura manual.
 - **Disposición:** cuadrícula, columna o fila; la proporción original también funciona en Foco.
 - **Chat y HUD:** oculta chat o menú; Ocultar HUD elimina ventanas de captura y muestra entrenador, Auto-Helper y menú al pasar el ratón.
-- **Ajustes del análisis:** muestra, oculta y reordena secciones; gestiona objetos fijados y protegidos en ventas. Arrastra el borde del panel para cambiar su ancho.
+- **Protección e historial:** gestiona objetos protegidos en ventas y abre el historial de capturas.
 - **Evitar suspensión:** mantiene activo el equipo mientras la opción está activada.
 - **Bandeja e inicio:** minimiza en la bandeja y elige iniciar con Windows.
 - **Venta protegida:** añade confirmación a las acciones de venta interceptadas por la aplicación.

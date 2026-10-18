@@ -10,4 +10,4 @@ As medicoes representam combates observados. Simulacoes sao estimativas e precis
 
 ## Por que nao recebo atualizacoes?
 
-A atualizacao automatica desta base fica desativada ate existir uma publicacao validada.
+Use **Ajustes → Backup e suporte → Verificar atualização**. É necessário acesso à internet e uma versão superior à instalada no feed público do Quadrymon. O aplicativo pede confirmação antes de baixar e instalar. Se a verificação não funcionar, baixe o instalador na página de versões do projeto e execute-o para atualizar, preservando o perfil local.

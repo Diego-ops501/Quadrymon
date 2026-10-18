@@ -6,7 +6,7 @@ assert.deepEqual(gameDimensions(1000, 208), {width:400,height:208}, 'original ca
 assert.equal(accountLabel('  Azuosjava  ', 0), 'Azuosjava');
 assert.equal(accountLabel('', 1), 'Conta 2');
 assert.equal(accountLabel('', 0, 'en'), 'Account 1');
-assert.equal(frameRate({ eco: true, focused: 1, account: 0 }), 2);
+assert.equal(frameRate({ eco: true, focused: 1, account: 0 }), 8);
 assert.equal(frameRate({ eco: true, focused: 1, account: 1 }), 15);
 assert.equal(frameRate({ eco: true, focused: -1, account: 3 }), 15);
 assert.equal(frameRate({ eco: false, focused: 1, account: 0 }), 0);

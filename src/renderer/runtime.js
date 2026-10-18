@@ -68,7 +68,6 @@
     dock: load("dock") == null ? load("dockHidden") !== "1" : load("dock") !== "0",
     ratio: load("propNat") !== "0",
     layout: ["grid", "col", "row"].includes(load("layout")) ? load("layout") : "grid",
-    analysisWidth: Math.max(280, Math.min(760, num(load("statsW")) || 380)),
     clean: load("cleanHud") === "1",
     hideGameNotices: load("hideGameNotices") !== "0",
     guard: load("sellguard") !== "0",
@@ -90,7 +89,6 @@
   if (recoveredLogins) await ipc.saveCreds(accounts);
   let mode = "grid",
     focus = 0,
-    analysis = false,
     workspace,
     market,
     inventory,
@@ -129,6 +127,15 @@
     recoveredShinies = window.QuadrymonShinyHistory.merge(shinyLog, [{ ...entry, cap: 1 }], entry.p, entry.cid, entry.account || entry.acc) || recoveredShinies;
   if (recoveredShinies) save("lifeShiny", JSON.stringify(shinyLog));
   const manualChoices = readJson("pokemux-notification-settings", {});
+  const accountNotifications = window.QuadrymonAccountNotifications.create(
+    readJson("accountNotifications", {}), value => save("accountNotifications", JSON.stringify(value)),
+  );
+  let notificationAccount = null, notificationSignature = null;
+  const notificationDialog = node("dialog", null, "account-notifications");
+  notificationDialog.id = "accountNotifications";
+  notificationDialog.setAttribute("aria-labelledby", "accountNotificationsTitle");
+  document.body.append(notificationDialog);
+  notificationDialog.addEventListener("close", () => { if (!notificationDialog.open) notificationAccount = null; });
   const observedPanels = new WeakSet(), gameViewObserver = new ResizeObserver(() => fitGameViews());
   let fitFrame = null;
   const L = (pt, en, es) =>
@@ -136,8 +143,6 @@
   function updateVisualControls() {
     document.body.classList.toggle("native-ratio", options.ratio);
     $("grid").dataset.layout = options.layout;
-    $("stats").style.width = options.analysisWidth + "px";
-    document.body.style.setProperty("--statsw", options.analysisWidth + "px");
     for (const [id, value, visible, hidden] of [
       ["chat", options.chat, L("Chat visível", "Chat visible", "Chat visible"), L("Chat oculto", "Chat hidden", "Chat oculto")],
       ["dock", options.dock, L("Menu visível · F2", "Menu visible · F2", "Menú visible · F2"), L("Menu oculto · F2", "Menu hidden · F2", "Menú oculto · F2")],
@@ -175,7 +180,6 @@
   }
   function localize() {
     const labels = {
-      statsBtn: ["Análise", "Analysis", "Análisis"],
       recommendBtn: ["Recomendar hunt", "Recommend hunt", "Recomendar hunt"],
       ivsBtn: ["IV", "IV", "IV"],
       menuBtn: ["Ajustes", "Settings", "Ajustes"],
@@ -211,7 +215,6 @@
       voiceAlerts: ["Voz dos alertas", "Spoken alerts", "Avisos de voz"],
       shotShiny: ["Print de shiny", "Shiny screenshot", "Captura de shiny"],
       sellguard: ["Venda protegida", "Protected sale", "Venta protegida"],
-      hunt: ["Análise da hunt", "Hunt analysis", "Análisis de hunt"],
       tierBtn: ["Tierlist", "Tier list", "Lista de niveles"],
       dittoBtn: ["Ditto", "Ditto", "Ditto"],
       bkExp: ["Exportar configurações", "Export settings", "Exportar ajustes"],
@@ -396,6 +399,8 @@
   function record(index, data) {
     const current = slots[index],
       leader = data.team?.find((row) => row.ld);
+    accountNotifications.observe(data, capture => window.PokeMuxSummary.important(capture, readJson("importantCaptures", {})), readJson("rareDropItems", window.QuadrymonAccountNotifications.DEFAULT_ITEMS));
+    if (notificationDialog.open && notificationAccount === index) renderAccountNotifications();
     if (data.manualPauseUntil > current.manualUntil) {
       current.manualUntil = data.manualPauseUntil;
       current.recovery = null;
@@ -715,11 +720,6 @@
   function setMode(next, index = focus) {
     mode = next;
     focus = index;
-    if (next === "focus") {
-      richPanels.select(index);
-      analysis = true;
-      document.body.classList.add("stats-open");
-    }
     document.body.classList.toggle("cards-on", mode === "summary");
     $("cards").hidden = mode !== "summary";
     $("grid").hidden = mode === "summary";
@@ -729,14 +729,43 @@
     applyPerformance();
     workspace?.refresh();
     if (mode === "summary") renderSummary();
-    if (mode === "focus") renderAnalysis();
     fitGameViews();
   }
-  function toggleAnalysis() {
-    analysis = !analysis;
-    document.body.classList.toggle("stats-open", analysis);
+  function openAccountNotifications(index) {
+    notificationAccount = index;
+    renderAccountNotifications();
+    if (!notificationDialog.open) notificationDialog.showModal();
+  }
+  function renderAccountNotifications() {
+    const cid = slots[notificationAccount]?.data?.cid;
+    accountNotifications.markRead(cid);
+    const entries = accountNotifications.entries(cid).slice().reverse();
+    const signature = JSON.stringify([cid, name(notificationAccount), options.lang, entries]);
+    if (notificationSignature === signature) return;
+    notificationSignature = signature;
+    const title = node("h2", L("Notificações", "Notifications", "Notificaciones") + " · " + name(notificationAccount));
+    title.id = "accountNotificationsTitle";
+    const close = button("✕", () => notificationDialog.close());
+    close.setAttribute("aria-label", L("Fechar", "Close", "Cerrar"));
+    const header = append(node("div", null, "dialog-head"), title, close);
+    let body = notificationDialog.querySelector(".notification-list");
+    if (!body) { body = node("div", null, "notification-list"); notificationDialog.append(header, body); }
+    else {
+      notificationDialog.querySelector("h2").textContent = title.textContent;
+      notificationDialog.querySelector(".dialog-head button").setAttribute("aria-label", close.getAttribute("aria-label"));
+    }
+    const scroll = body.scrollTop;
+    body.replaceChildren();
+    if (!entries.length) body.append(node("p", L("Nenhuma notificação nesta conta.", "No notifications for this account.", "No hay notificaciones para esta cuenta."), "runtime-note"));
+    for (const entry of entries) {
+      const row = node("article", null, "notification-entry");
+      const label = entry.kind === "capture" ? L("Captura importante", "Important catch", "Captura importante") : L("Drop raro", "Rare drop", "Objeto raro");
+      row.append(node("small", label), node("b", (entry.shiny ? "✨ " : "") + window.QuadrymonNames.display(entry.name) + (entry.kind === "drop" ? " ×" + format(entry.quantity) : " · IV " + format(entry.iv))));
+      const time = node("time", new Date(entry.at).toLocaleString(options.lang === "pt" ? "pt-BR" : options.lang));
+      time.dateTime = new Date(entry.at).toISOString(); row.append(time); body.append(row);
+    }
+    body.scrollTop = scroll;
     workspace?.refresh();
-    renderAnalysis();
   }
   function summaryRow(index, data = slots[index].data) {
     const balls = data?.balls || [],
@@ -767,16 +796,20 @@
     catalog: () => gameCatalog,
     open: index => setMode("focus", index),
     recommend: openRecommendations, openCaptures, exportCaptures, reset: resetSessions,
-    closeAnalysis: toggleAnalysis,
     openSettings: tab => settings.open(tab),
-    refresh: () => { renderSummary(); renderAnalysis(); },
+    refresh: () => { renderSummary(); workspace?.refresh(); },
     refreshCaptures: () => {
       if (mode !== "summary") return;
       const target = $("cards").querySelector('[data-s="catches"] .cd-sec');
-      if (!target) return;
-      const panel = richPanels.capturePanel();
-      panel.firstChild.classList.add("cd-h");
-      window.PokeMuxSummary.patch(target, panel.innerHTML);
+      if (target) {
+        const panel = richPanels.capturePanel(undefined, true);
+        panel.firstChild.classList.add("cd-h");
+        window.PokeMuxSummary.patch(target, panel.innerHTML);
+      }
+      for (const host of $("cards").querySelectorAll('[data-account-captures]')) {
+        const panel = richPanels.accountCapturePanel(Number(host.dataset.accountCaptures));
+        window.PokeMuxSummary.patch(host, panel.innerHTML);
+      }
     },
     openPokemon: async (index, id) => {
       const p = slots[index].data?.team?.find(row => row.id === id);
@@ -797,28 +830,13 @@
   $("cards").oninput = event => richPanels.filter(event);
   $("cards").onchange = event => richPanels.filter(event);
   richPanels.bindGestures($("cards"));
-  richPanels.bindGestures($("stats"));
-  $("stats").onclick = event => { richPanels.handle(event); };
-  $("stats").onchange = event => richPanels.filter(event);
-  const setAnalysisWidth = width => { options.analysisWidth = Math.max(280, Math.min(760, Math.round(width))); save("statsW", options.analysisWidth); updateVisualControls(); fitGameViews(); };
-  let analysisDrag = null;
-  $("stats").addEventListener("pointerdown", event => { if (!event.target.closest('[data-analysis-resize]')) return; event.preventDefault(); analysisDrag = { x: event.clientX, width: $("stats").offsetWidth }; $("stats").setPointerCapture(event.pointerId); });
-  $("stats").addEventListener("pointermove", event => { if (analysisDrag) setAnalysisWidth(analysisDrag.width + analysisDrag.x - event.clientX); });
-  $("stats").addEventListener("pointerup", () => { analysisDrag = null; });
-  $("stats").addEventListener("lostpointercapture", () => { analysisDrag = null; });
-  for (const host of [$("cards"), $("stats")]) host.onkeydown = event => {
-    if (event.target.dataset.analysisResize && ["ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); setAnalysisWidth(options.analysisWidth + (event.key === "ArrowLeft" ? 20 : -20)); return; }
+  $("cards").onkeydown = event => {
     if (event.key === "Enter" && event.target.matches('.restored-pokemon')) richPanels.handle(event);
   };
-  function renderAnalysis() {
-    if (!analysis) return;
-    window.PokeMuxSummary.patch($("stats"), richPanels.analysis().outerHTML);
-  }
   function workspaceState() {
     return {
       lang: options.lang,
       summary: mode === "summary",
-      stats: analysis,
       eco: options.eco,
       accounts: slots.slice(0, options.count).map((current, index) => ({
         name: name(index),
@@ -828,6 +846,12 @@
         focused: mode === "focus" && focus === index,
         hunt: current.data?.hunt || "",
         metrics: current.data?.a,
+        leader: current.off ? null : current.data?.team?.find(row => row.ld) || null,
+        resources: !current.off && current.data?.live ? {
+          gold: current.data.gold, diamonds: current.data.diamonds,
+          balls: current.data.balls, heals: (current.data.bag || []).filter(row => ["heal", "potion"].includes(row.category)),
+        } : null,
+        notifications: accountNotifications.unread(current.data?.cid),
         marketTravel: {
           busy: current.traveling,
           outsideHunt: current.data?.farm?.hunting === false,
@@ -889,6 +913,7 @@
     const value = {
       chat: options.chat,
       dock: options.dock,
+      preview: mode === "focus" && index !== focus,
       clean: options.clean,
       hideGameNotices: options.hideGameNotices,
       guard: options.guard,
@@ -1065,7 +1090,7 @@
   };
   let spriteEntries = [];
   let spriteDex, spriteCacheEntries, spriteCache = new Map();
-  void ipc.loadGameCatalog().then(cache => { spriteEntries = cache?.entries || []; renderSummary(); renderAnalysis(); }).catch(() => {});
+  void ipc.loadGameCatalog().then(cache => { spriteEntries = cache?.entries || []; renderSummary(); }).catch(() => {});
   function sprite(id, shiny, pokemonName) {
     if (spriteCacheEntries !== spriteEntries || spriteDex !== gameCatalog?.dex) {
       spriteCacheEntries = spriteEntries; spriteDex = gameCatalog?.dex; spriteCache.clear();
@@ -1130,7 +1155,6 @@
   $("version").textContent = "v" + ipc.appVersion;
   $("reloadAll").onclick = () =>
     slots.slice(0, options.count).forEach((current) => reload(current.index));
-  $("statsBtn").onclick = toggleAnalysis;
   $("recommendBtn").onclick = async () => {
     await Promise.all(
       slots
@@ -1201,7 +1225,6 @@
     window.open("https://github.com/Diego-ops501/Quadrymon/blob/main/MANUAL.md");
   $("faqBtn").onclick = () =>
     window.open("https://github.com/Diego-ops501/Quadrymon/blob/main/FAQ.md");
-  $("hunt").onclick = toggleAnalysis;
   const bindings = [
     ["eco", "eco", "eco"],
     ["muteAll", "muted", "muted"],
@@ -1252,7 +1275,6 @@
     market.updateLanguage();
     workspace.refresh();
     renderSummary();
-    renderAnalysis();
   };
   settings = window.PokeMuxSettings.mount({
     lang: () => options.lang,
@@ -1264,12 +1286,16 @@
     panel: $("analysisSettings"),
     renderPanel: () => {
       const host = $("analysisSettings");
-      richPanels.settings(host);
+      host.replaceChildren();
       const protectedItems = node("textarea"); protectedItems.rows = 3; protectedItems.value = readJson("sellLock", []).join("\n"); protectedItems.onchange = () => { save("sellLock", JSON.stringify(protectedItems.value.split(/\r?\n/).map(x => x.trim()).filter(Boolean).slice(0, 100))); applyPerformance(); };
       host.append(append(node("label", L("Itens protegidos na venda (um nome por linha)", "Protected sale items (one name per line)", "Objetos protegidos en ventas (un nombre por línea)"), "settings-field"), protectedItems), button(L("Histórico de capturas", "Capture history", "Historial de capturas"), () => { $("menu").close(); openCaptures(); }));
     },
     notifications: (host) => {
       host.replaceChildren();
+      const rareItems = node("textarea"); rareItems.rows = 3; rareItems.id = "rareDropItems";
+      rareItems.value = readJson("rareDropItems", window.QuadrymonAccountNotifications.DEFAULT_ITEMS).join("\n");
+      rareItems.onchange = () => save("rareDropItems", JSON.stringify(rareItems.value.split(/\r?\n/).map(x => x.trim()).filter(Boolean).slice(0, 100)));
+      host.append(append(node("label", L("Drops raros (um nome por linha)", "Rare drops (one name per line)", "Objetos raros (un nombre por línea)"), "settings-field"), rareItems));
       host.append(node("p", L(
         "Alertas das contas aguardam 60 segundos após conectar ou recarregar o jogo. O problema precisa persistir por 30 segundos para gerar um aviso.",
         "Account alerts wait 60 seconds after connecting or reloading the game. A problem must persist for 30 seconds before a notification is sent.",
@@ -1316,11 +1342,14 @@
   localize();
   build();
   workspace = window.PokeMuxWorkspace.mount({
+    load, save,
+    sprite,
     state: workspaceState,
     resize: fitGameViews,
     focus: (index) => setMode("focus", index),
     mode: (value, index) => setMode(value, index),
     travelMarket: travel,
+    notifications: openAccountNotifications,
     inventory: () => inventory.open(),
     market: (tab) => market.open(tab),
   });
@@ -1378,7 +1407,6 @@
     );
     workspace.refresh();
     renderSummary();
-    renderAnalysis();
     const rows = workspaceState().accounts.map((row, index) => ({
       ...row,
       index,

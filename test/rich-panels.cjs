@@ -29,7 +29,7 @@ app.whenReady().then(async()=>{
    const panels=QuadrymonRichPanels.mount(c),cards=document.querySelector('#cards'),stats=document.querySelector('#stats');
    function refresh(){PokeMuxSummary.patch(cards,panels.summary().outerHTML);PokeMuxSummary.patch(stats,panels.analysis().outerHTML)}
    let captureRefreshes=0;
-   c.refreshCaptures=()=>{captureRefreshes++;const block=cards.querySelector('[data-s=catches] .cd-sec'),panel=panels.capturePanel();panel.firstChild.classList.add('cd-h');PokeMuxSummary.patch(block,panel.innerHTML);};
+   c.refreshCaptures=()=>{captureRefreshes++;const block=cards.querySelector('[data-s=catches] .cd-sec'),panel=panels.capturePanel(undefined,true);panel.firstChild.classList.add('cd-h');PokeMuxSummary.patch(block,panel.innerHTML);for(const host of cards.querySelectorAll('[data-account-captures]'))PokeMuxSummary.patch(host,panels.accountCapturePanel(Number(host.dataset.accountCaptures)).innerHTML);};
    cards.onclick=stats.onclick=e=>{panels.handle(e);};cards.onchange=stats.onchange=e=>panels.filter(e);cards.oninput=e=>panels.filter(e);refresh();
    panels.bindGestures(cards);panels.bindGestures(stats);
    check([...cards.querySelectorAll('.cd-it')].map(x=>x.dataset.s).join(',')==='kpis,table,today,catches,pinned','original dashboard section order and default visibility');
@@ -81,7 +81,7 @@ app.whenReady().then(async()=>{
    const older=Array.from({length:45},(_,i)=>({n:'Ordinary '+i,iv:20,q:i===44?null:1,p:0,t:100+i}));captures.push(...older);refresh();
    check(cards.querySelectorAll('.cd-catches-list .summary-capture').length===47,'all mode includes every registered capture beyond the old 30 limit');
    check(cards.querySelector('.cd-catches-list').firstChild.textContent.includes('Ordinary 44'),'all mode uses newest first instead of important-first');
-   check(cards.querySelector('.cd-it[data-s=catches] h3').textContent==='Todas as capturas','heading follows selected capture mode');
+   check(cards.querySelector('.cd-it[data-s=catches] h3').textContent==='Filtros de capturas'&&!cards.querySelector('[data-s=catches] .summary-capture'),'shared filters no longer duplicate account captures in a combined list');
    const scroll=cards.querySelector('.cd-catches-list');check(scroll.scrollHeight>scroll.clientHeight&&getComputedStyle(scroll).overflowY==='scroll','long capture list has its own vertical scrollbar');
    scroll.scrollTop=180;captures.push({n:'Latest ordinary',iv:20,q:1,p:0,t:999});refresh();
    check(cards.querySelector('.cd-catches-list')===scroll&&scroll.scrollTop===180,'new captures preserve the scroll container and position');
@@ -105,7 +105,7 @@ app.whenReady().then(async()=>{
    for(const value of ['Or','Ord','Ordinary']){query.value=value;query.dispatchEvent(new Event('input',{bubbles:true}));}
    check(captureRefreshes===beforeFilters,'typing does not synchronously rebuild the dashboard');
    await new Promise(r=>setTimeout(r,180));
-   check(captureRefreshes===beforeFilters+1&&cards.querySelectorAll('[data-s=catches] .summary-capture').length===46,'rapid typing applies the latest filter in one capture-only update');
+   check(captureRefreshes===beforeFilters+1&&cards.querySelectorAll('[data-account-captures] .summary-capture').length===46,'rapid typing applies the latest filter in one capture-only update');
    check(stats.innerHTML===analysisBefore&&cards.querySelector('[data-s=shinies]')===shinyBefore,'capture filters do not rebuild analysis or shiny history');
    check(document.activeElement===query&&query.value==='Ordinary','filter keeps the active search input');
    query.dispatchEvent(new Event('change',{bubbles:true}));check(captureRefreshes===beforeFilters+1,'the subsequent change event does not duplicate the input render');
@@ -119,6 +119,23 @@ app.whenReady().then(async()=>{
    criterion.value='170';criterion.dispatchEvent(new Event('change',{bubbles:true}));
    const restoredCriteria=QuadrymonRichPanels.mount({...c,read:key=>key==='importantCaptures'?saved.importantCaptures:{}}).capturePanel();
    check(restoredCriteria.querySelectorAll('.summary-capture').length===1,'IV criterion alone includes above-threshold captures');
+   const groupedSources=sources.map((source,i)=>({...source,cid:'current-'+i}));
+   const groupedCaptures=groupedSources.flatMap((source,p)=>[{p,cid:source.cid,n:'Rare '+p,iv:180,q:1.8,t:200+p},{p,cid:source.cid,n:'Common '+p,iv:20,q:1,t:300+p}]);
+   groupedCaptures.push({p:0,n:'Legacy catch',iv:20,q:1,t:100},{p:0,cid:'previous-character',n:'Wrong character',iv:190,q:1.8,t:400});
+   const groupedSaved={},groupedHost=node('div');document.body.append(groupedHost);let grouped;
+   const groupedContext={...c,data:i=>groupedSources[i],captures:()=>groupedCaptures,read:key=>key==='cdFC'?groupedSaved.cdFC||{mode:'all',allDefaultsVersion:1}:{},save:(key,value)=>groupedSaved[key]=JSON.parse(value),refreshCaptures:()=>PokeMuxSummary.patch(groupedHost,grouped.summary().outerHTML),refresh:()=>PokeMuxSummary.patch(groupedHost,grouped.summary().outerHTML)};
+   grouped=QuadrymonRichPanels.mount(groupedContext);groupedContext.refresh();groupedHost.onchange=event=>grouped.filter(event);
+   const accountLists=[...groupedHost.querySelectorAll('[data-account-captures]')];
+   check(accountLists.length===4&&accountLists.every((panel,i)=>panel.previousElementSibling.classList.contains('summary-account')&&panel.parentElement.dataset.summaryKey==='account-column:'+i),'each capture list is directly below its account card');
+   check(accountLists.map(panel=>panel.querySelectorAll('.summary-capture').length).join(',')==='3,2,2,2','captures are grouped by account, retaining legacy captures and excluding previous characters');
+   check(!groupedHost.textContent.includes('Wrong character')&&accountLists.every((panel,i)=>!panel.textContent.includes('Rare '+((i+1)%4))),'account capture lists never leak another account or character');
+   const firstMode=groupedHost.querySelector('[data-account-capture-mode="0"]');firstMode.value='important';firstMode.dispatchEvent(new Event('change',{bubbles:true}));
+   check(groupedHost.querySelector('[data-account-captures="0"]').querySelectorAll('.summary-capture').length===1&&groupedHost.querySelector('[data-account-captures="1"]').querySelectorAll('.summary-capture').length===2,'important/all selections are independent per account');
+   const reopened=QuadrymonRichPanels.mount(groupedContext).summary();check(reopened.querySelector('[data-account-capture-mode="0"]').value==='important'&&reopened.querySelector('[data-account-capture-mode="1"]').value==='all','per-account capture mode survives reopening');
+   const globalMode=groupedHost.querySelector('[data-panel-filter=mode]');globalMode.value='important';globalMode.dispatchEvent(new Event('change',{bubbles:true}));
+   check([...groupedHost.querySelectorAll('[data-account-capture-mode]')].every(select=>select.value==='important'),'shared mode applies to all account lists');
+   const globalAll=groupedHost.querySelector('[data-panel-filter=mode]');globalAll.value='all';globalAll.dispatchEvent(new Event('change',{bubbles:true}));
+   check(!groupedHost.querySelector('[data-s=catches] .summary-capture'),'summary has no duplicated combined capture list');
   })()`);
   console.log("Rich panels: four account summaries, supplies, capture filters, account analysis, pin/hide/reorder, IV bars, locked moves and level projection passed.");app.exit(0);
  }catch(e){console.error(e.stack);app.exit(1)}

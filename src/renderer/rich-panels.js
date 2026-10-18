@@ -41,6 +41,8 @@
     config.pinned = (Array.isArray(config.pinned) ? config.pinned : []).filter(x => x && ["ball", "item"].includes(x.t)).slice(0, 40);
     let selected = null, captureFilter = "important", search = "", history = [];
     const catchFilters = { p: -1, per: 0, r: "", iv: 0, q: 0, sh: false, ...c.read("cdFC", {}) };
+    const accountModes = catchFilters.accountModes = catchFilters.accountModes && typeof catchFilters.accountModes === "object" && !Array.isArray(catchFilters.accountModes) ? catchFilters.accountModes : {};
+    function clearAccountModes() { for (const key of Object.keys(accountModes)) delete accountModes[key]; }
     let importantRules = root.PokeMuxSummary.captureImportance(c.read("importantCaptures", {}));
     captureFilter = catchFilters.mode === "all" ? "all" : "important"; search = String(catchFilters.n || "");
     function clearQualityFilters() { Object.assign(catchFilters, { iv: 0, q: 0, r: "", sh: false }); }
@@ -146,7 +148,26 @@
       card.append(append(el("div", null, "summary-actions"), action(copy.open, "focus", index), action(L("Recomendar hunt", "Recommend hunt", "Recomendar hunt"), "recommend", index)));
       return card;
     }
-    function capturePanel(rows = Array.from({ length: c.count() }, (_, i) => c.data(i))) {
+    function accountCapturePanel(index) {
+      const mode = accountModes[index] === "all" || accountModes[index] === "important" ? accountModes[index] : captureFilter;
+      const panel = section(L("Capturas", "Catches", "Capturas"));
+      panel.classList.add("summary-account-catches"); panel.dataset.accountCaptures = index;
+      panel.dataset.summaryKey = "account-captures:" + index;
+      const select = el("select"); select.dataset.accountCaptureMode = index;
+      select.setAttribute("aria-label", L("Capturas de ", "Catches for ", "Capturas de ") + c.name(index));
+      for (const [value, label] of [["important", L("Importantes", "Important", "Importantes")], ["all", L("Todas", "All", "Todas")]]) { const option = el("option", label); option.value = value; option.selected = mode === value; select.append(option); }
+      panel.firstChild.append(select);
+      const data = c.data(index), own = c.captures().filter(entry => Number(entry.p) === index && (!entry.cid || !data?.cid || String(entry.cid) === String(data.cid)));
+      const filtered = root.PokeMuxCaptureFilters.filterCaptures(own, { ...catchFilters, n: search });
+      const caught = mode === "all" ? filtered : root.PokeMuxSummary.prioritize(filtered.filter(entry => root.PokeMuxSummary.important(entry, importantRules)), importantRules);
+      const count = el("span", number(caught.length), "account-capture-count"); panel.firstChild.insertBefore(count, select);
+      const list = el("div", null, "cd-catches-list"); list.dataset.summaryKey = "captures-list:" + index;
+      list.tabIndex = 0; list.setAttribute("role", "region"); list.setAttribute("aria-label", L("Capturas de ", "Catches for ", "Capturas de ") + c.name(index));
+      for (const entry of caught) list.append(captureRow(entry)); panel.append(list);
+      if (!caught.length) panel.append(el("p", L("Nenhuma captura neste filtro.", "No catches in this filter.", "No hay capturas en este filtro."), "runtime-note"));
+      return serializeControls(panel);
+    }
+    function capturePanel(rows = Array.from({ length: c.count() }, (_, i) => c.data(i)), controlsOnly = false) {
       const captures = section(L("Capturas importantes", "Important catches", "Capturas importantes")), controls = el("div", null, "restored-filters"), mode = el("select"); mode.dataset.panelFilter = "mode";
       for (const [value, label] of [["important", L("Importantes", "Important", "Importantes")], ["all", L("Todas", "All", "Todas")]]) { const option = el("option", label); option.value = value; option.selected = captureFilter === value; mode.append(option); }
       const query = el("input"); query.type = "search"; query.placeholder = L("Buscar Pokémon", "Search Pokémon", "Buscar Pokémon"); query.value = search; query.dataset.panelFilter = "search"; controls.append(mode, query); captures.append(controls);
@@ -154,6 +175,11 @@
       addSelect("p", [[-1, L("Todas as contas", "All accounts", "Todas las cuentas")], ...rows.map((_, i) => [i, c.name(i)])]); addSelect("per", [[0, L("Todo o período", "All time", "Todo el período")], [1, "1h"], [6, "6h"], [24, "24h"]]); addSelect("r", [["", L("Raridade: todas", "Rarity: all", "Rareza: todas")], ...["weak", "common", "uncommon", "rare", "epic", "legendary", "mythic", "ancient", "divine"].map((key, i) => [key, ["Fraca", "Comum", "Incomum", "Rara", "Épica", "Lendária", "Mítica", "Anciã", "Divina"][i]])]);
       for (const [key, label] of [["iv", "IV ≥"], ["q", "Q ≥"]]) { const input = el("input"); input.type = "number"; input.min = 0; input.step = key === "q" ? .01 : 1; input.placeholder = label; input.value = catchFilters[key] || ""; input.dataset.catchFilter = key; controls.append(input); } const shinyOnly = el("input"); shinyOnly.type = "checkbox"; shinyOnly.checked = !!catchFilters.sh; shinyOnly.dataset.catchFilter = "sh"; controls.append(append(el("label", "✨"), shinyOnly));
       controls.append(action(L("Limpar filtros", "Clear filters", "Limpiar filtros"), "clear-capture-filters"));
+      if (controlsOnly) {
+        captures.firstChild.textContent = L("Filtros de capturas", "Capture filters", "Filtros de capturas");
+        captures.append(action(L("Ver histórico completo", "Full history", "Historial completo"), "captures"));
+        return serializeControls(captures);
+      }
       const filtered = root.PokeMuxCaptureFilters?.filterCaptures(c.captures(), { ...catchFilters, n: search }) || c.captures().filter(x => String(x.n).toLowerCase().includes(search.toLowerCase()));
       const caught = captureFilter === "all" ? filtered : root.PokeMuxSummary.prioritize(filtered.filter(x => root.PokeMuxSummary.important(x, importantRules)), importantRules), list = el("div", null, "cd-catches-list");
       captures.firstChild.textContent = captureFilter === "all" ? L("Todas as capturas", "All catches", "Todas las capturas") : L("Capturas importantes", "Important catches", "Capturas importantes");
@@ -178,7 +204,11 @@
       } goalControls.append(action("⬇ " + L("Dia", "Day", "Día"), "export-day"), action("⬇ Hunts", "export-hunts")); today.firstChild.append(goalControls); host.append(today);
       const periodTotals = el("div", null, "summary-period-totals");
       for (const [days, label] of [[7, L("Últimos 7 dias", "Last 7 days", "Últimos 7 días")], [0, L("Desde o início", "All time", "Desde el inicio")]]) { const cutoff = Date.now() - days * 86400000, entries = Object.entries(daily).filter(([date]) => !days || new Date(date + "T23:59:59").getTime() >= cutoff).flatMap(([, entries]) => Object.values(entries)); periodTotals.append(el("span", label + ": " + number(entries.reduce((s, x) => s + (x.g || 0), 0)) + " gold · " + compact(entries.reduce((s, x) => s + (x.x || 0), 0)) + " XP · " + number(entries.reduce((s, x) => s + (x.c || 0), 0)) + " " + L("capturas", "catches", "capturas"))); } today.append(periodTotals);
-      const accounts = el("div", null, "summary-accounts"); accounts.style.setProperty("--summary-count", c.count()); for (let i = 0; i < c.count(); i++) accounts.append(accountCard(i)); host.append(accounts);
+      const accounts = el("div", null, "summary-accounts"); accounts.style.setProperty("--summary-count", c.count());
+      for (let i = 0; i < c.count(); i++) {
+        const column = el("div", null, "summary-account-column"); column.dataset.summaryKey = "account-column:" + i; column.style.setProperty("--account-color", c.colors[i]);
+        column.append(accountCard(i)); if (!summaryConfig.hide.catches) column.append(accountCapturePanel(i)); accounts.append(column);
+      } host.append(accounts);
       const columns = el("div", null, "restored-columns");
       const session = section(text("session")), sessionValues = el("div", null, "restored-kpis");
       for (const [label, key] of [["XP", "xpg"], [L("Saldo", "Balance", "Saldo"), "balance"], [L("Abates", "Kills", "Bajas"), "kills"], [L("Capturas", "Captures", "Capturas"), "captures"]]) { const known = rows.map(x => x?.a?.[key]).filter(x => Number.isFinite(x)); sessionValues.append(kpi(label, known.length ? number(known.reduce((sum, x) => sum + x, 0)) : "—")); }
@@ -191,7 +221,7 @@
         const min = Math.min(0, ...history.map(x => x[key])), max = Math.max(1, ...history.map(x => x[key])); const line = document.createElementNS(svg.namespaceURI, "polyline"); line.setAttribute("points", history.map((x, i) => (i * 400 / Math.max(1, history.length - 1)) + "," + (65 - (x[key] - min) / Math.max(1, max - min) * 60)).join(" ")); line.setAttribute("stroke", color); line.setAttribute("fill", "none"); line.setAttribute("stroke-width", "2"); svg.append(line); trend.append(svg);
       } columns.append(trend);
       const teams = section(text("team")); for (let i = 0; i < c.count(); i++) { teams.append(el("h4", c.name(i))); for (const p of c.data(i)?.team || []) teams.append(teamCard(p, i)); } columns.append(teams);
-      const captures = summaryConfig.hide.catches ? section("") : capturePanel(rows); columns.append(captures);
+      const captures = summaryConfig.hide.catches ? section("") : capturePanel(rows, true); columns.append(captures);
       const stock = section(text("pinned")), fixed = el("div", null, "summary-pinned"); for (const item of config.pinned) { const quantities = rows.map(data => (item.t === "ball" ? data?.balls : data?.bag)?.find(x => Number(x.id) === Number(item.id))); const line = append(el("span"), document.createTextNode(item.name + " "), el("b", quantities.some(x => x?.infinite) ? "∞" : number(quantities.reduce((n, x) => n + (Number(x?.quantity) || 0), 0)))); line.title = quantities.map((x, i) => c.name(i) + ": " + (x?.infinite ? "∞" : number(x?.quantity || 0))).join(" · "); fixed.append(line); } stock.append(fixed); if (!config.pinned.length) stock.append(el("p", root.PokeMuxSummary.COPY[c.lang()].noPinned, "summary-period")); columns.append(stock);
       const hunts = section(L("Hunts e desempenho", "Hunts and performance", "Hunts y rendimiento")); for (let i = 0; i < c.count(); i++) hunts.append(row(c.name(i) + " · " + (c.data(i)?.hunt || "—"), number(c.data(i)?.a?.kph) + "/h")); columns.append(hunts);
       const shinyEntries = summaryConfig.hide.shinies ? [] : (c.shinies ? c.shinies().map(x => ({ ...x, sh: true })) : c.captures().filter(x => x.sh)).sort((a, b) => b.t - a.t); const shiny = section(L("Histórico de shinies", "Shiny history", "Historial de shinies") + " · " + number(shinyEntries.length)), shinyList = el("div", null, "cd-catches-list"); shinyList.dataset.summaryKey = "shiny-list"; for (const entry of shinyEntries) { const line = captureRow(entry); if (!entry.cap && c.shinies) { line.querySelector(".capture-iv").textContent = L("Derrotado", "Defeated", "Derrotado"); line.querySelector(".capture-quality").textContent = ""; } shinyList.append(line); } if (shinyEntries.length) shiny.append(shinyList);
@@ -208,7 +238,7 @@
         const resize = el("span", null, "cd-rz"); resize.dataset.summaryResize = "width"; resize.title = L("Ajustar largura", "Adjust width", "Ajustar ancho");
         const vertical = el("span", null, "cd-rz2"); vertical.dataset.summaryResize = "height"; vertical.title = L("Ajustar altura (duplo clique restaura)", "Adjust height (double click resets)", "Ajustar altura (doble clic restablece)");
         const block = blocks[key]; if (key !== "table") { block.classList.add("cd-sec"); block.firstChild?.classList.add("cd-h"); }
-        if (summaryConfig.h[key]) { block.style.height = Math.max(100, Math.min(1200, Number(summaryConfig.h[key]))) + "px"; block.style.overflow = "auto"; }
+        if (summaryConfig.h[key]) { const height = Math.max(100, Math.min(1200, Number(summaryConfig.h[key]))) + "px"; if (key === "table") block.style.minHeight = height; else { block.style.height = height; block.style.overflow = "auto"; } }
         tile.append(grip, resize, vertical, block); grid.append(tile);
       } host.append(grid); return serializeControls(host);
     }
@@ -253,7 +283,7 @@
       if (actionName === "focus") c.open(index); else if (actionName === "recommend") c.recommend(index); else if (actionName === "captures") c.openCaptures(); else if (actionName === "export") c.exportCaptures(); else if (actionName === "reset") c.reset(); else if (actionName === "close") c.closeAnalysis();
       else if (actionName === "pokemon") c.openPokemon(index, control.dataset.pokemon);
       else if (actionName === "account") { selected = index; c.refresh(); }
-      else if (actionName === "clear-capture-filters") { Object.assign(catchFilters, { p: -1, per: 0 }); clearQualityFilters(); captureFilter = "all"; search = ""; saveCatchFilters(); refreshCatchFilters("change"); }
+      else if (actionName === "clear-capture-filters") { Object.assign(catchFilters, { p: -1, per: 0 }); clearQualityFilters(); clearAccountModes(); captureFilter = "all"; search = ""; saveCatchFilters(); refreshCatchFilters("change"); }
       else if (actionName === "summary-config") { summaryConfigOpen = !summaryConfigOpen; c.refresh(); }
       else if (actionName === "analysis-config") c.openSettings?.("analysis");
       else if (actionName === "export-day" || actionName === "export-hunts") {
@@ -269,6 +299,11 @@
     function filter(event) {
       const target = event.target;
       if (event.type === "input" && (target.tagName === "SELECT" || target.type === "checkbox")) return;
+      if (target.dataset.accountCaptureMode != null) {
+        const index = Number(target.dataset.accountCaptureMode);
+        if (Number.isInteger(index) && index >= 0 && index < c.count() && ["all", "important"].includes(target.value)) { accountModes[index] = target.value; saveCatchFilters(); refreshCatchFilters("change"); }
+        return;
+      }
       if (target.dataset.importantRule) {
         if (event.type === "input") return;
         const key = target.dataset.importantRule;
@@ -285,7 +320,7 @@
       const goal = target.dataset.panelGoal;
       if (goal) { if (event.type === "input") return; goals[goal] = Math.max(0, Number(target.value) || 0); c.save("goals", JSON.stringify(goals)); c.refresh(); return; }
       const key = target.dataset.panelFilter;
-      if (key === "mode") { if (captureFilter === target.value) return; captureFilter = target.value; if (captureFilter === "all") clearQualityFilters(); }
+      if (key === "mode") { if (captureFilter === target.value && !Object.keys(accountModes).length) return; captureFilter = target.value; clearAccountModes(); if (captureFilter === "all") clearQualityFilters(); }
       else if (key === "search") { if (search === target.value) { if (catchRefreshTimer && event.type === "change") refreshCatchFilters("change"); return; } search = target.value; }
       else return;
       saveCatchFilters(); refreshCatchFilters(event.type);
@@ -327,7 +362,7 @@
       const finish = () => { if (resizing) { resizing = null; saveSummary(); c.refresh(); } }; host.addEventListener("pointerup", finish); host.addEventListener("lostpointercapture", finish);
       host.addEventListener("dblclick", event => { const handle = event.target.closest('[data-summary-resize="height"]'); if (handle) { delete summaryConfig.h[handle.closest(".cd-it").dataset.s]; saveSummary(); c.refresh(); } });
     }
-    return { summary, capturePanel, analysis, handle, filter, settings, summarySettings, bindGestures, observe, select: index => { selected = index; } };
+    return { summary, capturePanel, accountCapturePanel, analysis, handle, filter, settings, summarySettings, bindGestures, observe, select: index => { selected = index; } };
   }
   function iv(c) {
     const { data: d, node: el, append, button, L } = c, host = el("div", null, "restored-iv");

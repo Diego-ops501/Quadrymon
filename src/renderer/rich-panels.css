@@ -17,6 +17,18 @@
 .restored-kpi.xp b,.xp { color:#79c0ff; }.restored-kpi.money b,.money { color:#51ddae; }.expense { color:#f3a576; }
 .summary-period { color:#829bb3;font-size:11px;margin:6px 0 0; }.summary-period-totals { display:flex;gap:18px;font-size:11px;color:#829bb3;margin-top:9px;flex-wrap:wrap; }
 #cards .summary-accounts { display:grid;grid-template-columns:repeat(var(--summary-count),minmax(240px,1fr));gap:12px;overflow-x:auto;padding-bottom:4px;margin:0; }
+#cards .summary-account-column { display:flex;flex-direction:column;gap:10px;min-width:0; }
+#cards .summary-account-catches { padding:10px 12px;background:#101e2c;border:1px solid #28415e;border-top:2px solid var(--account-color);border-radius:10px; }
+.summary-account-catches h3 { flex-wrap:wrap; }
+.summary-account-catches h3 select { margin-left:auto;font-size:11px;padding:3px 7px; }
+.account-capture-count { color:#91a8c3;font-size:10px; }
+.summary-account-catches .summary-capture { display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:4px 6px;padding:7px 0; }
+.summary-account-catches .summary-capture>img,.summary-account-catches .summary-capture>.restored-sprite-placeholder { grid-column:1;grid-row:1 / 3;width:32px;height:32px; }
+.summary-account-catches .capture-name { grid-column:2;grid-row:1; }
+.summary-account-catches .capture-iv { grid-column:3;grid-row:1;font-size:10px; }
+.summary-account-catches .capture-quality { grid-column:2;grid-row:2;overflow:hidden;text-overflow:ellipsis;font-size:10px; }
+.summary-account-catches .capture-time { grid-column:3;grid-row:2;font-size:10px; }
+.summary-account-catches .capture-account { display:none; }
 #cards .summary-account { padding:14px;background:#17263b;border:1px solid #28415e;border-top:3px solid var(--account-color);border-radius:10px;min-width:0; }
 #cards .summary-account header { display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:13px; }
 #cards .summary-account header button { background:transparent;border:0;padding:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:16px;color:#22d3c5; }

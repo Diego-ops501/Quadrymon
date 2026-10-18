@@ -2,7 +2,7 @@
 // Render the production interface with fictional accounts, in an isolated profile.
 const { app, BrowserWindow, ipcMain } = require("electron");
 const fs = require("node:fs"), path = require("node:path"), os = require("node:os"), zlib = require("node:zlib");
-const root = path.resolve(__dirname, ".."), output = path.join(root, "docs/images");
+const root = path.resolve(__dirname, ".."), output = process.env.QUADRYMON_SCREENSHOT_OUTPUT ? path.resolve(process.env.QUADRYMON_SCREENSHOT_OUTPUT) : path.join(root, "docs/images");
 fs.mkdirSync(output, { recursive: true });
 app.setPath("userData", fs.mkdtempSync(path.join(os.tmpdir(), "quadrymon-docs-")));
 const catalog = JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(root, "test/fixtures/game-catalog.json.gz"))));
@@ -21,7 +21,7 @@ const fixtures = {
 };
 for(const channel of ["creds:load","game-runtime:read","game-catalog:load","game-auth:hydrate","game:performance","awake:set","mintray:set","autostart:get","log:write","errlog:write","notify","overlay:state","overlay:toggle","update:check"])
   ipcMain.handle(channel,()=>fixtures[channel]?.()??true);
-ipcMain.on("app:version",event=>{event.returnValue="1.0.0";});
+ipcMain.on("app:version",event=>{event.returnValue=require('../package.json').version;});
 app.on("web-contents-created",(_event,contents)=>{
   contents.session.webRequest.onBeforeRequest({urls:["http://*/*","https://*/*"]},(details,callback)=>callback({cancel:details.resourceType!=="image"}));
   contents.on("will-attach-webview",(_event,_preferences,parameters)=>{parameters.src="about:blank";});
@@ -56,8 +56,9 @@ app.whenReady().then(async()=>{
       await Promise.all(names.map((_,i)=>PokeMuxRuntime.readState(i)));
       document.querySelector('[data-mode="summary"]').click();
     })()`);
+    if (process.argv.includes("--all-captures")) await run(`const mode=document.querySelector('[data-panel-filter="mode"]');mode.value='all';mode.dispatchEvent(new Event('change',{bubbles:true}));`);
     await shot("resumo");
-    await run(`document.querySelector('#statsBtn').click()`);await shot("analise");await run(`document.querySelector('#stats [data-panel-action=close]').click()`);
+    if (process.argv.includes("--summary-only")) { app.exit(0); return; }
     if (process.argv.includes("--panels-only")) { await run(`document.querySelector('[data-mode="focus"]').click()`); await shot("foco"); await run(`document.querySelector('[data-mode="grid"]').click()`); await shot("grade"); app.exit(0); return; }
     await run(`document.querySelector('#marketBtn').click()`);await pause(12000);await run(`document.querySelector('[data-category="Pokemon"]').click()`);await pause(12000);await shot("mercado");
     await run(`const field=document.querySelector('#mkSearch');field.focus();field.value='pup';field.dispatchEvent(new Event('input',{bubbles:true}));`);await shot("sugestoes");

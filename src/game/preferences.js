@@ -60,6 +60,17 @@
   for (const type of ["pointerdown", "keydown", "wheel", "touchstart"])
     root.addEventListener?.(type, observeUser, { capture: true, passive: true });
   const dismissedPromotions = new WeakSet();
+  let previewScene = null;
+  function selectPreviewScene() {
+    const scene = options.preview ? [...document.querySelectorAll('canvas')]
+      .filter(canvas => !canvas.closest('.game-hud-tl,.ah-panel,.auto-helper,.autohelper,.game-dock,.dock,.chat-box,.cap-panel'))
+      .sort((a, b) => b.width * b.height - a.width * a.height)[0] : null;
+    if (previewScene !== scene) {
+      previewScene?.removeAttribute('data-quadrymon-scene');
+      previewScene = scene;
+    }
+    previewScene?.setAttribute('data-quadrymon-scene', '1');
+  }
   let noticeScanPending = false;
   function dismissPromotions() {
     if (!options.hideGameNotices || root.location?.pathname !== "/play") return;
@@ -70,6 +81,7 @@
     }
   }
   const noticeObserver = new MutationObserver(() => {
+    if (options.preview) selectPreviewScene();
     if (!options.hideGameNotices || noticeScanPending) return;
     noticeScanPending = true;
     queueMicrotask(() => { noticeScanPending = false; dismissPromotions(); });
@@ -121,7 +133,7 @@
       rules.push(
         '.chat-box,.chat-float,.chat-panel,[data-guide="chat"]{display:none!important}',
       );
-    if ((dockOverride ?? options.dock) === false)
+    if (options.preview || (dockOverride ?? options.dock) === false)
       rules.push(
         'nav.game-dock,.game-dock,.dock,[data-guide="dock"]{display:none!important}',
       );
@@ -130,12 +142,16 @@
         ".cap-panel,.capture-popup{display:none!important}.ah-panel,.auto-helper,.autohelper,.game-hud-tl,nav.game-dock{opacity:0!important;transition:opacity .18s ease!important}.ah-panel:hover,.ah-panel:focus-within,.auto-helper:hover,.autohelper:hover,.game-hud-tl:hover,.game-hud-tl:focus-within,nav.game-dock:hover,nav.game-dock:focus-within{opacity:1!important}",
       );
     if (options.hideGameNotices && root.location?.pathname === "/play") rules.push(".promo-overlay,.cap-panel,.capture-popup,.cap-flash,.kc-stack,.kc-card{display:none!important}");
+    // Pokémon portraits also use canvases. Reveal only the largest scene canvas.
+    selectPreviewScene();
+    if (options.preview) rules.push("body *{visibility:hidden!important}canvas[data-quadrymon-scene]{visibility:visible!important}");
     sheet.textContent = rules.join("\n");
     dismissPromotions();
   }
   root.addEventListener?.("keydown", event => {
     if (event.key !== "F2" || root.location?.pathname !== "/play") return;
     event.preventDefault();
+    if (options.preview) return;
     dockOverride = !((dockOverride ?? options.dock) !== false);
     configure(options);
   }, true);

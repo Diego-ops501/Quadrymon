@@ -1,5 +1,15 @@
 # Alterações
 
+## 1.1.0 — 17/10/2026
+
+- Foco com conta principal à esquerda e miniaturas ao vivo à direita, sem recriar as sessões. Botão central permite ocultar e restaurar miniaturas e salva a preferência.
+- Miniaturas exibem somente o cenário e o combate; menus, HUD e canvases dos retratos da equipe ficam ocultos. A configuração normal, incluindo F2, volta ao ampliar a conta ou retornar à Grade.
+- Cabeçalhos reúnem diamantes, dólares, total de Pokébolas e total de curas. A imagem do líder acompanha o nome da conta, com nome e nível no tooltip. Valores compactos em painéis menores mostram o total exato ao passar o mouse.
+- Painel lateral de Análise e faixa separada de recursos removidos para ampliar a área útil do jogo. Abates/h incluídos na borda inferior.
+- Notificações por personagem para capturas importantes, shinies, Strange Pheromone e Boss Token, com contador, destaque pulsante e histórico local. Abrir a lista marca os avisos como lidos. Itens monitorados configuráveis; proteção de venda e histórico preservados.
+- Resumo com capturas abaixo de cada card, rolagem própria e modo Importantes/Todas independente e persistido. Filtros gerais e histórico completo preservados.
+- Inclui correções recentes de atualização do mercado, recuperação após falhas, proteção de controle manual e leitura precisa de IVs no inventário nativo.
+
 ## 1.0.0 — 11/10/2026
 
 Primeira publicação do Quadrymon para Windows x64.

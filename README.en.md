@@ -1,8 +1,8 @@
 <p align="center"><img src="quadrymon-logo.png" alt="Quadrymon" width="600"></p>
 
 <p align="center"><a href="README.md">Português</a> · <strong>English</strong> · <a href="README.es.md">Español</a></p>
-<p align="center">Multi-account hub for Poke Idle World · Windows x64 · Version 1.0.0</p>
-<p align="center"><a href="https://github.com/Diego-ops501/Quadrymon/releases/download/v1.0.0/Quadrymon-1.0.0-x64.exe"><strong>Download Quadrymon 1.0.0</strong></a> · <a href="https://github.com/Diego-ops501/Quadrymon/releases/latest">Latest release</a></p>
+<p align="center">Multi-account hub for Poke Idle World · Windows x64 · Version 1.1.0</p>
+<p align="center"><a href="https://github.com/Diego-ops501/Quadrymon/releases/download/v1.1.0/Quadrymon-1.1.0-x64.exe"><strong>Download Quadrymon 1.1.0</strong></a> · <a href="https://github.com/Diego-ops501/Quadrymon/releases/latest">Latest release</a></p>
 
 ![Quadrymon — four adventures in one hub](docs/art/quadrymon-banner.png)
 
@@ -12,7 +12,7 @@ The promotional illustration was inspired by the Quadrymon visual reference. The
 
 ## Installation and first steps
 
-1. Download **Quadrymon-1.0.0-x64.exe** using the link above.
+1. Download **Quadrymon-1.1.0-x64.exe** using the link above.
 2. Run the installer and choose its language and installation directory.
 3. Open **Settings → Accounts** (Ajustes → Contas), add up to four accounts and save.
 4. The app fills each account's email or username and password and logs in automatically when the form is ready. Account names come from the in-game character. Complete CAPTCHA and additional authentication in the game; **Log in to accounts** lets you retry manually.
@@ -40,13 +40,14 @@ Switching views preserves sessions. Choose the number of panels under **Settings
 
 **Summary** includes supplies and estimated duration, daily totals, balance and capture goals, trends, teams and important catches. Daily totals use differences between readings, retain negative expenses and reuse existing local history.
 
-## Analysis and capture history
+## Account indicators and notifications
 
-Open **Analysis** to monitor account indicators in the side panel. Summary and analysis show observed session data; missing data does not mean zero performance.
+In **Focus**, the selected account fills the left side and the other accounts remain live in a right column. Click a preview to focus it without reloading sessions. Eco mode keeps previews running at 8 frames per second.
 
-Select an account with the tabs to inspect its session, balance, loot, bag, pinned items, shiny target and team. Arrows reorder sections; **✕** hides a section, which can be restored under **Hidden sections**. Use the star in Bag to pin an item.
+Indicators appear on each account's borders, without a sidebar. The header shows diamonds, total dollars, total Poké Balls and total healing supplies, in that order, without a separate strip. Small panels abbreviate values; hover to see exact totals. Owned infinite balls are indicated alongside finite stock. The lower strip shows XP/h, $/h, captures and kills/h. Missing readings appear as unavailable.
 
-![Analysis panel](docs/images/analise.png)
+
+The notification button shows each account's unread count and pulses for new important catches, including shinies, and rare drops. Opening the list marks its entries as read. **Strange Pheromone** and **Boss Token** are monitored by default; edit the list in **Settings → Farm notifications**. Catch criteria are configured in **Settings → Summary**. The latest 200 notifications per character are stored locally.
 
 **Capture history** lists Pokémon recorded by the app. Filter by account, name, rarity, minimum IV and shiny status. Export CSV to review the history in a spreadsheet. **Reset session** resets session indicators.
 
@@ -130,7 +131,7 @@ Under **Appearance and game**, enable the **Overlay** to monitor a compact accou
 - **Hide game notices:** enabled by default, dismisses the initial promotion and hides capture and defeated Pokémon panels. Auto-capture and app records remain active. Disable to use the manual capture panel.
 - **Arrangement:** grid, column or row; original aspect ratio also works in Focus.
 - **Chat and HUD:** hide chat or the game menu; Hide HUD removes capture popups and reveals trainer, Auto-Helper and menu on hover.
-- **Analysis settings:** show, hide and reorder sections; manage pinned items and protected sale items. Drag the panel edge to resize it.
+- **Protection and history:** manage protected sale items and open capture history.
 - **Prevent sleep:** keeps the computer awake while enabled.
 - **Tray and startup:** minimize to the tray and choose whether to start with Windows.
 - **Protected selling:** adds confirmation to selling actions intercepted by the app.

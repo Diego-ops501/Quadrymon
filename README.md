@@ -1,8 +1,8 @@
 <p align="center"><img src="quadrymon-logo.png" alt="Quadrymon" width="600"></p>
 
 <p align="center"><strong>Português</strong> · <a href="README.en.md">English</a> · <a href="README.es.md">Español</a></p>
-<p align="center">Central multitela para Poke Idle World · Windows x64 · Versão 1.0.0</p>
-<p align="center"><a href="https://github.com/Diego-ops501/Quadrymon/releases/download/v1.0.0/Quadrymon-1.0.0-x64.exe"><strong>Baixar Quadrymon 1.0.0</strong></a> · <a href="https://github.com/Diego-ops501/Quadrymon/releases/latest">Última versão</a></p>
+<p align="center">Central multitela para Poke Idle World · Windows x64 · Versão 1.1.0</p>
+<p align="center"><a href="https://github.com/Diego-ops501/Quadrymon/releases/download/v1.1.0/Quadrymon-1.1.0-x64.exe"><strong>Baixar Quadrymon 1.1.0</strong></a> · <a href="https://github.com/Diego-ops501/Quadrymon/releases/latest">Última versão</a></p>
 
 ![Quadrymon — quatro aventuras em uma central](docs/art/quadrymon-banner.png)
 
@@ -12,7 +12,7 @@ A ilustração de apresentação foi criada a partir da referência visual do Qu
 
 ## Instalação e primeiros passos
 
-1. Baixe **Quadrymon-1.0.0-x64.exe** pelo link acima.
+1. Baixe **Quadrymon-1.1.0-x64.exe** pelo link acima.
 2. Execute o instalador e escolha o idioma e a pasta de instalação.
 3. Abra **Ajustes → Contas**, cadastre até quatro contas e salve.
 4. O app preenche o e-mail ou usuário e a senha e entra automaticamente quando o formulário estiver pronto. O nome da conta é identificado pelo personagem no jogo. CAPTCHA e autenticação adicional são resolvidos no jogo; **Entrar nas contas** permite tentar novamente manualmente.
@@ -38,15 +38,24 @@ As contas possuem sessões separadas. A barra superior permite selecionar uma co
 
 Alternar os modos preserva as sessões. Em **Ajustes → Contas**, escolha também quantos painéis utilizar.
 
+No **Foco**, a conta selecionada fica ampliada à esquerda e as outras contas permanecem em miniaturas ao vivo na lateral direita. Clique em uma miniatura para colocá-la em foco, sem recarregar as sessões. Com Eco ligado, as miniaturas continuam animadas a 8 quadros por segundo.
+
+O botão no centro da divisória oculta ou mostra as miniaturas. Com elas ocultas, a conta principal ocupa a largura disponível e as outras contas continuam funcionando. Essa preferência é salva automaticamente.
+
+As miniaturas mostram apenas o cenário e o combate ao vivo, sem treinador, equipe, menus, chat, Auto-Helper ou outros painéis do jogo. Ao ampliar uma conta ou voltar à Grade, a interface segue a configuração normal daquela conta, incluindo a escolha feita com F2.
+
+O cabeçalho de cada tela mostra a imagem do Pokémon líder ao lado do nome da conta. Passe o mouse sobre ela para consultar o nome e o nível. As miniaturas ocultam também os pequenos canvases dos retratos da equipe, preservando somente o cenário principal.
+
 O **Resumo** inclui suprimentos e duração estimada, acumulado diário, metas de saldo e capturas, tendências, equipes e capturas importantes. O acumulado diário usa diferenças entre leituras, preserva gastos negativos e reaproveita o histórico local existente.
 
-## Análise e histórico de capturas
+As capturas ficam abaixo do card da respectiva conta, com rolagem independente. Cada conta permite escolher **Importantes** ou **Todas**, e essa escolha é salva. Os filtros gerais de nome, conta, período, raridade, IV, qualidade e shiny continuam disponíveis em **Filtros de capturas**; a seleção geral de Importantes/Todas aplica o modo a todas as contas.
 
-Abra **Análise** para acompanhar os indicadores das contas no painel lateral. O resumo e a análise exibem os dados observados na sessão; dados ausentes não significam rendimento zero.
+## Indicadores nas contas e notificações
 
-Use as abas para escolher a conta. Consulte sessão, saldo, loot, bag, itens fixados, alvo shiny e equipe. As setas reorganizam as seções; **✕** oculta uma seção, que pode ser recuperada em **Seções ocultas**. A estrela na Bag fixa um item para acompanhamento.
+Os indicadores ficam nas bordas de cada tela, sem painel lateral. O cabeçalho reúne, nesta ordem, diamantes, dólares totais, total de Pokébolas e total de curas, sem uma faixa extra. Em painéis menores, os números são abreviados e o total exato aparece ao passar o mouse. Pokébolas infinitas disponíveis são indicadas por ∞ junto do estoque finito. A faixa inferior mostra XP/h, $/h, capturas e abates/h. Dados ausentes aparecem como indisponíveis.
 
-![Painel de análise](docs/images/analise.png)
+O botão de notificações na faixa inferior tem um contador de avisos não lidos por conta e pisca quando há novidades. Clique para consultar os registros e marcá-los como lidos. As capturas usam os critérios de **Ajustes → Resumo**, incluindo shinies. Os drops monitorados são **Strange Pheromone** e **Boss Token**; a lista pode ser alterada em **Ajustes → Notificações do farm**. O histórico de avisos fica salvo localmente, com os últimos 200 registros por personagem.
+
 
 O **Histórico de capturas** reúne os Pokémon registrados pelo aplicativo. Filtre por conta, nome, raridade, IV mínimo e shiny. Exporte CSV para consultar o histórico em uma planilha. **Zerar sessão** reinicia os indicadores da sessão.
 
@@ -130,7 +139,7 @@ Em **Visual e jogo**, ative o **Overlay** para acompanhar um resumo compacto das
 - **Ocultar avisos do jogo:** ativado por padrão, fecha a promoção inicial e oculta painel de captura e cartões de Pokémon derrotado. A captura automática e os registros continuam ativos. Desative para usar o painel de captura manual.
 - **Disposição:** grade, coluna ou linha; a proporção original é preservada também no Foco.
 - **Chat e HUD:** chat e menu podem ser ocultados; Limpar HUD esconde a captura e revela nome, Auto-Helper e menu ao passar o mouse.
-- **Configuração da análise:** mostre, oculte e reordene seções; gerencie itens fixados e a lista de itens protegidos na venda. Arraste a borda do painel para ajustar sua largura.
+- **Proteção e histórico:** gerencie itens protegidos na venda e abra o histórico de capturas.
 - **Impedir suspensão:** mantém o computador ativo enquanto a opção estiver ligada.
 - **Bandeja e inicialização:** minimize na bandeja e escolha iniciar com Windows.
 - **Venda protegida:** acrescenta confirmação às ações de venda interceptadas pelo aplicativo.

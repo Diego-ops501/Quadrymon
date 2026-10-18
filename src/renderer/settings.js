@@ -1,8 +1,8 @@
 (function () {
   const copy = {
-    pt: ['Ajustes', 'Buscar configuração', 'Contas', 'Visual e jogo', 'Desempenho', 'Notificações do farm', 'Análise', 'Resumo', 'Ferramentas', 'Backup e suporte', 'As alterações são salvas automaticamente.'],
-    en: ['Settings', 'Search settings', 'Accounts', 'Appearance and game', 'Performance', 'Farm notifications', 'Analysis', 'Summary', 'Tools', 'Backup and support', 'Changes are saved automatically.'],
-    es: ['Ajustes', 'Buscar ajustes', 'Cuentas', 'Aspecto y juego', 'Rendimiento', 'Avisos del farm', 'Análisis', 'Resumen', 'Herramientas', 'Backup y soporte', 'Los cambios se guardan automáticamente.']
+    pt: ['Ajustes', 'Buscar configuração', 'Contas', 'Visual e jogo', 'Desempenho', 'Notificações do farm', 'Proteção e histórico', 'Resumo', 'Ferramentas', 'Backup e suporte', 'As alterações são salvas automaticamente.'],
+    en: ['Settings', 'Search settings', 'Accounts', 'Appearance and game', 'Performance', 'Farm notifications', 'Protection and history', 'Summary', 'Tools', 'Backup and support', 'Changes are saved automatically.'],
+    es: ['Ajustes', 'Buscar ajustes', 'Cuentas', 'Aspecto y juego', 'Rendimiento', 'Avisos del farm', 'Protección e historial', 'Resumen', 'Herramientas', 'Backup y soporte', 'Los cambios se guardan automáticamente.']
   };
   function mount(bridge) {
     const menu = bridge.menu, opener = document.getElementById('menuBtn');
@@ -18,7 +18,7 @@
       ['performance', 4, ['eco', 'awake', 'minTray', 'autoStart']],
       ['notifications', 5, ['alerts', 'sndShiny', 'voiceAlerts', 'shotShiny']],
       ['analysis', 6, ['sellguard']], ['summary', 7, []],
-      ['tools', 8, ['recommendBtn', 'hunt', 'tierBtn', 'dittoBtn']],
+      ['tools', 8, ['recommendBtn', 'tierBtn', 'dittoBtn']],
       ['support', 9, ['bkExp', 'bkImp', 'updateBtn', 'manBtn', 'faqBtn', 'errlogBtn', 'supportLinks']]
     ];
     const sections = new Map(); let selected = 'accounts';
