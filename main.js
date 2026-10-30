@@ -336,6 +336,8 @@ register("game-runtime:read", () =>
     "src/domain/iv-math.js",
     "src/game/iv-reader.js",
     "src/game/preferences.js",
+    "src/domain/breeding-cost.js",
+    "src/game/breeding-observer.js",
   ]
     .map((file) => fs.readFileSync(appFile(file), "utf8"))
     .join("\n"),

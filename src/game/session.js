@@ -139,6 +139,8 @@
         break;
     }
     state.ws[message.type] = message;
+    if (message.type === 'pokes' || message.type === 'poke-delta')
+      root.QuadrymonBreedingObserver?.onPokemon?.(message.type === 'pokes' ? message.list || [] : message.poke ? [message.poke] : []);
     if (state.catchLog.length > 500)
       state.catchLog.splice(0, state.catchLog.length - 500);
     if (state.shinyLog.length > 100)

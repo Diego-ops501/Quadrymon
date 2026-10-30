@@ -1,8 +1,8 @@
 (function (root, factory) {
-  const api = factory(typeof module === 'object' && module.exports ? require('./pokemon-state') : root.PokeMuxPokemonState);
+  const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.PokeMuxGlobalMarket = api;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function (PokemonState) {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 
   const CATEGORIES = ['All', 'Items', 'Stones', 'Poke Balls', 'Diamonds', 'Pokemon'];
@@ -100,8 +100,7 @@
     const out = { catalog: {}, pkWindow: { cap: num(window.cap), more: !!window.more },
       total: num(x.total), pages: Math.max(1, num(x.pages)), cid: txt(x.cid, 100), name: txt(x.name, 60),
       gold: num(x.gold), diamonds: num(x.diamonds), isVip: x.isVip === true, emailGate: !!x.emailGate };
-    for (const key of ['listings', 'mine', 'requests', 'myRequests', 'history', 'species', 'owned', 'alertCatalog']) out[key] = arr(x[key]).map(entry);
-    out.ownedReady = x.ownedReady === true;
+    for (const key of ['listings', 'mine', 'requests', 'myRequests', 'history', 'species', 'alertCatalog']) out[key] = arr(x[key]).map(entry);
     out.species = arr(x.species).map(value => ({ ...entry(value), shiny: num(obj(value).shiny) }));
     for (const key of ['items', 'balls']) out.catalog[key] = arr(catalog[key], 2000).map(entry);
     out.catalog.diamonds = catalog.diamonds ? entry(catalog.diamonds) : null;
@@ -148,19 +147,6 @@
     const timestamp = Number.isFinite(numeric) ? numeric < 1e12 ? numeric * 1000 : numeric : Date.parse(raw);
     if (!Number.isFinite(timestamp) || timestamp <= 0 || timestamp > now + 60000) return null;
     return { timestamp, minutes: Math.max(0, Math.floor((now - timestamp) / 60000)) };
-  }
-
-  function comparisonFilters(owned, tolerance = {}) {
-    const out = { browse: 'pokemon', speciesId: owned.speciesId, shiny: !!owned.shiny, sort: 'price-asc' };
-    if (tolerance.broad) return out;
-    if (owned.quality != null) out.gradesOff = GRADES.filter(grade => grade !== rarity(Number(owned.quality)));
-    for (const [field, prefix, fallback, max] of [['ivTotal', 'iv', 10, 192], ['level', 'lv', 10, 100000], ['quality', 'q', .1, 100]]) {
-      if (owned[field] == null || !Number.isFinite(Number(owned[field]))) continue;
-      const delta = Number.isFinite(Number(tolerance[prefix])) ? Math.max(0, Math.min(max, Number(tolerance[prefix]))) : fallback;
-      out[prefix + 'Min'] = +Math.max(prefix === 'lv' ? 1 : 0, Number(owned[field]) - delta).toFixed(2);
-      out[prefix + 'Max'] = +Math.min(max, Number(owned[field]) + delta).toFixed(2);
-    }
-    return out;
   }
 
   function evolutionIds(speciesId, catalog = []) {
@@ -243,7 +229,8 @@
   function createMarketReader(read, options = {}) {
     const now = options.now || Date.now, wait = options.wait || (ms => new Promise(resolve => setTimeout(resolve, ms)));
     const interval = options.interval ?? 2000, ttl = options.ttl ?? 300000;
-    const cache = new Map(), pending = new Map();
+    const cache = new Map(), pending = new Map(), generations = new Map();
+    const timeoutMs = options.timeoutMs ?? 15000;
     let next = 0, blockedUntil = 0, running = false;
     const jobs = [];
     async function drain() {
@@ -262,9 +249,16 @@
               if (!job.valid()) response = {ok:false,reason:'changed'};
               else {
                 next = now()+interval;
-                response = await read(job.account,job.script);
+                let timer;
+                try {
+                  response = await Promise.race([
+                    Promise.resolve(read(job.account,job.script)),
+                    new Promise(resolve=>{timer=setTimeout(()=>resolve({ok:false,reason:'timeout'}),timeoutMs);})
+                  ]);
+                } finally { clearTimeout(timer); }
+                if (!job.valid()) { job.resolve({ok:false,reason:'changed'}); continue; }
                 if (response?.reason === 'limited') blockedUntil = now()+Math.max(60000,Number(response.retryAfterMs)||60000);
-                if (response?.ok && job.script.includes('"browse":"pokemon"')) {
+                if (!job.fresh && response?.ok && job.generation === (generations.get(job.account) || 0) && job.script.includes('"browse":"pokemon"')) {
                   cache.set(job.key,{at:now(),response});
                   if (cache.size>256) cache.delete(cache.keys().next().value);
                 }
@@ -275,22 +269,27 @@
         }
       } finally { running = false; }
     }
-    const reader = function(account,script,valid=()=>true,priority=10) {
-      const key = account+':'+script, cached=cache.get(key);
-      if (valid() && cached && now()-cached.at<ttl) return Promise.resolve(cached.response);
-      if (pending.has(key)) {
+    const reader = function(account,script,valid=()=>true,priority=10,fresh=false) {
+      if (!valid()) return Promise.resolve({ok:false,reason:'changed'});
+      const generation = generations.get(account) || 0;
+      const key = account+':'+generation+':'+(fresh ? 'fresh:' : '')+script, cached=cache.get(key);
+      if (!fresh && cached && now()-cached.at<ttl) return Promise.resolve(cached.response);
+      const existing = pending.get(key);
+      if (existing?.valid()) {
         const job=jobs.find(x=>x.key===key); if(job) job.priority=Math.max(job.priority,priority);
-        return pending.get(key).then(result=>valid()?result:{ok:false,reason:'changed'});
+        return existing.promise.then(result=>valid()?result:{ok:false,reason:'changed'});
       }
       let resolve,reject;
       const task=new Promise((yes,no)=>{resolve=yes;reject=no;});
-      pending.set(key,task);
-      jobs.push({account,script,valid,priority,key,resolve,reject});
-      task.finally(()=>{if(pending.get(key)===task)pending.delete(key);}).catch(()=>{});
+      const entry = {promise:task,valid};
+      pending.set(key,entry);
+      jobs.push({account,script,valid,priority,key,generation,fresh,resolve,reject});
+      task.finally(()=>{if(pending.get(key)===entry)pending.delete(key);}).catch(()=>{});
       void drain();
       return task;
     };
     reader.clearPages = account => {
+      generations.set(account,(generations.get(account) || 0)+1);
       for (const key of cache.keys()) if (key.startsWith(account + ':')) cache.delete(key);
     };
     return reader;
@@ -309,21 +308,24 @@
       snapshots.set(keyOf(account,data.cid),{cid:data.cid,at:raw.at,data,listings:sanitizeResponse({listings:raw.listings}).listings,rate:diamondRate(data.listings)});
     }
     function get(account,cid) { return snapshots.get(keyOf(account,cid)) || null; }
-    function ensure(account,cid,force = false,onProgress) {
+    function ensure(account,cid,force = false,onProgress,context = {}) {
       const key = keyOf(account,cid), cached = get(account,cid);
-      if (jobs.has(key)) return jobs.get(key);
-      // Reopening cannot trigger repeated full scans within the same minute.
-      if (cached && now()-cached.at < (force ? 60000 : 300000)) return Promise.resolve({ok:true,snapshot:cached});
+      const active = jobs.get(key);
+      if (active?.valid()) return active.task;
+      // Normal refreshes share a one-minute snapshot. Opening can explicitly bypass its age.
+      if (cached && now()-cached.at < (context.maxAge ?? (force ? 60000 : 300000))) return Promise.resolve({ok:true,snapshot:cached});
+      const started = now();
+      const valid = () => !stopped && (context.valid?.() ?? true) && now()-started < (options.timeoutMs ?? 45000);
       const task = (async () => {
-        const valid = () => !stopped;
+        if (!valid()) return {ok:false,reason:'changed'};
         const quote = await read(account,readScript({category:'All',includeAlertCatalog:true},cid),valid);
         if (!quote?.ok) return quote || {ok:false,reason:'network'};
         const data = sanitizeResponse(quote.data);
         if (!cid || data.cid !== String(cid)) return {ok:false,reason:'changed'};
         // A reconciliation must really read the server, so removed listings disappear.
-        if (cached) read.clearPages?.(account);
+        read.clearPages?.(account);
         const response = await readPriceBook(script=>read(account,script,valid), {sort:'recent',onProgress},cid,[],diamondRate(data.listings));
-        if (!response?.ok || stopped) return response?.ok ? {ok:false,reason:'changed'} : response;
+        if (!response?.ok || !valid()) return !valid() ? {ok:false,reason:stopped || !(context.valid?.() ?? true) ? 'changed' : 'timeout'} : response;
         const snapshot = {cid:String(cid),at:now(),data,listings:response.book.listings,rate:diamondRate(data.listings)};
         // Replace the whole snapshot only after every page succeeds. Never merge stale IDs.
         snapshots.set(key,snapshot);
@@ -335,8 +337,9 @@
         } catch {}
         return {ok:true,snapshot};
       })().catch(()=>({ok:false,reason:'network'}));
-      jobs.set(key,task);
-      task.finally(()=>{if(jobs.get(key)===task)jobs.delete(key);}).catch(()=>{});
+      const entry = {task,valid};
+      jobs.set(key,entry);
+      task.finally(()=>{if(jobs.get(key)===entry)jobs.delete(key);}).catch(()=>{});
       return task;
     }
     return {get,ensure,stop:()=>{stopped=true;}};
@@ -383,12 +386,6 @@
     // params.page é sempre 1 (chave do cache); a página solicitada é local.
     const requested = Math.max(1,Math.min(pages,Math.trunc(Number(options.page)) || 1));
     return {ok:true,book,data:{...book.data,listings:listings.slice((requested-1)*size,requested*size),total:listings.length,pages}};
-  }
-
-  async function readComparisonBook(read, owned, tolerance, cid, rate) {
-    const filters = comparisonFilters(owned, tolerance);
-    const response = await readPriceBook(read, filters, cid, [], rate);
-    return response;
   }
 
   // Each currency is ordered by the server. A merge of their frontiers needs only
@@ -445,19 +442,6 @@
     return {ok:true,book,data:{...book.data,listings:book.listings.slice((page-1)*12,page*12),total:book.total,pages}};
   }
 
-  function comparable(list, owned, tolerance = {}) {
-    if (!owned) return [];
-    const filters = comparisonFilters(owned, tolerance);
-    return (list || []).filter(x => {
-      if (x.kind !== owned.kind) return false;
-      if (x.kind !== 'pokemon') return x.refId != null && owned.refId != null && Number(x.refId) === Number(owned.refId);
-      if (!(Number(owned.speciesId) > 0) || Number(x.speciesId) !== Number(owned.speciesId) || !!x.shiny !== !!owned.shiny) return false;
-      if (!tolerance.broad && owned.quality != null && (x.quality == null || rarity(Number(x.quality)) !== rarity(Number(owned.quality)))) return false;
-      return [['ivTotal', 'iv'], ['level', 'lv'], ['quality', 'q']].every(([field, prefix]) => filters[prefix + 'Min'] == null ||
-        (x[field] != null && Number(x[field]) >= filters[prefix + 'Min'] && Number(x[field]) <= filters[prefix + 'Max']));
-    });
-  }
-
   function priceSummary(list) {
     const out = {};
     for (const currency of ['GOLD', 'DIAMONDS']) {
@@ -467,24 +451,6 @@
         median: prices.length ? prices.length % 2 ? prices[mid] : (prices[mid - 1] + prices[mid]) / 2 : null };
     }
     return out;
-  }
-
-  function saleRecommendation(list, owned, tolerance, rate, mine = []) {
-    const unavailable = { GOLD: null, DIAMONDS: null, count: 0, converted: false };
-    if (!owned || owned.starter || owned.kind === 'pokemon' && ['speciesId', 'level', 'ivTotal', 'quality'].some(key => owned[key] == null)) return unavailable;
-    const ownIds = new Set(mine.map(x => x.id));
-    const offers = comparable(list, owned, tolerance).filter(x => !ownIds.has(x.id) && !x.offerOnly && x.price > 0
-      && Number.isFinite(Number(x.price)) && (x.kind === 'pokemon' || x.quantity == null || x.quantity > 0));
-    const median = values => { values.sort((a,b) => a-b); const i = Math.floor(values.length/2); return values.length ? values.length%2 ? values[i] : (values[i-1]+values[i])/2 : null; };
-    if (Number(rate) > 0 && Number.isFinite(Number(rate))) {
-      const values = offers.map(x => equivalentDiamonds(x, rate)).filter(x => x != null);
-      const price = median(values);
-      return { GOLD: price == null ? null : Math.max(1, Math.round(price * rate), Number(owned.npcPrice) || 0),
-        DIAMONDS: price == null ? null : Math.max(1, Math.ceil(price)), count: values.length, converted: true };
-    }
-    const summary = priceSummary(offers);
-    return { GOLD: summary.GOLD.median == null ? null : Math.max(1, Math.round(summary.GOLD.median), Number(owned.npcPrice) || 0),
-      DIAMONDS: summary.DIAMONDS.median == null ? null : Math.max(1, Math.ceil(summary.DIAMONDS.median)), count: summary.GOLD.count + summary.DIAMONDS.count, converted: false };
   }
 
   function marketHighlights(list) {
@@ -511,7 +477,7 @@
     return prices;
   }
 
-  async function readInGame(params, expectedCid, sanitize, includeOwned, includeAlertCatalog, receivePokemon) {
+  async function readInGame(params, expectedCid, sanitize, includeAlertCatalog) {
     const P = window.__poke;
     const character = () => P && P.api && P.api['/api/characters/me'] && P.api['/api/characters/me'].character;
     if (location.origin !== 'https://poke.idleworld.online' || location.pathname !== '/play' || !P || !character()) return { ok: false, reason: 'offline' };
@@ -519,32 +485,9 @@
     if (expectedCid && expectedCid !== cid) return { ok: false, reason: 'changed' };
     if (!P.auth) return { ok: false, reason: 'auth' };
     const abort = new AbortController(), timer = setTimeout(() => abort.abort(), 12000);
-    let stopInventory = () => {};
     try {
-      // Ask for the same snapshots requested by the game's bag. Listen before sending.
-      let freshInventory = true;
-      const inventorySnapshot = includeOwned && P.sock && P.sock.readyState === 1 ? new Promise(resolve => {
-        const socket = P.sock, seen = new Set(), assembly = { ws: {} };
-        let waitTimer;
-        const finish = ready => { clearTimeout(waitTimer); socket.removeEventListener('message', onMessage); freshInventory = ready; resolve(); };
-        const onMessage = message => {
-          try {
-            const event = receivePokemon(assembly, JSON.parse(message.data));
-            if (!event || !['inventory', 'balls', 'pokes'].includes(event.type)) return;
-            if (event.type === 'pokes' && !Array.isArray(event.list) || event.type === 'inventory' && !Array.isArray(event.items)
-              || event.type === 'balls' && (!Array.isArray(event.catalog) || !event.counts)) return;
-            assembly.ws[event.type] = event; P.ws ||= {}; P.ws[event.type] = event; seen.add(event.type);
-            if (seen.size === 3) finish(true);
-          } catch {}
-        };
-        stopInventory = () => finish(false);
-        socket.addEventListener('message', onMessage);
-        waitTimer = setTimeout(() => finish(false), 2500);
-        try { for (const type of ['inv-get', 'balls-get', 'pokes-get']) socket.send(JSON.stringify({ type })); }
-        catch { finish(false); }
-      }) : Promise.resolve();
       const response = await fetch('/api/game/market?' + new URLSearchParams(params), {
-        method: 'GET', credentials: 'same-origin', headers: { Authorization: P.auth }, signal: abort.signal
+        method: 'GET', cache: 'no-store', credentials: 'same-origin', headers: { Authorization: P.auth }, signal: abort.signal
       });
       if (!response.ok) {
         const retry = response.headers?.get('Retry-After');
@@ -557,7 +500,6 @@
       if (data.emailGate) return { ok: false, reason: 'email' };
       if (data.error) return { ok: false, reason: 'denied' };
       if (!Array.isArray(params.browse === 'species' ? data.species : data.listings)) return { ok: false, reason: 'server' };
-      await inventorySnapshot;
       if (String(character() && character().id || '') !== cid) return { ok: false, reason: 'changed' };
       const ch = character();
       let alertCatalog = [];
@@ -568,48 +510,18 @@
         } catch {}
         if (String(character() && character().id || '') !== cid) return { ok: false, reason: 'changed' };
       }
-      const owned = [];
-      const ws = P.ws || {};
-      if (includeOwned) {
-        let itemCatalog = P.api['/game/items.json'];
-        if (!itemCatalog || !Array.isArray(itemCatalog.items)) {
-          try {
-            const catalogResponse = await fetch('/game/items.json', { signal: abort.signal });
-            if (catalogResponse.ok) { itemCatalog = await catalogResponse.json(); P.api['/game/items.json'] = itemCatalog; }
-          } catch {}
-        }
-        const definitions = new Map(((itemCatalog || {}).items || []).map(x => [Number(x.id), x]));
-        const marketItems = new Map(((data.catalog || {}).items || []).map(x => [Number(x.refId), x]));
-        for (const x of (ws.inventory || {}).items || []) {
-          const def = marketItems.get(Number(x.itemId)) || definitions.get(Number(x.itemId));
-          if (def && Number(x.quantity) > 0 && !x.bound && !def.bound) owned.push({ ...def, id: 'item:' + x.itemId, kind: 'item', refId: x.itemId, quantity: x.quantity });
-        }
-        for (const x of (ws.balls || {}).catalog || []) {
-          const quantity = ((ws.balls || {}).counts || {})[x.id];
-          const expires = ((ws.balls || {}).expires || {})[x.id];
-          if (Number(quantity) > 0 && !x.infinite && !x.bound && (!expires || Date.parse(expires) > Date.now())) owned.push({ ...x, id: 'ball:' + x.id, kind: 'ball', refId: x.id, quantity });
-        }
-        const numeric = v => { if (v == null || v === '') return null; const m = String(v).match(/[0-9]+([.,][0-9]+)?/); return m ? Number(m[0].replace(',', '.')) : null; };
-        for (const x of (ws.pokes || {}).list || []) owned.push({ ...x, id: 'pokemon:' + x.id, kind: 'pokemon', speciesId: x.speciesId || x.pokeId,
-          ivTotal: numeric(x.ivTotal), quality: numeric(x.quality), level: numeric(x.level),
-          stats: { hp: x.stats?.hp ?? x.maxHp, atk: x.stats?.atk ?? x.atk, def: x.stats?.def ?? x.def,
-            spAtk: x.stats?.spAtk ?? x.stats?.spa ?? x.spAtk ?? x.spa, spDef: x.stats?.spDef ?? x.stats?.spd ?? x.spDef ?? x.spd, speed: x.stats?.speed ?? x.speed } });
-        const diamond = (data.catalog || {}).diamonds;
-        const balance = (P.api['/api/game/diamonds'] || {}).diamonds ?? ch.diamonds;
-        if (diamond && Number(balance) > 0) owned.push({ ...diamond, id: 'diamonds', quantity: balance });
-      }
       if (String(character() && character().id || '') !== cid) return { ok: false, reason: 'changed' };
       return { ok: true, data: sanitize({ ...data, cid, name: ch.name, gold: ch.gold,
-        owned, alertCatalog, ownedReady: includeOwned && freshInventory && Array.isArray(ws.inventory?.items) && Array.isArray(ws.pokes?.list) && Array.isArray(ws.balls?.catalog) && !!ws.balls?.counts,
+        alertCatalog,
         diamonds: (P.api['/api/game/diamonds'] || {}).diamonds ?? ch.diamonds,
         isVip: (P.ws.autohelper || {}).isVip }) };
     } catch (error) { return { ok: false, reason: error && error.name === 'AbortError' ? 'timeout' : 'network' }; }
-    finally { stopInventory(); clearTimeout(timer); }
+    finally { clearTimeout(timer); }
   }
 
   function readScript(options, expectedCid = '') {
     return '(' + readInGame.toString() + ')(' + JSON.stringify(query(options)) + ','
-      + JSON.stringify(String(expectedCid).slice(0, 100)) + ',(' + sanitizeResponse.toString() + '),' + (options && options.includeOwned === true) + ',' + (options && options.includeAlertCatalog === true) + ',(' + PokemonState.receive.toString() + '))';
+      + JSON.stringify(String(expectedCid).slice(0, 100)) + ',(' + sanitizeResponse.toString() + '),' + (options && options.includeAlertCatalog === true) + ')';
   }
 
   async function readIvInGame(pokemon, expectedCid) {
@@ -652,5 +564,5 @@
     return '(' + readIvInGame.toString() + ')(' + JSON.stringify(safe) + ',' + JSON.stringify(String(expectedCid).slice(0, 100)) + ')';
   }
 
-  return { CATEGORIES, SORTS, GRADES, TYPES, normalized, rarity, query, sanitizeResponse, filterListings, diamondRate, equivalentDiamonds, sortPrices, createMarketReader, createSnapshotCache, snapshotPage, readPriceBook, readPricePage, readComparisonBook, safeIcon, listingTime, comparisonFilters, comparable, priceSummary, saleRecommendation, marketHighlights, itemPriceSummary, evolutionIds, pokemonSearch, readPokemonGroup, readScript, ivScript };
+  return { CATEGORIES, SORTS, GRADES, TYPES, normalized, rarity, query, sanitizeResponse, filterListings, diamondRate, equivalentDiamonds, sortPrices, createMarketReader, createSnapshotCache, snapshotPage, readPriceBook, readPricePage, safeIcon, listingTime, priceSummary, marketHighlights, itemPriceSummary, evolutionIds, pokemonSearch, readPokemonGroup, readScript, ivScript };
 });

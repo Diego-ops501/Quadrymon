@@ -32,7 +32,7 @@ const M = require('../src/domain/global-market');
   const callbacks=release; release=null; callbacks.forEach(resolve=>resolve()); await job;
   assert.equal(store.get(0,'c1').listings.some(x=>x.id==='0'),false,'removed listing deleted');
   assert.equal(store.get(0,'c1').listings.some(x=>x.id==='24'),true,'new listing added');
-  assert.equal(cleared,1,'reconciliation bypasses old cached pages');
+  assert.equal(cleared,2,'every full scan bypasses previously cached pages, including the first scan');
   const completed=store.get(0,'c1');
   now+=60001; failed=true;
   assert.equal((await store.ensure(0,'c1',true)).reason,'limited');

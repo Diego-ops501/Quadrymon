@@ -4,6 +4,8 @@ const fs = require("node:fs"),
   { spawnSync } = require("node:child_process");
 const root = path.resolve(__dirname, "..");
 const tests = [
+  "breeding-cost.test.js",
+  "breeding-observer.test.js",
   "account-notifications.test.js",
   "display-name.test.js",
   "health-alerts.test.js",
@@ -16,9 +18,9 @@ const tests = [
   "hunt-measurements.test.js",
   "market-price-page.test.js",
   "market-snapshot.test.js",
+  "market-lifecycle.test.js",
   "global-market.test.js",
   "market-alerts.test.js",
-  "market-comparison.test.js",
   "workspace.test.js",
   "inventory.test.js",
   "summary.test.js",
@@ -26,6 +28,7 @@ const tests = [
   "game-catalog.test.js",
 ];
 const browser = [
+  "breeding-cost.cjs",
   "focus-previews.cjs",
   "account-borders.cjs",
   "game-preferences.cjs",
@@ -39,6 +42,7 @@ const browser = [
   "market-cold-start.cjs",
   "market-refresh.cjs",
   "market-minute-refresh.cjs",
+  "market-session.cjs",
   "inventory.cjs",
 ];
 const env = { ...process.env };

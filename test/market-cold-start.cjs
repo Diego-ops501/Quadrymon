@@ -9,13 +9,14 @@ app.whenReady().then(async()=>{
     const result=await win.webContents.executeJavaScript(`(async()=>{
       const check=(value,message)=>{if(!value)throw Error(message);};
       const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms||30));
-      let gate=null,reads=[];
+      let gate=null,reads=[],failure=false;
       window.PokeMuxMarketAlerts={normalize:x=>x,create:()=>({setRules(){},stop(){},state(){}})};
       const ui=PokeMuxMarketUI.mount({marketReaderOptions:{interval:0},marketSnapshotOptions:{background:false},
         load:()=>'',save(){},language:()=> 'pt',sprite:()=>'',preferred:()=>0,
         accounts:async()=>[{cid:'c1',name:'Tester',live:true,off:false,focused:true}],rememberFocus(){},
         read:async(_account,script)=>{
           const q=JSON.parse(script.match(/\\}\\)\\((\\{[^\\n]*?\\}),/)[1]);reads.push(q);
+          if(failure)return {ok:false,reason:'network'};
           if(q.browse && q.page==='2' && gate)await new Promise(resolve=>gate.push(resolve));
           const start=q.page==='2'?12:0;
           let listings=q.browse?Array.from({length:12},(_,i)=>({id:'listing'+(start+i),name:'Abra '+(start+i),kind:'pokemon',speciesId:63,level:20,ivTotal:180,quality:1.5,currency:'GOLD',price:(start+i+1)*10000})):[{id:'quote',kind:'diamonds',quantity:1,currency:'GOLD',price:10000}];
@@ -27,6 +28,15 @@ app.whenReady().then(async()=>{
       await ui.open();await pause();el('[data-category="Pokemon"]').click();await pause();
       check(el('[data-listing="listing0"]'),'cold recent page visible without full cache');
       check(reads.filter(x=>x.browse).length===1 && !reads.some(x=>x.page==='2'),'cold browse fetches one page, not the whole market');
+      const visible=el('[data-listing="listing0"]'),beforeFilter=reads.length;
+      el('#mkIvMin').focus();el('#mkIvMin').value='150';el('#mkIvMin').dispatchEvent(new Event('input',{bubbles:true}));
+      check(el('[data-listing="listing0"]')===visible,'cold filter keeps current results visible during the query');
+      await pause(800);
+      check(reads.slice(beforeFilter).every(q=>q.browse==='pokemon'),'cold filter requests only the new result page, without reloading market metadata');
+      check(document.activeElement.id==='mkIvMin','cold filter preserves input focus after the response');
+      failure=true;el('#mkIvMin').value='190';el('#mkIvMin').dispatchEvent(new Event('input',{bubbles:true}));await pause(800);
+      check(el('[data-listing="listing0"]')&&el('.mk-status').classList.contains('error'),'a failed filter query preserves the previous results and shows the failure');
+      failure=false;el('#mkIvMin').value='150';el('#mkIvMin').dispatchEvent(new Event('input',{bubbles:true}));await pause(800);
       el('#mkSearch').value='Abra 5';el('#mkSearch').dispatchEvent(new Event('input',{bubbles:true}));await pause(800);
       el('#mkSort').value='price-asc';el('#mkSort').dispatchEvent(new Event('change'));await pause(800);
       check(el('[data-listing="listing5"]'),'focused converted price search completes without full-market snapshot');

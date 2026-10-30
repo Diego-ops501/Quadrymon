@@ -1,8 +1,8 @@
 <p align="center"><img src="quadrymon-logo.png" alt="Quadrymon" width="600"></p>
 
 <p align="center"><a href="README.md">Português</a> · <strong>English</strong> · <a href="README.es.md">Español</a></p>
-<p align="center">Multi-account hub for Poke Idle World · Windows x64 · Version 1.1.0</p>
-<p align="center"><a href="https://github.com/Diego-ops501/Quadrymon/releases/download/v1.1.0/Quadrymon-1.1.0-x64.exe"><strong>Download Quadrymon 1.1.0</strong></a> · <a href="https://github.com/Diego-ops501/Quadrymon/releases/latest">Latest release</a></p>
+<p align="center">Multi-account hub for Poke Idle World · Windows x64 · Version 1.2.0</p>
+<p align="center"><a href="https://github.com/Diego-ops501/Quadrymon/releases/download/v1.2.0/Quadrymon-1.2.0-x64.exe"><strong>Download Quadrymon 1.2.0</strong></a> · <a href="https://github.com/Diego-ops501/Quadrymon/releases/latest">Latest release</a></p>
 
 ![Quadrymon — four adventures in one hub](docs/art/quadrymon-banner.png)
 
@@ -12,7 +12,7 @@ The promotional illustration was inspired by the Quadrymon visual reference. The
 
 ## Installation and first steps
 
-1. Download **Quadrymon-1.1.0-x64.exe** using the link above.
+1. Download **Quadrymon-1.2.0-x64.exe** using the link above.
 2. Run the installer and choose its language and installation directory.
 3. Open **Settings → Accounts** (Ajustes → Contas), add up to four accounts and save.
 4. The app fills each account's email or username and password and logs in automatically when the form is ready. Account names come from the in-game character. Complete CAPTCHA and additional authentication in the game; **Log in to accounts** lets you retry manually.
@@ -72,13 +72,12 @@ Suggestions group variants and levels under a species name, avoiding repeated ch
 | Tab | Purpose |
 | --- | --- |
 | **Buy** | Browse offers and sort results. |
-| **Compare with market** | Select an inventory item or Pokémon and consult similar listings. |
 | **Alerts** | Configure price conditions and market notifications. |
 | **My Listings** | Monitor listings available for the selected account. |
 | **Requests** | Browse buy requests. |
 | **History** | Review records returned by the game. |
 
-Comparisons use available conditions such as species, shiny status, rarity, level, IV and quality. Currency conversion requires an active diamond exchange rate; without it, the app explains that prices cannot be compared across currencies.
+Currency conversion requires an active diamond exchange rate; without it, the app explains that prices cannot be compared across currencies.
 
 ### Travel to the market and return to a hunt
 
@@ -97,6 +96,12 @@ The detailed card includes six stat bars, total-IV potential, physical/special a
 ![IV card and simulation](docs/images/ivs.png)
 
 **Total IV** is reported by the game. **Individual IVs** are inferred from available stats and may be estimates. The calculation requires the game to supply the necessary data.
+
+## Breeding projects
+
+The **Breeding** button opens projects with account-specific Pokémon selection, IV and quality. Register the parents and their acquisition costs, then breed and hatch normally in the game. Confirmed operations are observed while Quadrymon is running, even with the module closed. Parent and offspring IDs preserve lineage through evolution and subsequent breeds; ambiguous steps can be assigned later.
+
+Totals include parent acquisition, fees, pheromones, stones and instant hatching without counting reused parents twice. Materials use available market quotes; original currencies, estimates and missing costs remain explicit. Unknown acquisition is never treated as free. Fill in missing amounts, inspect egg and Pokémon IDs, and export the ledger as JSON or with the settings backup. Operations completed outside the app are not reconstructed.
 
 ## Hunt recommendations
 

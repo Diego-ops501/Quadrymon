@@ -33,9 +33,8 @@ app.whenReady().then(async () => {
             if(q.currency)rows=rows.filter(x=>x.currency===q.currency);
             return {ok:true,data:{cid:'c1',listings:rows,total:rows.length,pages:1,alertCatalog:omitCatalog?[]:catalog,catalog:{items:[{kind:'item',refId:1,name:'Potion',icon:'/assets/items/potion.png'}],balls:[{kind:'ball',refId:1,name:'Poke Ball',icon:'/assets/balls/poke_ball.png'}]}}};
           }});
-        if(cached)await ui.warmCache();
         const el=selector=>document.querySelector(selector);
-        await ui.open();await pause(50);el('[data-category="Pokemon"]').click();await pause(50);
+        await ui.open();await pause(50);if(cached)await ui.warmCache();el('[data-category="Pokemon"]').click();await pause(50);
         if(catalogOnly) {
           el('#mkSearch').focus();el('#mkSearch').value='noiv';el('#mkSearch').dispatchEvent(new Event('input',{bubbles:true}));
           check(!el('#mkSearchSuggestions').hidden && el('[data-search-option="0"]').textContent==='Noivern' && el('[data-search-option="0"] img'),'complete cached Pokemon catalog works while shop is blocked');

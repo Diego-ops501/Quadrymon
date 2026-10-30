@@ -89,11 +89,6 @@
 #pmMarket .mk-page-input { width: 64px; text-align: center; padding: 6px; }
 #pmMarket .mk-hero { width: 100%; height: 145px; object-fit: contain; image-rendering: pixelated; background: radial-gradient(#263047,#111a2b 70%); border: 1px solid var(--mk-line); border-radius: 12px; padding: 20px; margin: 12px 0; }
 #pmMarket .mk-detail-name { color: #22d3c5; font: bold 20px Georgia,serif; text-align: center; margin-bottom: 15px; overflow-wrap: anywhere; }
-#pmMarket .mk-detail-line { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid #25303b; padding: 10px 0; font-size: 12px; }
-#pmMarket .mk-detail-line span:first-child { color: #8b98a8; }
-#pmMarket .mk-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; margin: 10px 0; }
-#pmMarket .mk-stat { text-align: center; border: 1px solid #293644; padding: 7px 3px; border-radius: 5px; background: #111a2b; }
-#pmMarket .mk-stat small { display: block; color: #909eaf; font-size: 10px; margin-bottom: 5px; }
 #pmMarket .mk-detail-desc { color: #aebccc; font-size: 12px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; margin: 10px 0; }
 #pmMarket .mk-empty { text-align: center; color: #95a2b3; font-size: 13px; padding: 40px 20px; line-height: 1.6; }
 #pmMarket .mk-footer { display: flex; gap: 12px; justify-content: space-between; padding: 10px 22px; border-top: 1px solid #35404e; font-size: 11px; color: #96a3b3; flex: none; }
@@ -133,37 +128,5 @@
 #topbar #marketBtn img { width: 28px; height: 28px; object-fit: contain; }
 #topbar #marketBtn.on { border-color: #22d3c5; background: #0e3039; }
 #pmMarket .mk-listed { display: block; color: #9caebf; font-size: 11px; margin-top: 5px; font-weight: 400; }
-#pmMarket .mk-compare-summary { display: grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 12px; }
-#pmMarket .mk-compare-summary .mk-form { margin-bottom: 0; }
-#pmMarket .mk-inventory-picker { display: grid; grid-template-columns: minmax(320px,420px) minmax(0,1fr); align-items: start; gap: 22px; margin-top: 16px; }
-#pmMarket .mk-own-info { min-width: 0; }
-#pmMarket .mk-own-info .mk-compare-summary { grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); margin-top: 20px; }
-#pmMarket .mk-own-info .mk-compare-summary .mk-form { padding: 12px; }
-#pmMarket .mk-own-info .mk-detail-line { flex-wrap: wrap; gap: 5px; }
-#pmMarket .mk-own-info > .mk-row-name { margin: 0 0 18px; }
-#pmMarket .mk-own-info .mk-art { width: 64px; height: 64px; }
-#pmMarket .mk-own-search { display: flex; flex-direction: column; gap: 8px; color: #a5b1c2; font-size: 12px; }
-#pmMarket .mk-bag { min-width: 0; padding: 14px; border: 1px solid #2a394b; border-radius: 8px; background: #111a2b; }
-#pmMarket .mk-bag-title { margin: 0 0 12px; color: #22d3c5; font: bold 13px Georgia,serif; letter-spacing: .04em; }
-#pmMarket .mk-bag-tabs { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 5px; }
-#pmMarket .mk-bag-tabs button { padding: 9px 3px; font-size: 11px; white-space: normal; }
-#pmMarket .mk-bag-tabs button.active { color: #ffdf5e; border-color: #22d3c5; background: #ffdf5e15; }
-#pmMarket .mk-bag-icon { display: none; }
-#pmMarket .mk-bag-count { display: flex; justify-content: space-between; gap: 8px; padding: 12px 0; color: #a5b1c2; font-size: 12px; }
-#pmMarket .mk-bag-grid { display: flex; flex-direction: column; gap: 6px; max-height: 560px; overflow: auto; scrollbar-width: thin; scrollbar-color: #28415e #0b1220; }
-#pmMarket .mk-bag-slot { display: flex; flex-shrink: 0; align-items: center; gap: 12px; width: 100%; min-height: 78px; padding: 10px; border: 1px solid #2a394b; border-radius: 6px; background: #15212d; text-align: left; }
-#pmMarket .mk-bag-slot:hover { background: #1c2b39; }
-#pmMarket .mk-bag-slot.selected { border-color: #ffdf5e; background: #ffdf5e12; box-shadow: inset 3px 0 #ffdf5e; }
-#pmMarket .mk-bag-slot:focus-visible { outline: 2px solid #ffdf5e; outline-offset: -2px; }
-#pmMarket .mk-bag-slot .mk-art { width: 44px; height: 44px; flex-shrink: 0; object-fit: contain; }
-#pmMarket .mk-inventory-description { min-width: 0; display: flex; flex-direction: column; gap: 5px; }
-#pmMarket .mk-inventory-description b { font-size: 14px; overflow-wrap: anywhere; }
-#pmMarket .mk-inventory-description > span { color: #bac7d6; font-size: 12px; }
-#pmMarket .mk-inventory-description small { color: #98a6b8; font-size: 11px; overflow-wrap: anywhere; }
-#pmMarket .mk-bag-empty { font-size: 12px; color: #9aa8b8; text-align: center; }
-#pmMarket .mk-bag-paging { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 12px; font-size: 12px; }
-#pmMarket .mk-bag-paging button { padding: 4px 12px; }
 #pmMarket .mk-account-link { display: inline-block; padding: 3px 7px; margin-top: 4px; font-size: 12px; color: #3882f6; text-decoration: underline; border: 1px solid #334b61; background: #122331; }
-@media (max-width: 1050px) { #pmMarket .mk-inventory-picker { grid-template-columns: minmax(0,1fr); } #pmMarket .mk-bag-grid { max-height: 360px; } }
-#pmMarket [data-compare-more] { margin: 15px 0; }
 @media (min-width: 1201px) and (max-width: 1600px) { #topbar { gap: 5px; } #topbar button { padding-left: 8px; padding-right: 8px; white-space: nowrap; } }

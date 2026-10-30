@@ -1153,6 +1153,16 @@
     grades: window.PokeMuxGlobalMarket.GRADES,
   });
   $("version").textContent = "v" + ipc.appVersion;
+  const breeding = window.QuadrymonBreedingUI.mount({
+    load, save, slot, sprite, read: execute,
+    readInventory: window.PokeMuxInventory.readInGame,
+    receive: window.PokeMuxPokemonState.receive,
+    itemPrices: () => market.itemPrices(),
+    accounts: () => workspaceState().accounts,
+    accountName: cid => slots.find(s => s.data?.cid === cid)?.data?.name || 'Personagem ' + cid,
+    captures: cid => captureLog.filter(row => String(row.cid) === String(cid)),
+  });
+  $("breedingCostBtn").onclick = () => breeding.open();
   $("reloadAll").onclick = () =>
     slots.slice(0, options.count).forEach((current) => reload(current.index));
   $("recommendBtn").onclick = async () => {
@@ -1374,6 +1384,7 @@
   void ipc.setAwake(options.awake);
   void ipc.setMinToTray(options.minTray);
   async function tick() {
+    void breeding.tick().catch(error => ipc.logError("breeding", error.message));
     await Promise.all(
       slots.slice(0, options.count).map(async (current) => {
         try {

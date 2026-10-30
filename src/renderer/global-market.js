@@ -22,19 +22,16 @@
     email: 'Confirme seu e-mail pelo próprio jogo para acessar o mercado.', limited: 'O jogo limitou as consultas. Consultas pausadas por pelo menos 1 minuto (ou pelo prazo informado pelo jogo). As páginas recebidas são reaproveitadas ao tentar novamente.',
     timeout: 'A consulta demorou demais. Clique em Atualizar para tentar novamente.', network: 'Não foi possível consultar o mercado. Verifique a conexão.',
     server: 'O mercado está indisponível ou retornou uma resposta inesperada.', changed: 'A conta ou o personagem mudou. Selecione novamente a conta.',
-    itemsSection: 'ITENS, POKÉ BALLS E DIAMONDS', pokemonSection: 'POKÉMON', owned: 'Itens disponíveis na conta', searchItem: 'Buscar item', searchPokemon: 'Buscar Pokémon',
+    itemsSection: 'ITENS, POKÉ BALLS E DIAMONDS', pokemonSection: 'POKÉMON', searchItem: 'Buscar item', searchPokemon: 'Buscar Pokémon',
     selected: 'Selecionado', chooseItem: 'Selecione um item', choosePokemon: 'Selecione um Pokémon', currency: 'Moeda', total: 'Total', fee: 'Taxa estimada',
     announce: 'Anunciar no jogo', requestCreate: 'CRIAR SOLICITAÇÃO DE COMPRA', requestChoose: 'O que deseja comprar?', requestPrice: 'Preço por unidade',
     yourRequests: 'SUAS SOLICITAÇÕES', openRequests: 'SOLICITAÇÕES ABERTAS', bought: 'Comprou', sold: 'Vendeu', ignored: 'Jogadores ignorados',
     ignoreLabel: 'Ignorar jogador (bloqueia suas ofertas)', trainer: 'Nome do treinador', add: 'Adicionar no jogo', preview: 'Prévia de anúncio',
     TYPE_NORMAL: 'Normal', TYPE_FIRE: 'Fogo', TYPE_WATER: 'Água', TYPE_ELECTRIC: 'Elétrico', TYPE_GRASS: 'Grama', TYPE_ICE: 'Gelo', TYPE_FIGHTING: 'Lutador', TYPE_POISON: 'Veneno', TYPE_GROUND: 'Terra', TYPE_FLYING: 'Voador', TYPE_PSYCHIC: 'Psíquico', TYPE_BUG: 'Inseto', TYPE_ROCK: 'Pedra', TYPE_GHOST: 'Fantasma', TYPE_DRAGON: 'Dragão', TYPE_DARK: 'Sombrio', TYPE_STEEL: 'Aço', TYPE_FAIRY: 'Fada'
   };
-  const EN = { title: 'GLOBAL MARKET', button: '🏪 Market', subtitle: 'Check prices and Pokémon while staying in your hunt.', account: 'Account', close: 'Close', refresh: 'Refresh market', buy: 'Buy', sell: 'Sell', mine: 'My Listings', requests: 'Requests', history: 'History', blacklist: 'Ignored', All: 'All', Items: 'Items', Stones: 'Stones', Pokemon: 'Pokémon', search: 'Search listings', recent: 'Most recent', 'price-asc': 'Lowest price', 'price-desc': 'Highest price', 'iv-desc': 'Highest IV', 'power-desc': 'Highest power', 'level-desc': 'Highest level', 'quality-desc': 'Highest quality', cards: '▦ Cards', rows: '≡ Rows', clear: 'Clear', shiny: '✨ Shiny only', level: 'Level', from: 'From', to: 'To', allTypes: 'All types', back: '← All species', allPokemon: 'All Pokémon', ads: 'listings', starting: 'from', results: 'MARKET RESULTS', name: 'Name', info: 'Info', price: 'Unit price', details: 'LISTING DETAILS', select: 'Select a listing to see its details.', quantity: 'Quantity', quality: 'Rarity', power: 'Power', types: 'Types', stats: 'STATS', atk: 'Atk', spAtk: 'Sp. Atk', spDef: 'Sp. Def', speed: 'Speed', item: 'Item', sellers: 'sellers', offerOnly: 'Offers only', tm: 'Applied TM', offers: 'Has offers', loading: 'Loading market…', empty: 'No results found.', readOnly: 'Read only · buy, sell and negotiate in the game market.', window: 'All shows only the {n} newest Pokémon listings. The Pokémon tab shows every listing.', goPokemon: 'Open Pokémon tab', showing: 'Showing {from}–{to} of {total} results', updated: 'Updated at {time}', page: 'Page', of: 'of', offline: 'Select an account connected to the game.', auth: 'The session is not ready. Wait for the game to load and refresh.', denied: 'The game did not authorize this query. Check market access for this account.', email: 'Confirm your email in the game to access the market.', limited: 'Too many queries. Wait a few seconds before refreshing.', timeout: 'The query timed out. Refresh to try again.', network: 'Could not load the market. Check your connection.', server: 'The market is unavailable or returned an unexpected response.', changed: 'The account or character changed. Select the account again.', itemsSection: 'ITEMS, POKÉ BALLS AND DIAMONDS', pokemonSection: 'POKÉMON', owned: 'Items available in this account', searchItem: 'Search item', searchPokemon: 'Search Pokémon', selected: 'Selected', chooseItem: 'Select an item', choosePokemon: 'Select a Pokémon', currency: 'Currency', total: 'Total', fee: 'Estimated fee', announce: 'List in the game', requestCreate: 'CREATE BUY REQUEST', requestChoose: 'What do you want to buy?', requestPrice: 'Unit price', yourRequests: 'YOUR REQUESTS', openRequests: 'OPEN REQUESTS', bought: 'Bought', sold: 'Sold', ignored: 'Ignored players', ignoreLabel: 'Ignore player (blocks their listings)', trainer: 'Trainer name', add: 'Add in game', preview: 'Listing preview' };
-  const ES = { title: 'MERCADO GLOBAL', button: '🏪 Mercado', subtitle: 'Consulta precios y Pokémon sin salir de la caza.', account: 'Cuenta', close: 'Cerrar', refresh: 'Actualizar mercado', buy: 'Comprar', sell: 'Anunciar', mine: 'Mis anuncios', requests: 'Solicitudes', history: 'Historial', blacklist: 'Ignorados', All: 'Todos', Items: 'Objetos', Stones: 'Piedras', Pokemon: 'Pokémon', search: 'Buscar anuncio', recent: 'Más recientes', 'price-asc': 'Menor precio', 'price-desc': 'Mayor precio', 'iv-desc': 'Mayor IV', 'power-desc': 'Mayor poder', 'level-desc': 'Mayor nivel', 'quality-desc': 'Mayor calidad', cards: '▦ Cards', rows: '≡ Filas', clear: 'Limpiar', shiny: '✨ Solo shiny', level: 'Nivel', from: 'Desde', to: 'Hasta', allTypes: 'Todos los tipos', back: '← Todas las especies', allPokemon: 'Todos los Pokémon', ads: 'anuncios', starting: 'desde', results: 'RESULTADOS DEL MERCADO', name: 'Nombre', info: 'Info', price: 'Precio unitario', details: 'DETALLES DEL ANUNCIO', select: 'Selecciona un anuncio para ver sus detalles.', quantity: 'Cantidad', quality: 'Rareza', power: 'Poder', types: 'Tipos', stats: 'ATRIBUTOS', atk: 'Atq', spAtk: 'Atq. Esp.', spDef: 'Def. Esp.', speed: 'Velocidad', item: 'Objeto', sellers: 'vendedores', offerOnly: 'Solo ofertas', tm: 'TM aplicada', offers: 'Tiene propuestas', loading: 'Consultando el mercado…', empty: 'No hay resultados.', readOnly: 'Solo consulta · compras, anuncios y negociaciones se realizan en el juego.', window: 'Todos muestra solo los {n} anuncios de Pokémon más recientes. La pestaña Pokémon muestra todos.', goPokemon: 'Abrir pestaña Pokémon', showing: 'Mostrando {from}–{to} de {total} resultados', updated: 'Actualizado a las {time}', page: 'Página', of: 'de', offline: 'Selecciona una cuenta conectada al juego.', auth: 'La sesión aún no está lista. Espera a que cargue el juego y actualiza.', denied: 'El juego no autorizó la consulta. Verifica el acceso al mercado de esta cuenta.', email: 'Confirma tu correo en el juego para acceder al mercado.', limited: 'Demasiadas consultas. Espera unos segundos antes de actualizar.', timeout: 'La consulta tardó demasiado. Actualiza para intentarlo otra vez.', network: 'No se pudo consultar el mercado. Verifica la conexión.', server: 'El mercado no está disponible o devolvió una respuesta inesperada.', changed: 'La cuenta o el personaje cambió. Selecciona la cuenta otra vez.', itemsSection: 'OBJETOS, POKÉ BALLS Y DIAMONDS', pokemonSection: 'POKÉMON', owned: 'Objetos disponibles en la cuenta', searchItem: 'Buscar objeto', searchPokemon: 'Buscar Pokémon', selected: 'Seleccionado', chooseItem: 'Selecciona un objeto', choosePokemon: 'Selecciona un Pokémon', currency: 'Moneda', total: 'Total', fee: 'Tasa estimada', announce: 'Anunciar en el juego', requestCreate: 'CREAR SOLICITUD DE COMPRA', requestChoose: '¿Qué deseas comprar?', requestPrice: 'Precio por unidad', yourRequests: 'TUS SOLICITUDES', openRequests: 'SOLICITUDES ABIERTAS', bought: 'Compró', sold: 'Vendió', ignored: 'Jugadores ignorados', ignoreLabel: 'Ignorar jugador (bloquea sus ofertas)', trainer: 'Nombre del entrenador', add: 'Añadir en el juego', preview: 'Vista previa del anuncio' };
+  const EN = { title: 'GLOBAL MARKET', button: '🏪 Market', subtitle: 'Check prices and Pokémon while staying in your hunt.', account: 'Account', close: 'Close', refresh: 'Refresh market', buy: 'Buy', sell: 'Sell', mine: 'My Listings', requests: 'Requests', history: 'History', blacklist: 'Ignored', All: 'All', Items: 'Items', Stones: 'Stones', Pokemon: 'Pokémon', search: 'Search listings', recent: 'Most recent', 'price-asc': 'Lowest price', 'price-desc': 'Highest price', 'iv-desc': 'Highest IV', 'power-desc': 'Highest power', 'level-desc': 'Highest level', 'quality-desc': 'Highest quality', cards: '▦ Cards', rows: '≡ Rows', clear: 'Clear', shiny: '✨ Shiny only', level: 'Level', from: 'From', to: 'To', allTypes: 'All types', back: '← All species', allPokemon: 'All Pokémon', ads: 'listings', starting: 'from', results: 'MARKET RESULTS', name: 'Name', info: 'Info', price: 'Unit price', details: 'LISTING DETAILS', select: 'Select a listing to see its details.', quantity: 'Quantity', quality: 'Rarity', power: 'Power', types: 'Types', stats: 'STATS', atk: 'Atk', spAtk: 'Sp. Atk', spDef: 'Sp. Def', speed: 'Speed', item: 'Item', sellers: 'sellers', offerOnly: 'Offers only', tm: 'Applied TM', offers: 'Has offers', loading: 'Loading market…', empty: 'No results found.', readOnly: 'Read only · buy, sell and negotiate in the game market.', window: 'All shows only the {n} newest Pokémon listings. The Pokémon tab shows every listing.', goPokemon: 'Open Pokémon tab', showing: 'Showing {from}–{to} of {total} results', updated: 'Updated at {time}', page: 'Page', of: 'of', offline: 'Select an account connected to the game.', auth: 'The session is not ready. Wait for the game to load and refresh.', denied: 'The game did not authorize this query. Check market access for this account.', email: 'Confirm your email in the game to access the market.', limited: 'Too many queries. Wait a few seconds before refreshing.', timeout: 'The query timed out. Refresh to try again.', network: 'Could not load the market. Check your connection.', server: 'The market is unavailable or returned an unexpected response.', changed: 'The account or character changed. Select the account again.', itemsSection: 'ITEMS, POKÉ BALLS AND DIAMONDS', pokemonSection: 'POKÉMON', searchItem: 'Search item', searchPokemon: 'Search Pokémon', selected: 'Selected', chooseItem: 'Select an item', choosePokemon: 'Select a Pokémon', currency: 'Currency', total: 'Total', fee: 'Estimated fee', announce: 'List in the game', requestCreate: 'CREATE BUY REQUEST', requestChoose: 'What do you want to buy?', requestPrice: 'Unit price', yourRequests: 'YOUR REQUESTS', openRequests: 'OPEN REQUESTS', bought: 'Bought', sold: 'Sold', ignored: 'Ignored players', ignoreLabel: 'Ignore player (blocks their listings)', trainer: 'Trainer name', add: 'Add in game', preview: 'Listing preview' };
+  const ES = { title: 'MERCADO GLOBAL', button: '🏪 Mercado', subtitle: 'Consulta precios y Pokémon sin salir de la caza.', account: 'Cuenta', close: 'Cerrar', refresh: 'Actualizar mercado', buy: 'Comprar', sell: 'Anunciar', mine: 'Mis anuncios', requests: 'Solicitudes', history: 'Historial', blacklist: 'Ignorados', All: 'Todos', Items: 'Objetos', Stones: 'Piedras', Pokemon: 'Pokémon', search: 'Buscar anuncio', recent: 'Más recientes', 'price-asc': 'Menor precio', 'price-desc': 'Mayor precio', 'iv-desc': 'Mayor IV', 'power-desc': 'Mayor poder', 'level-desc': 'Mayor nivel', 'quality-desc': 'Mayor calidad', cards: '▦ Cards', rows: '≡ Filas', clear: 'Limpiar', shiny: '✨ Solo shiny', level: 'Nivel', from: 'Desde', to: 'Hasta', allTypes: 'Todos los tipos', back: '← Todas las especies', allPokemon: 'Todos los Pokémon', ads: 'anuncios', starting: 'desde', results: 'RESULTADOS DEL MERCADO', name: 'Nombre', info: 'Info', price: 'Precio unitario', details: 'DETALLES DEL ANUNCIO', select: 'Selecciona un anuncio para ver sus detalles.', quantity: 'Cantidad', quality: 'Rareza', power: 'Poder', types: 'Tipos', stats: 'ATRIBUTOS', atk: 'Atq', spAtk: 'Atq. Esp.', spDef: 'Def. Esp.', speed: 'Velocidad', item: 'Objeto', sellers: 'vendedores', offerOnly: 'Solo ofertas', tm: 'TM aplicada', offers: 'Tiene propuestas', loading: 'Consultando el mercado…', empty: 'No hay resultados.', readOnly: 'Solo consulta · compras, anuncios y negociaciones se realizan en el juego.', window: 'Todos muestra solo los {n} anuncios de Pokémon más recientes. La pestaña Pokémon muestra todos.', goPokemon: 'Abrir pestaña Pokémon', showing: 'Mostrando {from}–{to} de {total} resultados', updated: 'Actualizado a las {time}', page: 'Página', of: 'de', offline: 'Selecciona una cuenta conectada al juego.', auth: 'La sesión aún no está lista. Espera a que cargue el juego y actualiza.', denied: 'El juego no autorizó la consulta. Verifica el acceso al mercado de esta cuenta.', email: 'Confirma tu correo en el juego para acceder al mercado.', limited: 'Demasiadas consultas. Espera unos segundos antes de actualizar.', timeout: 'La consulta tardó demasiado. Actualiza para intentarlo otra vez.', network: 'No se pudo consultar el mercado. Verifica la conexión.', server: 'El mercado no está disponible o devolvió una respuesta inesperada.', changed: 'La cuenta o el personaje cambió. Selecciona la cuenta otra vez.', itemsSection: 'OBJETOS, POKÉ BALLS Y DIAMONDS', pokemonSection: 'POKÉMON', searchItem: 'Buscar objeto', searchPokemon: 'Buscar Pokémon', selected: 'Seleccionado', chooseItem: 'Selecciona un objeto', choosePokemon: 'Selecciona un Pokémon', currency: 'Moneda', total: 'Total', fee: 'Tasa estimada', announce: 'Anunciar en el juego', requestCreate: 'CREAR SOLICITUD DE COMPRA', requestChoose: '¿Qué deseas comprar?', requestPrice: 'Precio por unidad', yourRequests: 'TUS SOLICITUDES', openRequests: 'SOLICITUDES ABIERTAS', bought: 'Compró', sold: 'Vendió', ignored: 'Jugadores ignorados', ignoreLabel: 'Ignorar jugador (bloquea sus ofertas)', trainer: 'Nombre del entrenador', add: 'Añadir en el juego', preview: 'Vista previa del anuncio' };
 
-  Object.assign(PT, { compare: 'Comparar com o mercado', ownSearch: 'Buscar na conta', ownChoose: 'Selecione um item ou Pokémon da conta', ownEmpty: 'Nenhum bem encontrado nesta conta.', ownLoading: 'O inventário ainda está incompleto. Aguarde o jogo carregar e atualize.', similar: 'ANÚNCIOS SEMELHANTES', tolerance: 'Margem de comparação', widen: 'Ampliar para toda a espécie', narrow: 'Voltar às condições semelhantes', compareRule: 'Mesma espécie/forma, shiny e raridade. Nível, IV e qualidade dentro das margens do seu Pokémon.', broadRule: 'Comparação ampliada: mesma espécie/forma e shiny, com qualquer IV, nível ou qualidade.', sample: 'Resumo dos {n} anúncios comparáveis consultados. Valores por unidade; mediana por oferta/grupo, sem ponderar quantidade.', fetched: '{n} de {total} anúncios retornados pelos filtros foram consultados. Comum/shiny também é conferido nesta amostra.', more: 'Carregar mais anúncios', lowest: 'Menor preço anunciado', median: 'Mediana anunciada', highestBid: 'Maior solicitação de compra', noPrice: 'Sem preço disponível', bidNote: 'Solicitações são intenções de compra, não vendas concluídas. Solicitações sem moeda informada pelo jogo são em dollars.', missingConditions: 'Algumas condições deste Pokémon não foram informadas pelo jogo; a comparação usa somente os valores disponíveis.', noSpecies: 'A espécie deste Pokémon não foi informada pelo jogo.', allKinds: 'Todos', ownPokemon: 'Pokémon', ownItems: 'Itens / Poké Balls / Diamonds', compareEmpty: 'Selecione um bem da conta para consultar os anúncios.' });
-  Object.assign(EN, { compare: 'Compare with market', ownSearch: 'Search account inventory', ownChoose: 'Select an owned item or Pokémon', ownEmpty: 'No assets found in this account.', ownLoading: 'Inventory is still incomplete. Wait for the game to load and refresh.', similar: 'SIMILAR LISTINGS', tolerance: 'Comparison tolerance', widen: 'Include the whole species', narrow: 'Return to similar conditions', compareRule: 'Same species/form, shiny status and rarity. Level, IV and quality must match your Pokémon tolerances.', broadRule: 'Expanded comparison: same species/form and shiny status, any IV, level or quality.', sample: 'Summary of {n} comparable listings consulted. Unit prices; median per offer/group, without quantity weighting.', fetched: '{n} of {total} listings returned by the filters were consulted. Regular/shiny is also checked within this sample.', more: 'Load more listings', lowest: 'Lowest advertised price', median: 'Advertised median', highestBid: 'Highest buy request', noPrice: 'No price available', bidNote: 'Requests are buying intentions, not completed sales. Requests without a game-provided currency use dollars.', missingConditions: 'Some Pokémon conditions are unavailable; only known values are compared.', noSpecies: 'The game did not provide this Pokémon species.', allKinds: 'All', ownPokemon: 'Pokémon', ownItems: 'Items / Poké Balls / Diamonds', compareEmpty: 'Select an owned asset to consult listings.' });
-  Object.assign(ES, { compare: 'Comparar con el mercado', ownSearch: 'Buscar en la cuenta', ownChoose: 'Selecciona un objeto o Pokémon propio', ownEmpty: 'No hay bienes en esta cuenta.', ownLoading: 'El inventario está incompleto. Espera a que cargue el juego y actualiza.', similar: 'ANUNCIOS SIMILARES', tolerance: 'Margen de comparación', widen: 'Ampliar a toda la especie', narrow: 'Volver a condiciones similares', compareRule: 'Misma especie/forma y shiny. Márgenes sobre los valores de tu Pokémon.', broadRule: 'Comparación ampliada: misma especie/forma y shiny, cualquier IV, nivel o calidad.', sample: 'Resumen de {n} anuncios comparables consultados. Precios unitarios; mediana por oferta/grupo sin ponderar cantidad.', fetched: 'Se consultaron {n} de {total} anuncios devueltos por los filtros. Común/shiny también se comprueba en esta muestra.', more: 'Cargar más anuncios', lowest: 'Menor precio anunciado', median: 'Mediana anunciada', highestBid: 'Mayor solicitud de compra', noPrice: 'Sin precio disponible', bidNote: 'Las solicitudes son intenciones de compra, no ventas realizadas. Las solicitudes sin moneda indicada por el juego usan dollars.', missingConditions: 'Faltan algunas condiciones; solo se comparan los valores disponibles.', noSpecies: 'El juego no indicó la especie de este Pokémon.', allKinds: 'Todos', ownPokemon: 'Pokémon', ownItems: 'Objetos / Poké Balls / Diamonds', compareEmpty: 'Selecciona un bien de la cuenta para consultar anuncios.' });
 
   Object.assign(PT,{exchangeRate:'Conversão: 1 💎 = {rate} dollars · menor preço unitário ativo do diamante. Ordenação usa o valor equivalente, sem taxas.',exchangeMissing:'Sem cotação ativa do diamante: não é possível comparar preços entre moedas.'});
   Object.assign(EN,{exchangeRate:'Conversion: 1 💎 = {rate} dollars · lowest active diamond unit price. Sorting uses equivalent value, excluding fees.',exchangeMissing:'No active diamond quote: prices across currencies cannot be compared.'});
@@ -108,11 +105,11 @@
     const teamData = new Map(), teamJobs = new Map(), teamErrors = new Map();
     let teamLoading = 0;
     const sourceFailures = new Set();
-    let warmTimer = null, warming = false;
+    let sessionRevision = 0;
     let clockTimer = null, autoBusy = false, autoRetryAt = 0, autoError = '';
     const s = { open: false, revision: 0, accounts: [], account: -1, cid: '', tab: 'buy', category: 'All', mode: bridge.load('marketView') === 'cards' ? 'cards' : 'rows',
       data: null, highlights: null, rate: null, priceBook:null, priceScanning:false, priceProgress:'', loadedCategory: '', species: null, pickedSpecies: 'all', listings: [], total: 0, pages: 1, page: 1, selected: '', q: '', sort: 'recent', shiny: false, includeEvolutions: false,
-      accountFilter: -1, ownedId: '', ownQ: '', ownKind: '', ownPage: 1, compareList: [], comparePage: 0, comparePages: 1, compareTotal: 0, comparePending: false, compareError: '', compareDone: false, tolerance: { iv: 10, lv: 10, q: .1, broad: false },
+      accountFilter: -1,
       ivMin: '', ivMax: '', lvMin: '', lvMax: '', qMin: '', qMax: '', type: '', gradesOff: [], pending: false, error: '', time: 0, timer: null, previousFocus: null };
     const overlay = document.createElement('div');
     overlay.id = 'pmMarket'; overlay.setAttribute('role', 'dialog'); overlay.setAttribute('aria-modal', 'true'); overlay.setAttribute('aria-labelledby', 'mkTitle');
@@ -127,11 +124,32 @@
     </div>`;
     document.body.appendChild(overlay);
     const el = selector => overlay.querySelector(selector);
+    const html = (selector, value) => { const target = el(selector); if (target.innerHTML !== value) target.innerHTML = value; };
+    function resultHtml(value) {
+      const target = el('#mkResults');
+      if (target.innerHTML === value) return;
+      if (!['buy','mine'].includes(s.tab)) { target.innerHTML = value; return; }
+      const next = document.createElement('template'); next.innerHTML = value;
+      const previous = new Map([...target.querySelectorAll('[data-listing]')].map(row=>[row.dataset.listing,row]));
+      for (const row of next.content.querySelectorAll('[data-listing]')) {
+        const old = previous.get(row.dataset.listing);
+        if (!old || old.tagName !== row.tagName) continue;
+        for (const attribute of [...old.attributes]) if (!row.hasAttribute(attribute.name)) old.removeAttribute(attribute.name);
+        for (const attribute of row.attributes) if (old.getAttribute(attribute.name) !== attribute.value) old.setAttribute(attribute.name,attribute.value);
+        if (old.innerHTML !== row.innerHTML) old.innerHTML = row.innerHTML;
+        row.replaceWith(old);
+      }
+      target.replaceChildren(next.content);
+    }
+    const sessionCurrent = (epoch,account,cid) => s.open && sessionRevision === epoch && s.account === account && (!cid || s.cid === cid);
+    const currentSnapshot = (account = s.account,cid = s.cid) => {
+      const value = snapshotMode && snapshots.get(account,cid);
+      return value && Date.now()-value.at < 60000 ? value : null;
+    };
     const teamText = (pt,en,es) => ({pt,en,es}[bridge.language()] || en);
-    function rememberTeam(account, data, withOwned = false) {
+    function rememberTeam(account, data) {
       if (!data.cid) return;
-      const previous = teamData.get(account);
-      teamData.set(account,{at:Date.now(),data:{...data,...(!withOwned && previous?.data.cid === data.cid ? {owned:previous.data.owned,ownedReady:previous.data.ownedReady} : {})}});
+      teamData.set(account,{at:Date.now(),data});
       teamErrors.delete(account);
       if (s.accounts[account]) Object.assign(s.accounts[account],{cid:data.cid,name:data.name || s.accounts[account].name});
     }
@@ -140,7 +158,7 @@
       for (const [account,entry] of teamData) {
         const metadata = s.accounts[account];
         if (!metadata || !metadata.live || metadata.off || metadata.cid && metadata.cid !== entry.data.cid || filter >= 0 && account !== filter) continue;
-        for (const row of entry.data[kind] || []) rows.push({...row,sourceId:row.id,id:s.accounts.length === 1 ? row.id : account+'|'+row.id,account,cid:entry.data.cid,accountName:metadata.name,ownedReady:entry.data.ownedReady});
+        for (const row of entry.data[kind] || []) rows.push({...row,sourceId:row.id,id:s.accounts.length === 1 ? row.id : account+'|'+row.id,account,cid:entry.data.cid,accountName:metadata.name});
       }
       return rows;
     }
@@ -150,6 +168,8 @@
       return missing.length ? `<p class="mk-note" role="status">${esc(teamText('Contas sem dados atualizados: ','Accounts without up-to-date data: ','Cuentas sin datos actualizados: ')+missing.map(x=>x.name).join(', '))}</p>` : '';
     }
     async function loadTeam(force = false, refreshedAccount = -1) {
+      if (!s.open) return;
+      const epoch = sessionRevision;
       const jobs = s.accounts.map((metadata,account) => {
         if (!metadata.live || metadata.off || account === refreshedAccount) return Promise.resolve();
         const cached = teamData.get(account);
@@ -157,22 +177,22 @@
         if (teamJobs.has(account)) return teamJobs.get(account);
         teamLoading++;
         const cid = metadata.cid || '';
-        const task = marketRead(account,M.readScript({category:'All',includeOwned:true},cid),()=>!s.accounts[account]?.off && (!cid || s.accounts[account]?.cid === cid),0).then(response => {
-          if (response?.ok) { const data = M.sanitizeResponse(response.data); if (!cid || data.cid === cid) rememberTeam(account,data,true); }
+        const task = marketRead(account,M.readScript({category:'All'},cid),()=>s.open && sessionRevision === epoch && !s.accounts[account]?.off && (!cid || s.accounts[account]?.cid === cid),0).then(response => {
+          if (response?.ok) { const data = M.sanitizeResponse(response.data); if (!cid || data.cid === cid) rememberTeam(account,data); }
           else { teamErrors.set(account,response?.reason || 'network'); if (response?.reason === 'changed') teamData.delete(account); }
         }).catch(()=>{teamErrors.set(account,'network');
         }).finally(()=>{
-          teamJobs.delete(account); teamLoading--;
-          if (s.open && ['compare','mine'].includes(s.tab) && !s.pending) keepMarketView(()=>render(true));
+          if (teamJobs.get(account) === task) teamJobs.delete(account); teamLoading--;
+          if (s.open && s.tab === 'mine' && !s.pending) keepMarketView(()=>render(true));
         });
         teamJobs.set(account,task); return task;
       });
       await Promise.all(jobs);
     }
     const button = document.getElementById('marketBtn');
-    const tabs = ['buy', 'compare', 'alerts', 'mine', 'requests', 'history'];
+    const tabs = ['buy', 'alerts', 'mine', 'requests', 'history'];
     PT.alerts = 'Alertas'; EN.alerts = 'Alerts'; ES.alerts = 'Alertas';
-    const tabIcons = { buy: 'buy', compare: 'compare', alerts: 'alerts', mine: 'history', requests: 'requests', history: 'history' };
+    const tabIcons = { buy: 'buy', alerts: 'alerts', mine: 'history', requests: 'requests', history: 'history' };
     const categoryIcons = { All: 'simple', Items: 'inventory', Stones: 'stones', 'Poke Balls': 'ball', Diamonds: 'diamonds', Pokemon: 'pokemon' };
     const img = (url, className = 'mk-art') => url ? `<img class="${className}" src="${esc(url)}" alt="" loading="lazy">` : `<span class="${className}" aria-hidden="true">◇</span>`;
     const art = (x, className) => {
@@ -201,8 +221,8 @@
       const syncing = snapshotMode && syncingSnapshots.has(s.account);
       const cacheNote = ({pt:'Sincronizando cache da loja…',en:'Syncing shop cache…',es:'Sincronizando caché de la tienda…'}[bridge.language()]);
       statusEl.classList.toggle('error', !!s.error || !!autoError);
-      statusEl.textContent = s.error ? tr(s.error) : s.pending || s.tab === 'compare' && s.comparePending ? tr('loading') : s.priceScanning || syncing ? cacheNote : tr('readOnly') + (s.time ? ' · ' + tr('updated', { time: new Date(s.time).toLocaleString() }) : '') + (autoError ? ' · ' + tr(autoError) : '');
-      el('#mkRefresh').disabled = s.priceScanning || s.pending || s.tab === 'compare' && s.comparePending;
+      statusEl.textContent = s.error ? tr(s.error) : s.pending ? tr('loading') : s.priceScanning || syncing ? cacheNote : tr('readOnly') + (s.time ? ' · ' + tr('updated', { time: new Date(s.time).toLocaleString() }) : '') + (autoError ? ' · ' + tr(autoError) : '');
+      el('#mkRefresh').disabled = s.priceScanning || s.pending;
     }
 
     function chrome() {
@@ -226,7 +246,7 @@
         return `<section class="mk-highlight" title="${esc(highlightText.min + (key === 'boss' ? ' · Bronze Boss Token' : ''))}"><div class="mk-highlight-name">${img(GAME + icon)}<b>${esc(name)}</b></div>${line('GOLD')}${key === 'diamond' ? '' : line('DIAMONDS')}</section>`;
       }).join('');
       el('#mkAccount').setAttribute('aria-label', s.tab === 'alerts' ? tr('account') : teamText('Filtrar inventário e anúncios por conta','Filter inventory and listings by account','Filtrar inventario y anuncios por cuenta')); el('#mkRefresh').title = tr('refresh'); el('#mkClose').setAttribute('aria-label', tr('close'));
-      el('.mk-tabs').innerHTML = tabs.map(tab => `<button role="tab" id="mkTab-${tab}" aria-controls="mkResults" aria-selected="${s.tab === tab}" data-tab="${tab}" class="${s.tab === tab ? 'active' : ''}">${img('src/renderer/toolbar-icons/' + tabIcons[tab] + '.svg', 'mk-tab-icon')}<span>${esc(tr(tab))}${tab === 'mine' && s.data ? ' (' + nf(teamRows('mine',-1).length) + ')' : ''}</span></button>`).join('');
+      html('.mk-tabs', tabs.map(tab => `<button role="tab" id="mkTab-${tab}" aria-controls="mkResults" aria-selected="${s.tab === tab}" data-tab="${tab}" class="${s.tab === tab ? 'active' : ''}">${img('src/renderer/toolbar-icons/' + tabIcons[tab] + '.svg', 'mk-tab-icon')}<span>${esc(tr(tab))}${tab === 'mine' && s.data ? ' (' + nf(teamRows('mine',-1).length) + ')' : ''}</span></button>`).join(''));
       el('#mkResults').setAttribute('aria-labelledby', 'mkTab-' + s.tab);
       el('.mk-categories').hidden = !['buy', 'requests'].includes(s.tab);
       el('.mk-categories').innerHTML = M.CATEGORIES.map(category => `<button data-category="${category}" class="${s.category === category ? 'active' : ''}">${img('src/renderer/toolbar-icons/' + categoryIcons[category] + '.svg')}<span>${esc(tr(category))}</span></button>`).join('');
@@ -235,7 +255,7 @@
       el('#mkSearch').placeholder = searchLabel; el('#mkSearch').setAttribute('aria-label', searchLabel);
       if (document.activeElement !== el('#mkSearch')) el('#mkSearch').value = s.q;
       const sorts = s.tab === 'buy' && s.category === 'Pokemon' || s.tab === 'mine' ? M.SORTS : M.SORTS.slice(0, 3);
-      el('#mkSort').innerHTML = sorts.map(key => `<option value="${key}">${esc(tr(key))}</option>`).join(''); el('#mkSort').value = s.sort;
+      html('#mkSort', sorts.map(key => `<option value="${key}">${esc(tr(key))}</option>`).join('')); el('#mkSort').value = s.sort;
       el('#mkClear').textContent = tr('clear'); el('#mkCards').textContent = tr('cards'); el('#mkRows').textContent = tr('rows');
       el('#mkCards').classList.toggle('active', s.mode === 'cards'); el('#mkRows').classList.toggle('active', s.mode === 'rows');
       const browsing = s.tab === 'buy' && s.category === 'Pokemon' && s.pickedSpecies != null;
@@ -272,10 +292,8 @@
       if (searchSuggestionsOpen) showSearchSuggestions();
     }
 
-    const comparisonTolerance = () => s.tolerance;
     function rows() {
       if (!s.data) return [];
-      if (s.tab === 'compare') return M.sortPrices(M.comparable(s.compareList, ownedSelection(), comparisonTolerance()),'price-asc',s.rate);
       if (s.tab === 'mine') return M.filterListings(teamRows('mine'), { q: s.q, sort: s.sort, diamondRate:s.rate });
       if (s.category === 'Pokemon' && s.pickedSpecies != null) return s.listings;
       return M.filterListings(s.data.listings, { q: s.q, sort: s.sort, diamondRate:s.rate });
@@ -293,8 +311,7 @@
       if (bridge.hideIv) bridge.hideIv();
     }
     async function inspectIv(target, event) {
-      const pokemon = target && (target.hasAttribute('data-owned') ? teamRows('owned',-1).find(x => x.id === target.dataset.owned)
-        : rows().find(x => x.id === target.dataset.listing));
+      const pokemon = target && rows().find(x => x.id === target.dataset.listing);
       if (!s.open || s.pending || s.error || !pokemon || pokemon.kind !== 'pokemon' || !bridge.calculateIv || !bridge.isIvEnabled?.()) { hideIv(); return; }
       const bounds = target.getBoundingClientRect();
       const point = event && Number.isFinite(event.clientX) && event.type !== 'focusin' && !(event.type === 'click' && event.detail === 0)
@@ -374,113 +391,6 @@
       if (el('#mkRequestTotal')) el('#mkRequestTotal').textContent = summary(Math.min(100, Math.max(1, +el('#mkRequestQty').value || 1)), Math.max(1, +el('#mkRequestPrice').value || 1), 'GOLD').replace(/&amp;/g, '&');
     }
 
-    const ownedSelection = () => teamRows('owned',-1).find(x => x.id === s.ownedId);
-    function inventoryBag() {
-      const own = teamRows('owned').filter(x => (!s.ownQ || M.normalized(x.name).includes(M.normalized(s.ownQ))) &&
-        (!s.ownKind || (s.ownKind === 'item' ? !['pokemon', 'ball'].includes(x.kind) : x.kind === s.ownKind)))
-        .sort((a, b) => (a.kind === 'pokemon' ? 0 : a.kind === 'ball' ? 1 : 2) - (b.kind === 'pokemon' ? 0 : b.kind === 'ball' ? 1 : 2));
-      const pages = Math.max(1, Math.ceil(own.length / 60)); s.ownPage = Math.max(1, Math.min(s.ownPage, pages));
-      const visible = own.slice((s.ownPage - 1) * 60, s.ownPage * 60);
-      const tabs = [['', 'all', 'allKinds'], ['pokemon', 'poke', 'Pokemon'], ['ball', 'ball', 'Poke Balls'], ['item', 'item', 'Items']];
-      const label = bridge.language() === 'en' ? 'INVENTORY' : bridge.language() === 'es' ? 'INVENTARIO' : 'INVENTÁRIO';
-      const count = teamRows('owned').filter(x => x.kind === 'pokemon').length;
-      const quantity = teamRows('owned').filter(x => x.kind !== 'pokemon').reduce((sum, x) => sum + (x.quantity || 0), 0);
-      const slots = visible.map(x => {
-        const info = x.kind === 'pokemon' ? `${x.shiny ? '✨ ' : ''}${x.name} · ${tr('level')} ${nf(x.level)} · IV ${x.ivTotal == null ? '—' : nf(x.ivTotal)} · Q ${x.quality == null ? '—' : nf(x.quality)}` : `${x.name} · ${nf(x.quantity)}×`;
-        const detail = x.kind === 'pokemon' ? `${tr('level')} ${nf(x.level)} · IV ${x.ivTotal == null ? '—' : nf(x.ivTotal)} · Q ${x.quality == null ? '—' : nf(x.quality)}` : `${esc(tr(x.kind === 'ball' ? 'Poke Balls' : x.kind === 'diamonds' ? 'Diamonds' : 'Items'))} · ${nf(x.quantity)}×`;
-        return `<button class="mk-bag-slot${x.kind === 'pokemon' ? ' pokemon' : ''}${x.id === s.ownedId ? ' selected' : ''}${x.team ? ' team' : ''}" data-owned="${esc(x.id)}" aria-pressed="${x.id === s.ownedId}" aria-label="${esc(info + (x.accountName ? ' · ' + x.accountName : ''))}" title="${esc(info)}">${art(x)}<span class="mk-inventory-description"><b>${esc(display(x.name))}${x.shiny ? ' ✨' : ''}${x.team ? ' ★' : ''}</b><span>${detail}</span>${x.kind === 'pokemon' ? `<small>${quality(x)} · #${esc((x.sourceId || x.id).replace(/^pokemon:/, ''))}</small>` : ''}<small>${esc(x.accountName || '')}</small></span></button>`;
-      }).join('');
-      return `<h4 class="mk-bag-title">${label}</h4><nav class="mk-bag-tabs" aria-label="${esc(label)}">${tabs.map(([kind, icon, key]) => `<button data-own-kind="${kind}" aria-pressed="${s.ownKind === kind}" class="${s.ownKind === kind ? 'active' : ''}"><span class="mk-bag-icon icon-${icon}" aria-hidden="true"></span>${esc(tr(key))}</button>`).join('')}</nav><div class="mk-bag-count"><span>${nf(count)} Pokémon</span><span></span><span>${nf(quantity)} ${esc(tr('Items'))}</span></div><div class="mk-bag-grid">${slots}</div>${!own.length ? `<p class="mk-bag-empty">${esc(tr('ownEmpty'))}</p>` : ''}<div class="mk-bag-paging" ${pages === 1 ? 'hidden' : ''}><button data-own-page="${s.ownPage - 1}" ${s.ownPage === 1 ? 'disabled' : ''}>‹</button><span>${s.ownPage} / ${pages}</span><button data-own-page="${s.ownPage + 1}" ${s.ownPage === pages ? 'disabled' : ''}>›</button></div>`;
-    }
-    const saleText = () => ({
-      pt: { title: 'Preço sugerido de venda', basis: 'Mediana dos anúncios semelhantes, excluindo seus próprios anúncios. Com cotação, as moedas são convertidas antes do cálculo. Valores por unidade, antes das taxas; diamantes arredondados para cima. Referência de anúncios ativos, sem garantia de venda.', unavailable: 'Sem dados completos da bag ou anúncios comparáveis para sugerir um preço.', starter: 'Pokémon inicial não pode ser anunciado no mercado.' },
-      en: { title: 'Suggested selling price', basis: 'Median of similar listings, excluding your own. With a quote, currencies are converted before calculation. Unit prices before fees; diamonds rounded up. Active listing reference, with no guaranteed sale.', unavailable: 'No complete inventory data or comparable listings to suggest a price.', starter: 'Starter Pokémon cannot be listed on the market.' },
-      es: { title: 'Precio de venta sugerido', basis: 'Mediana de anuncios similares, excluyendo los propios. Con cotización, las monedas se convierten antes del cálculo. Precios unitarios antes de tasas; diamantes redondeados hacia arriba. Referencia de anuncios activos, sin garantía de venta.', unavailable: 'Faltan datos completos del inventario o anuncios comparables para sugerir un precio.', starter: 'El Pokémon inicial no puede anunciarse en el mercado.' }
-    }[bridge.language()] || { title: 'Suggested selling price', basis: '', unavailable: 'No comparable prices', starter: 'Starter Pokémon' });
-    function comparisonScreen() {
-      const own = ownedSelection();
-      let html = `<section class="mk-form"><h3 class="mk-section-title">◆ ${esc(tr('compare'))}</h3><label class="mk-own-search">${esc(tr('ownSearch'))}<input id="mkOwnSearch" type="search" maxlength="120" placeholder="${esc(tr('ownSearch'))}" value="${esc(s.ownQ)}"></label>${teamLoading ? `<p class="mk-note" role="status">${esc(teamText('Carregando inventários das contas conectadas…','Loading connected accounts’ inventories…','Cargando inventarios de las cuentas conectadas…'))}</p>` : ''}<div class="mk-inventory-picker"><div class="mk-bag" id="mkBag">${inventoryBag()}</div><div class="mk-own-info">`;
-      html += teamNotice();
-      if (own && !own.ownedReady) html += `<p class="mk-note">${esc(tr('ownLoading'))}</p>`;
-      if (!own) return html + empty(tr('compareEmpty')) + '</div></div></section>';
-      html += `<div class="mk-row-name">${art(own)}<div><b>${esc(own.name)}</b><span class="mk-meta">${meta(own)} ${accountLink(own)}</span></div></div>`;
-      if (own.kind === 'pokemon') {
-        html += `<div class="mk-stats">${Object.entries(own.stats).map(([key, value]) => `<div class="mk-stat"><small>${esc(tr(key))}</small><b>${value == null ? '—' : nf(value)}</b></div>`).join('')}</div>`;
-        html += `<div class="mk-form-fields">${[['iv', 'IV ±', 192, 1], ['lv', tr('level') + ' ±', 100000, 1], ['q', 'Q ±', 100, .01]].map(([key, label, max, step]) => `<label>${esc(label)}<input data-tolerance="${key}" type="number" min="0" max="${max}" step="${step}" value="${s.tolerance[key]}" ${s.tolerance.broad ? 'disabled' : ''}></label>`).join('')}<button data-widen>${esc(tr(s.tolerance.broad ? 'narrow' : 'widen'))}</button></div><p class="mk-note">${esc(tr(s.tolerance.broad ? 'broadRule' : 'compareRule'))}</p>`;
-        if (['level', 'ivTotal', 'quality'].some(key => own[key] == null)) html += `<p class="mk-note">${esc(tr('missingConditions'))}</p>`;
-      }
-      const closePicker = '</div></div></section>';
-      if (s.comparePending && !s.compareDone) return html + empty(tr('loading')) + closePicker;
-      if (s.compareError) return html + empty(tr(s.compareError)) + closePicker;
-      if (!s.compareDone) return html + closePicker;
-      const list = rows(), summary = M.priceSummary(list);
-      const expanded = s.tolerance.broad;
-      if (expanded) html += `<p class="mk-note" role="status">${esc(teamText('Referência de toda a espécie: níveis, IVs e raridades diferentes. Este valor não avalia o exemplar selecionado.','Whole-species reference: different levels, IVs and rarities. This does not value the selected specimen.','Referencia de toda la especie: diferentes niveles, IVs y rarezas. No valora el ejemplar seleccionado.'))}</p>`;
-      else if (own.kind === 'pokemon' && !list.length) html += `<p class="mk-note" role="status">${esc(teamText('Sem anúncios semelhantes no nível, IV e raridade deste Pokémon. Não é possível sugerir um preço confiável. Use a ampliação apenas para consultar a espécie.','No similar listings at this Pokémon’s level, IV and rarity. A reliable selling estimate is unavailable. Widen only to consult the species.','Sin anuncios similares de este nivel, IV y rareza. No hay una estimación fiable. Amplía solo para consultar la especie.'))}</p>`;
-      const sale = saleText(), recommendation = M.saleRecommendation(own.ownedReady ? list : [], own, comparisonTolerance(), s.rate, teamRows('mine',-1).map(x=>({...x,id:x.sourceId})));
-      html += `<section class="mk-form mk-sale-recommendation"><h3 class="mk-section-title">◆ ${esc(expanded ? ({pt:'Preço de referência da espécie',en:'Species reference price',es:'Precio de referencia de la especie'}[bridge.language()]) : sale.title)}</h3>${recommendation.count ? `<div class="mk-detail-line"><span>DOLLARS</span><b>${recommendation.GOLD == null ? '—' : price({ price: recommendation.GOLD, currency: 'GOLD', kind: own.kind })}</b></div><div class="mk-detail-line"><span>DIAMONDS</span><b>${recommendation.DIAMONDS == null ? '—' : price({ price: recommendation.DIAMONDS, currency: 'DIAMONDS', kind: own.kind })}</b></div><p class="mk-meta">${nf(recommendation.count)} ${esc(tr('ads'))}</p><p class="mk-note">${esc(sale.basis)}</p>` : `<p class="mk-note">${esc(own.starter ? sale.starter : !own.ownedReady ? tr('ownLoading') : list.length ? sale.unavailable : tr('empty'))}</p>`}</section>`;
-      const bids = M.comparable(s.data.requests.map(x => ({ ...x, currency: x.currency || 'GOLD' })), own, s.tolerance);
-      html += `<div class="mk-compare-summary">${['GOLD', 'DIAMONDS'].map(currency => {
-        const data = summary[currency], requests = bids.filter(x => x.currency === currency && x.price > 0 && !x.offerOnly);
-        const value = n => n == null ? '—' : price({ price: n, currency, kind: own.kind });
-        return `<section class="mk-form"><h3 class="mk-section-title">${currency === 'GOLD' ? 'DOLLARS' : 'DIAMONDS'}</h3><div class="mk-detail-line"><span>${esc(tr('lowest'))}</span><b>${value(data.min)}</b></div><div class="mk-detail-line"><span>${esc(tr('median'))}</span><b>${value(data.median)}</b></div><p class="mk-meta">${nf(data.count)} ${esc(tr('ads'))}</p><div class="mk-detail-line"><span>${esc(tr('highestBid'))}</span><b>${value(requests.length ? Math.max(...requests.map(x => x.price)) : null)}</b></div><p class="mk-meta">${nf(requests.length)} ${esc(tr('requests'))}</p></section>`;
-      }).join('')}</div>` + closePicker + `<p class="mk-note">${esc(tr('sample', { n: nf(list.length) }))}</p><p class="mk-note">${esc(tr('bidNote'))}</p>`;
-      if (own.kind === 'pokemon') html += `<p class="mk-note">${esc(tr('fetched', { n: nf(s.compareList.length), total: nf(s.compareTotal) }))}</p>`;
-      html += `<h3 class="mk-section-title">◆ ${esc(tr('similar'))}</h3>` + renderListings(list);
-      if (own.kind === 'pokemon' && s.comparePage < s.comparePages) html += `<button data-compare-more ${s.comparePending ? 'disabled' : ''}>${esc(tr(s.comparePending ? 'loading' : 'more'))}</button>`;
-      if (bids.length) html += `<h3 class="mk-section-title" style="margin-top:20px">◆ ${esc(tr('openRequests'))}</h3>` + bids.map(x => `<div class="mk-record"><div><b>${esc(display(x.name))}</b><small>${nf(x.amount)}×</small></div>${price(x)}</div>`).join('');
-      return html;
-    }
-
-    async function comparisonResponse(account,cid,own,current,refresh = false) {
-      let ready = snapshotMode && snapshots.get(account,cid);
-      if (ready) {
-        if (refresh) {
-          const response = await snapshots.ensure(account,cid,true);
-          if (!response?.ok) return response;
-          ready = response.snapshot;
-        }
-        const list = M.comparable(ready.listings,own,s.tolerance);
-        return {ok:true,data:{...ready.data,listings:list,total:list.length,pages:1},book:{listings:list}};
-      }
-      return M.readComparisonBook(script=>current() ? marketRead(account,script,current) : Promise.resolve({ok:false,reason:'changed'}),own,{...s.tolerance},cid,s.rate);
-    }
-    async function loadComparison(more = false, retried = false) {
-      invalidate(); const revision = s.revision, account = s.account, own = ownedSelection();
-      if (!s.open || s.tab !== 'compare' || !own) return;
-      s.selected = ''; s.compareError = '';
-      if (!more) { s.compareList = []; s.comparePage = 0; s.compareDone = false; }
-      if (own.kind !== 'pokemon') { s.compareList = s.data.listings; s.compareDone = true; s.comparePending = false; render(); return; }
-      if (!(own.speciesId > 0)) { s.compareError = 'noSpecies'; s.comparePending = false; render(); return; }
-      s.comparePending = true; render();
-      try {
-        const response = await comparisonResponse(account,s.cid,own,()=>s.open && revision === s.revision && s.account === account && s.tab === 'compare');
-        if (!s.open || revision !== s.revision || s.account !== account || s.tab !== 'compare') return;
-        if (!response || !response.ok) {
-          if (response?.reason === 'changed') {
-            const accounts = await bridge.accounts();
-            if (s.open && revision === s.revision) {
-              s.accounts = accounts;
-              const fresh = accounts[account];
-              if (fresh?.live && fresh.cid && fresh.cid !== s.cid) {
-                teamData.delete(account); accountChanged(account); return;
-              }
-              if (fresh?.live && (!fresh.cid || fresh.cid === s.cid) && !retried) {
-                marketRead.clearPages(account); void loadComparison(more,true); return;
-              }
-              s.compareError = fresh?.live ? 'changed' : 'offline';
-            }
-          } else s.compareError = response?.reason || 'network';
-          return;
-        }
-        const data = M.sanitizeResponse(response.data);
-        if (data.cid !== s.cid) { s.compareError = 'changed'; return; }
-        s.compareList = response.book.listings;
-        s.comparePage = 1; s.comparePages = 1; s.compareTotal = s.compareList.length; s.compareDone = true; s.time = Date.now();
-      } catch { if (revision === s.revision) s.compareError = 'network'; }
-      finally { if (s.open && revision === s.revision) { s.comparePending = false; render(); } }
-    }
-
     const alertText = key => ({
       pt: { create: 'CRIAR ALERTA', kind: 'Tipo', search: 'Buscar item ou espécie/forma', target: 'O que monitorar?', choose: 'Selecione um bem', price: 'Preço máximo por unidade (opcional)', any: 'Qualquer', normal: 'Comum', desktop: 'Notificação no PC', voice: 'Voz', add: 'Salvar alerta', invalid: 'Selecione um bem e confira as faixas e valores. Limite: 10 alertas.', list: 'ALERTAS SALVOS', pause: 'Pausar', resume: 'Ativar', remove: 'Remover', check: 'Verificar agora', waiting: 'Aguardando primeira consulta', active: 'Monitorando', paused: 'Pausado', note: 'Verificação a cada 60 segundos com o PokeMux aberto, mesmo com esta janela fechada. A primeira consulta não avisa anúncios existentes. Pokémon: até 60 ofertas recentes por espécie/verificação; ofertas publicadas e removidas entre consultas podem não ser detectadas. Preços são unitários. Notificação e voz respeitam os controles gerais de alertas e voz do app.', last: 'Última consulta', hit: 'Última oferta detectada', empty: 'Nenhum alerta salvo. Os alertas ficam vinculados ao personagem e à conta escolhidos.' },
       en: { create: 'CREATE ALERT', kind: 'Kind', search: 'Search item or species/form', target: 'What to monitor?', choose: 'Select an asset', price: 'Maximum unit price (optional)', any: 'Any', normal: 'Regular', desktop: 'Desktop notification', voice: 'Voice', add: 'Save alert', invalid: 'Select an asset and check ranges and values. Limit: 10 alerts.', list: 'SAVED ALERTS', pause: 'Pause', resume: 'Enable', remove: 'Remove', check: 'Check now', waiting: 'Waiting for first check', active: 'Monitoring', paused: 'Paused', note: 'Checks every 60 seconds while PokeMux is running, even with this window closed. The first check does not announce existing offers. Pokémon: up to 60 recent offers per species/check; offers listed and removed between checks may be missed. Unit prices. Notifications and voice respect the app’s master alerts and voice controls.', last: 'Last check', hit: 'Last detected offer', empty: 'No saved alerts. Alerts are tied to the selected character and account.' },
@@ -546,12 +456,12 @@
         from = visible.length ? offset + 1 : 0; to = visible.length ? Math.min(total, offset + visible.length) : 0;
         content = `<h3 class="mk-section-title">◆ ${esc(tr(s.tab === 'mine' ? 'mine' : 'results'))}</h3>` + (s.tab === 'mine' && teamLoading ? `<p class="mk-note" role="status">${esc(teamText('Atualizando anúncios das contas conectadas…','Updating connected accounts’ listings…','Actualizando anuncios de las cuentas conectadas…'))}</p>` : '') + (s.tab === 'mine' ? teamNotice() : '') + renderListings(visible, offset);
         el('.mk-pages').innerHTML = pagination(s.page, pages); el('.mk-pages').hidden = total === 0;
-      } else if (s.tab === 'compare') { content = comparisonScreen(); total = rows().length; from = total ? 1 : 0; to = total; }
+      }
       else if (s.tab === 'alerts') content = alertsScreen();
       else if (s.tab === 'requests') content = requestScreen();
       else if (s.tab === 'history') content = `<h3 class="mk-section-title">◆ ${esc(tr('history'))}</h3>` + (s.data.history.length ? s.data.history.map(x => `<div class="mk-record"><div><b>${esc(tr(x.bought ? 'bought' : 'sold'))} ${nf(x.amount)}× ${esc(display(x.name))}</b><small>${esc(Number.isNaN(Date.parse(x.at)) ? '—' : new Date(x.at).toLocaleString())}</small></div>${price(x)}</div>`).join('') : empty());
       else content = empty();
-      el('#mkResults').innerHTML = content;
+      resultHtml(content);
       el('#mkCount').textContent = tr('showing', { from: nf(from), to: nf(to), total: nf(total) });
       const balances = [...teamData].filter(([account,entry])=>s.accounts[account]?.live && !s.accounts[account]?.off && (!s.accounts[account].cid || s.accounts[account].cid === entry.data.cid) && (s.accountFilter < 0 || account === s.accountFilter)).map(([,entry])=>entry.data);
       const gold = balances.reduce((sum,data)=>sum+data.gold,0), diamonds = balances.reduce((sum,data)=>sum+data.diamonds,0);
@@ -560,11 +470,11 @@
     }
 
     function keepMarketView(update) {
-      const key = node => node && (node.id ? 'id:' + node.id : node.name ? 'name:' + node.name : node.dataset.tolerance ? 'tolerance:' + node.dataset.tolerance : node.dataset.listing ? 'listing:' + node.dataset.listing : node.dataset.owned ? 'owned:' + node.dataset.owned : '');
+      const key = node => node && (node.id ? 'id:' + node.id : node.name ? 'name:' + node.name : node.dataset.listing ? 'listing:' + node.dataset.listing : '');
       const active = document.activeElement, focusKey = key(active);
       const selection = active && typeof active.selectionStart === 'number' ? [active.selectionStart, active.selectionEnd] : null;
       const fields = [...el('#mkResults').querySelectorAll('input,select,textarea')].map(node => ({ key: key(node), value: node.value, checked: node.checked }));
-      const scrolls = ['#mkResults', '.mk-bag-grid'].map(selector => ({ selector, top: el(selector)?.scrollTop || 0, left: el(selector)?.scrollLeft || 0 }));
+      const scrolls = ['#mkResults'].map(selector => ({ selector, top: el(selector)?.scrollTop || 0, left: el(selector)?.scrollLeft || 0 }));
       update();
       const controls = [...overlay.querySelectorAll('input,select,textarea,button,[data-listing]')];
       for (const field of fields) { const node = controls.find(node => key(node) === field.key); if (node && field.key) { node.value = field.value; node.checked = field.checked; } }
@@ -577,35 +487,31 @@
 
     function snapshotOptions() { return {...s,speciesId:s.pickedSpecies === 'all' ? undefined : s.pickedSpecies}; }
     function applySnapshot(snapshot) {
-      const response = M.snapshotPage({...snapshot,rate:s.rate || snapshot.rate},snapshotOptions(),s.data?.alertCatalog || snapshot.data.alertCatalog);
+      const response = M.snapshotPage({...snapshot,rate:snapshot.rate || s.rate},snapshotOptions(),s.data?.alertCatalog || snapshot.data.alertCatalog);
       s.listings = response.data.listings; s.total = response.data.total; s.pages = response.data.pages;
-      s.page = Math.max(1,Math.min(s.page,s.pages)); s.rate = s.rate || snapshot.rate;
+      s.page = Math.max(1,Math.min(s.page,s.pages)); s.rate = snapshot.rate || s.rate;
       s.time = snapshot.at;
       if (s.selected && !snapshot.listings.some(x=>x.id===s.selected)) s.selected = '';
     }
-    async function reconcileSnapshot(account,cid,force = false) {
+    async function reconcileSnapshot(account,cid,force = false,maxAge) {
+      const epoch = sessionRevision;
+      const valid = () => sessionCurrent(epoch,account,cid);
+      if (!valid() || Date.now() < autoRetryAt) return;
       syncingSnapshots.add(account); if (s.open && s.account === account) status();
-      const response = await snapshots.ensure(account,cid,force);
-      syncingSnapshots.delete(account);
+      let response;
+      try { response = await snapshots.ensure(account,cid,force,undefined,{valid,maxAge}); }
+      finally { if (sessionRevision === epoch) syncingSnapshots.delete(account); }
+      if (!valid()) return response;
       if (s.open && s.account === account && s.cid === cid && s.tab === 'buy' && s.category === 'Pokemon' && !s.pending) {
-        if (response?.ok) keepMarketView(()=>{ applySnapshot(response.snapshot); autoError=''; render(true); });
-        else { autoError = response?.reason || 'network'; status(); }
+        if (response?.ok) keepMarketView(()=>{ invalidate(); applySnapshot(response.snapshot); autoError=''; render(true); });
+        else { autoError = response?.reason || 'network'; if (autoError === 'limited') autoRetryAt = Date.now()+Math.max(300000,Number(response?.retryAfterMs)||0); status(); }
       }
       if (s.open && s.account === account) status();
       return response;
     }
     async function warmCache() {
-      if (!snapshotMode || warming) return;
-      warming = true; let delay = 10000;
-      try {
-        const accounts = await bridge.accounts();
-        s.accounts = accounts;
-        void loadTeam();
-        const live = accounts.map((x,i)=>({...x,index:i})).filter(x=>x.live && !x.off && x.cid);
-        const chosen = live.find(x=>x.index===s.account && s.open) || live.find(x=>x.focused) || live.find(x=>x.index===bridge.preferred()) || live[0];
-        if (chosen) { const response = await reconcileSnapshot(chosen.index,chosen.cid); delay = response?.ok || response?.reason === 'limited' || response?.reason === 'denied' ? 300000 : 30000; }
-      } catch {}
-      finally { warming = false; if (bridge.marketSnapshotOptions?.background !== false) warmTimer = setTimeout(warmCache,delay); }
+      if (!snapshotMode || !s.open || !s.cid) return;
+      return reconcileSnapshot(s.account,s.cid,true);
     }
     async function readMarketPokemon(options, revision, account, cid, quotePromise, refresh = false) {
       const current = () => s.open && s.revision === revision && s.account === account;
@@ -618,10 +524,10 @@
         cid ||= data.cid;
         rate = M.diamondRate(data.listings);
       }
-      if (snapshotMode) {
-        const ready = snapshots.get(account,cid);
+      if (snapshotMode && !refresh) {
+        const ready = currentSnapshot(account,cid);
         if (ready) {
-          const response = refresh ? await snapshots.ensure(account,cid,true) : {ok:true,snapshot:ready};
+          const response = {ok:true,snapshot:ready};
           if (!current()) return {ok:false,reason:'changed'};
           if (!response?.ok) return response;
           return M.snapshotPage({...response.snapshot,rate:rate || response.snapshot.rate},options,s.data?.alertCatalog || response.snapshot.data.alertCatalog);
@@ -640,8 +546,8 @@
     }
 
     async function autoRefresh() {
-      if (!s.open || s.priceScanning || s.pending || s.comparePending || s.timer || autoBusy || Date.now() < autoRetryAt) return;
-      autoBusy = true;
+      if (!s.open || s.priceScanning || s.pending || s.timer || autoBusy || Date.now() < autoRetryAt) return;
+      const task = {}; autoBusy = task;
       const revision = s.revision, account = s.account, cid = s.cid, tab = s.tab;
       if (!s.data || s.error || ['offline','auth','changed'].includes(autoError)) {
         try {
@@ -654,33 +560,20 @@
           if (next.index !== account || String(next.cid) !== cid) { accountChanged(next.index); return; }
           await load(true);
         } catch { if (s.open && s.revision === revision) { s.error='network'; status(); } }
-        finally { autoBusy = false; }
+        finally { if (autoBusy === task) autoBusy = false; }
         return;
       }
       marketRead.clearPages(account);
       const current = () => s.open && s.revision === revision && s.account === account;
-      const read = options => current() ? marketRead(account, M.readScript(options, cid)) : Promise.resolve({ ok: false, reason: 'changed' });
-      const category = ['compare', 'alerts'].includes(tab) ? 'All' : s.category;
-      const keys = ['data'], tasks = [read({ category, includeOwned: ['compare','mine'].includes(tab), includeAlertCatalog: tab === 'alerts' || category === 'Pokemon' || tab === 'buy' && category === 'All' })];
+      const read = options => current() ? marketRead(account, M.readScript(options, cid),current) : Promise.resolve({ ok: false, reason: 'changed' });
+      const category = tab === 'alerts' ? 'All' : s.category;
+      const keys = ['data'], tasks = [read({ category, includeAlertCatalog: tab === 'alerts' || category === 'Pokemon' || tab === 'buy' && category === 'All' })];
       const add = (key, task) => { keys.push(key); tasks.push(task); };
       try {
         if (category !== 'All') add('highlights', read({ category: 'All' }));
         if (tab === 'buy' && category === 'Pokemon') {
           const options = { ...s, browse: 'pokemon', speciesId: s.pickedSpecies === 'all' ? undefined : s.pickedSpecies };
           add('listings', readMarketPokemon(options,revision,account,cid,tasks[keys.indexOf('highlights')],true));
-        }
-        const own = tab === 'compare' && ownedSelection();
-        if (own && own.kind === 'pokemon' && s.compareDone) {
-          const tolerance = { ...s.tolerance };
-          add('comparison', (async () => {
-            const inventory = await tasks[0];
-            if (!inventory || !inventory.ok) return inventory;
-            const freshOwn = own.account === account ? M.sanitizeResponse(inventory.data).owned.find(x => x.id === (own.sourceId || own.id)) : own;
-            if (!freshOwn) return { ok: true, data: { cid, listings: [], total: 0, pages: 1 } };
-            const response = await comparisonResponse(account,cid,freshOwn,current,true);
-            if (!response || !response.ok) return response;
-            return { ok: true, data: { ...response.data, listings: response.book.listings, total: response.book.listings.length, pages: 1 } };
-          })());
         }
         const responses = await Promise.all(tasks);
         if (!current()) return;
@@ -695,31 +588,30 @@
         keepMarketView(() => {
           for (let i = 0; i < keys.length; i++) {
             const value = data[i];
-            if (keys[i] === 'data') { s.data = value; rememberTeam(account,value,['compare','mine'].includes(tab)); if (category === 'All') { s.highlights = M.marketHighlights(value.listings); s.rate = M.diamondRate(value.listings); } }
+            if (keys[i] === 'data') { s.data = value; rememberTeam(account,value); if (category === 'All') { s.highlights = M.marketHighlights(value.listings); s.rate = M.diamondRate(value.listings); } }
             else if (keys[i] === 'highlights') { s.highlights = M.marketHighlights(value.listings); s.rate = M.diamondRate(value.listings); }
             else if (keys[i] === 'species') s.species = value.species;
-            else if (keys[i] === 'comparison') { s.compareList = value.listings; s.compareTotal = value.total; s.comparePages = value.pages; }
             else { s.listings = value.listings; s.total = value.total; s.pages = value.pages; if (responses[i].book) s.priceBook = responses[i].book; }
           }
-          if (own && own.kind !== 'pokemon') s.compareList = s.data.listings;
-          s.time = snapshotMode && tab === 'buy' && category === 'Pokemon' ? snapshots.get(account,cid)?.at || Date.now() : Date.now(); autoError = ''; render(true);
+          s.time = Date.now(); autoError = ''; render(true);
         });
       } catch { if (current()) { autoError = 'network'; status(); } }
-      finally { autoBusy = false; if (s.open && ['compare','mine'].includes(s.tab)) void loadTeam(); }
+      finally { if (autoBusy === task) autoBusy = false; if (current()) { if (s.tab === 'mine') void loadTeam(); if (snapshotMode && tab === 'buy' && category === 'Pokemon' && bridge.marketSnapshotOptions?.background !== false) void warmCache(); } }
     }
 
     async function load(refresh = false) {
       invalidate(); const revision = s.revision, account = s.account;
       if (refresh) { s.priceBook = null; marketRead.clearPages(account); }
       if (!s.open || account < 0) return;
-      const cached = snapshotMode && snapshots.get(account,s.cid);
-      s.pending = !cached || !s.data; s.priceScanning = !!cached && refresh; s.error = '';
-      if (cached && s.tab === 'buy' && s.category === 'Pokemon') applySnapshot(cached);
-      render();
+      const cached = currentSnapshot(account,s.cid);
+      s.pending = !s.data; s.priceScanning = !!s.data; s.error = '';
+      if (cached && !refresh && s.tab === 'buy' && s.category === 'Pokemon') applySnapshot(cached);
+      keepMarketView(()=>render());
       const tasks = [], keys = [];
-      const read = (key, options) => { keys.push(key); tasks.push(marketRead(account, M.readScript(options, s.cid))); };
-      const category = ['compare', 'alerts'].includes(s.tab) ? 'All' : s.category;
-      if (!(s.data && s.tab === 'buy' && category === 'Pokemon' && !refresh) && (!s.data || s.loadedCategory !== category || refresh || ['compare', 'alerts', 'mine'].includes(s.tab))) read('data', { category, includeOwned: ['compare','mine'].includes(s.tab), includeAlertCatalog: s.tab === 'alerts' || category === 'Pokemon' || s.tab === 'buy' && category === 'All' });
+      const current = () => s.open && s.account === account && s.revision === revision;
+      const read = (key, options) => { keys.push(key); tasks.push(marketRead(account, M.readScript(options, s.cid),current)); };
+      const category = s.tab === 'alerts' ? 'All' : s.category;
+      if (!(s.data && s.tab === 'buy' && category === 'Pokemon' && !refresh) && (!s.data || s.loadedCategory !== category || refresh || ['alerts', 'mine'].includes(s.tab))) read('data', { category, includeAlertCatalog: s.tab === 'alerts' || category === 'Pokemon' || s.tab === 'buy' && category === 'All' });
       if (category !== 'All' && (!s.highlights || refresh)) read('highlights', { category: 'All' });
       if (s.tab === 'buy' && s.category === 'Pokemon') {
         const options = { ...s, browse: 'pokemon', speciesId: s.pickedSpecies === 'all' ? undefined : s.pickedSpecies };
@@ -738,7 +630,7 @@
               const next = s.accounts.findIndex((x,i)=>x.live && !x.off && !sourceFailures.has(i));
               if (next >= 0) { accountChanged(next); return; }
             }
-            if (cached && response?.reason !== 'changed') { autoError = response?.reason || 'network'; break; }
+            if (s.data && !['changed','offline','auth','denied','email'].includes(response?.reason)) { autoError = response?.reason || 'network'; break; }
             s.error = response?.reason || 'network'; if (!s.data) { s.cid = ''; s.species = null; s.listings = []; } break;
           }
           const data = M.sanitizeResponse(response.data);
@@ -747,7 +639,7 @@
           if (keys[i] === 'highlights' || keys[i] === 'data' && category === 'All') { s.highlights = M.marketHighlights(data.listings); s.rate = M.diamondRate(data.listings); }
           if (keys[i] === 'highlights') continue;
           if (keys[i] === 'data') {
-            s.data = data; rememberTeam(account,data,['compare','mine'].includes(s.tab)); s.loadedCategory = category;
+            s.data = data; rememberTeam(account,data); s.loadedCategory = category;
             if (data.alertCatalog.length) {
               const updated = alertRules.map(rule => rule.includeEvolutions ? A.normalize({ ...rule, speciesIds: M.evolutionIds(rule.speciesId, data.alertCatalog) }) : rule);
               if (JSON.stringify(updated) !== JSON.stringify(alertRules)) { alertRules = updated; saveAlerts(); }
@@ -756,40 +648,47 @@
           else if (keys[i] === 'species') s.species = data.species;
           else { s.listings = data.listings; s.total = data.total; s.pages = data.pages; if (response.book) s.priceBook = response.book; }
         }
-        if (!s.error) s.time = snapshotMode && s.tab === 'buy' && s.category === 'Pokemon' ? snapshots.get(account,s.cid)?.at || Date.now() : Date.now();
-      } catch { if (revision === s.revision) { s.error = 'network'; s.data = null; } }
-      finally { if (revision === s.revision && s.open) { s.pending = false; s.priceScanning = false; render(); if (!s.error && ['compare','mine'].includes(s.tab)) void loadTeam(refresh,account); if (s.tab === 'compare' && !s.error && ownedSelection()) loadComparison(); } }
+        if (!s.error && !autoError) s.time = !refresh && s.tab === 'buy' && s.category === 'Pokemon' ? currentSnapshot(account,s.cid)?.at || Date.now() : Date.now();
+      } catch { if (revision === s.revision) { if (s.data) autoError = 'network'; else s.error = 'network'; } }
+      finally {
+        if (current()) {
+          s.pending = false; s.priceScanning = false; keepMarketView(()=>render());
+          if (!s.error && s.tab === 'mine') void loadTeam(refresh,account);
+          if (!s.error && snapshotMode && s.tab === 'buy' && s.category === 'Pokemon' && bridge.marketSnapshotOptions?.background !== false && (refresh || !currentSnapshot()))
+            void reconcileSnapshot(account,s.cid,true,refresh ? 0 : undefined);
+        }
+      }
     }
 
     function queryChanged(server = false) {
       s.page = 1; s.selected = '';
       chrome();
-      if (snapshotMode && s.tab === 'buy' && s.category === 'Pokemon' && snapshots.get(s.account,s.cid)) {
-        invalidate(); applySnapshot(snapshots.get(s.account,s.cid)); render(); return;
+      if (s.tab === 'buy' && s.category === 'Pokemon' && currentSnapshot()) {
+        invalidate(); applySnapshot(currentSnapshot()); keepMarketView(()=>render()); return;
       }
       if (server && s.tab === 'buy' && s.category === 'Pokemon' && s.pickedSpecies != null) {
-        hideIv(); invalidate(); s.pending = true; s.error = ''; status(); el('#mkResults').innerHTML = empty(tr('loading')); el('.mk-pages').hidden = true;
+        hideIv(); invalidate(); s.priceScanning = true; s.error = ''; status();
         s.timer = setTimeout(() => load(), 700);
       } else render();
     }
 
     function accountChanged(value) {
+      sessionRevision++; autoBusy = false; syncingSnapshots.clear(); teamJobs.clear();
       hideIv();
       s.highlights = null;
       s.rate = null; s.priceBook = null;
       s.includeEvolutions = false;
-      invalidate(); Object.assign(s, { account: Number(value), cid: '', data: null, loadedCategory: '', species: null, listings: [], selected: '', time: 0, error: '', pending: false, page: 1, ownedId: '', ownQ: '', ownKind: '', ownPage: 1, compareList: [], comparePending: false, compareDone: false, compareError: '' });
+      invalidate(); Object.assign(s, { account: Number(value), cid: '', data: null, loadedCategory: '', species: null, listings: [], selected: '', time: 0, error: '', pending: false, page: 1 });
       if (snapshotMode) {
         s.cid = String(s.accounts[s.account]?.cid || '');
         const cached = snapshots.get(s.account,s.cid);
         if (cached) { s.data = cached.data; s.loadedCategory = 'All'; s.highlights = M.marketHighlights(cached.data.listings); s.rate = cached.rate; s.time = cached.at; }
-        if (s.cid && bridge.marketSnapshotOptions?.background !== false) void reconcileSnapshot(s.account,s.cid,true);
       }
-      load();
+      return load(true);
     }
 
     async function open(tab) {
-      if (typeof tab === 'string' && ['buy', 'compare', 'mine', 'requests', 'history', 'alerts'].includes(tab)) s.tab = tab;
+      if (typeof tab === 'string' && ['buy', 'mine', 'requests', 'history', 'alerts'].includes(tab)) s.tab = tab;
       const focus = s.previousFocus || document.activeElement, expanded = bridge.preferred();
       s.previousFocus = focus; s.open = true; invalidate(); const revision = s.revision;
       overlay.classList.add('show'); button.classList.add('on'); chrome();
@@ -819,6 +718,8 @@
       hideIv();
       clearInterval(clockTimer); clockTimer = null;
       s.open = false; invalidate(); overlay.classList.remove('show'); button.classList.remove('on'); button.setAttribute('aria-expanded', 'false');
+      sessionRevision++; autoBusy = false; syncingSnapshots.clear(); teamJobs.clear(); s.pending = false; s.priceScanning = false;
+      if (s.account >= 0) marketRead.clearPages(s.account);
       if (s.previousFocus && s.previousFocus.isConnected) s.previousFocus.focus(); else button.focus();
       s.previousFocus = null;
     }
@@ -827,9 +728,7 @@
     button.onclick = () => s.open ? close() : open();
     el('#mkClose').onclick = close; el('#mkRefresh').onclick = () => load(true); el('#mkAccount').onchange = e => {
       if (s.tab === 'alerts') { if (Number(e.target.value) >= 0) accountChanged(e.target.value); return; }
-      s.accountFilter = Number(e.target.value); s.ownPage = 1; s.page = 1;
-      const own = ownedSelection();
-      if (s.accountFilter >= 0 && own && own.account !== s.accountFilter) { invalidate(); s.ownedId = ''; s.compareDone = false; s.comparePending = false; }
+      s.accountFilter = Number(e.target.value); s.page = 1;
       render();
     };
     el('#mkSearch').oninput = e => { s.q = e.target.value; queryChanged(true); showSearchSuggestions(); };
@@ -852,19 +751,6 @@
       else if (target.hasAttribute('data-alert-toggle')) { alertRules = alertRules.map(x => x.id === target.dataset.alertToggle ? { ...x, enabled: !x.enabled } : x); saveAlerts(); }
       else if (target.hasAttribute('data-alert-remove')) { alertRules = alertRules.filter(x => x.id !== target.dataset.alertRemove); saveAlerts(); }
       else if (target.hasAttribute('data-alert-check')) monitor.check();
-      else if (target.hasAttribute('data-owned')) {
-        s.ownedId = target.dataset.owned; s.compareDone = false; s.compareList = []; s.comparePending = false; s.tolerance.broad = false;
-        const id = s.ownedId, account = s.account;
-        void loadComparison().then(() => {
-          if (!s.open || s.tab !== 'compare' || s.account !== account || s.ownedId !== id) return;
-          const selected = [...overlay.querySelectorAll('[data-owned]')].find(x => x.dataset.owned === id);
-          void inspectIv(selected, e);
-        });
-      }
-      else if (target.hasAttribute('data-own-kind')) { s.ownKind = target.dataset.ownKind; s.ownPage = 1; el('#mkBag').innerHTML = inventoryBag(); el('#mkBag').querySelector(`[data-own-kind="${s.ownKind}"]`).focus(); }
-      else if (target.hasAttribute('data-own-page')) { s.ownPage = Number(target.dataset.ownPage); el('#mkBag').innerHTML = inventoryBag(); }
-      else if (target.hasAttribute('data-widen')) { s.tolerance.broad = !s.tolerance.broad; loadComparison(); }
-      else if (target.hasAttribute('data-compare-more')) loadComparison(true);
       else if (target.dataset.category) { s.category = target.dataset.category; s.pickedSpecies = 'all'; s.selected = ''; s.page = 1; resetFilters(); load(); }
       else if (target.hasAttribute('data-all-pokemon')) { s.category = 'Pokemon'; s.pickedSpecies = 'all'; resetFilters(); load(); }
       else if (target.hasAttribute('data-listing')) {
@@ -872,16 +758,16 @@
         for (const row of el('#mkResults').querySelectorAll('[data-listing]')) row.classList.toggle('selected', row.dataset.listing === s.selected);
         inspectIv(target, e);
       }
-      else if (target.hasAttribute('data-page')) { s.page = Number(target.dataset.page); s.selected = ''; if (snapshotMode && s.tab === 'buy' && s.category === 'Pokemon' && snapshots.get(s.account,s.cid)) { applySnapshot(snapshots.get(s.account,s.cid)); render(); } else if (s.tab === 'buy' && s.category === 'Pokemon' && s.pickedSpecies != null) load(); else render(); }
+      else if (target.hasAttribute('data-page')) { s.page = Number(target.dataset.page); s.selected = ''; if (s.tab === 'buy' && s.category === 'Pokemon' && currentSnapshot()) { applySnapshot(currentSnapshot()); render(); } else if (s.tab === 'buy' && s.category === 'Pokemon' && s.pickedSpecies != null) load(); else render(); }
       else if (target.hasAttribute('data-grade')) { const grade = target.dataset.grade; s.gradesOff = s.gradesOff.includes(grade) ? s.gradesOff.filter(x => x !== grade) : [...s.gradesOff, grade]; queryChanged(true); }
       else if (target.id === 'mkShiny') { s.shiny = !s.shiny; queryChanged(true); }
     });
     overlay.addEventListener('mouseover', event => {
-      const target = event.target.closest('[data-listing],[data-owned]');
+      const target = event.target.closest('[data-listing]');
       if (target && !target.contains(event.relatedTarget)) void inspectIv(target, event);
     });
     overlay.addEventListener('mousemove', event => {
-      const target = event.target.closest('[data-listing],[data-owned]');
+      const target = event.target.closest('[data-listing]');
       if (target && target !== ivTarget) void inspectIv(target, event);
       else if (ivTarget && ivTarget.contains(event.target)) {
         ivPoint = { x: event.clientX, y: event.clientY };
@@ -898,7 +784,6 @@
     overlay.addEventListener('scroll', hideIv, true);
     overlay.addEventListener('input', e => {
       if (e.target.id === 'mkAlertSearch') { el('#mkAlertTarget').value = ''; showAlertSuggestions(); updateAlertEvolutions(); }
-      if (e.target.id === 'mkOwnSearch') { s.ownQ = e.target.value; s.ownPage = 1; el('#mkBag').innerHTML = inventoryBag(); }
       if (e.target.dataset.filter) { s[e.target.dataset.filter] = e.target.value; queryChanged(true); }
       if (/^mkRequest/.test(e.target.id)) totals();
 
@@ -907,13 +792,12 @@
       if (e.target.id === 'mkIncludeEvolutions') { s.includeEvolutions = e.target.checked; queryChanged(true); }
       if (e.target.id === 'mkAlertEvolutions') updateAlertEvolutions();
       if (e.target.id === 'mkAlertKind') { alertKind = e.target.value; render(); }
-      if (e.target.dataset.tolerance) { const key = e.target.dataset.tolerance; s.tolerance[key] = Math.max(0, Math.min(key === 'iv' ? 192 : key === 'lv' ? 100000 : 100, Number(e.target.value) || 0)); loadComparison(); }
       if (e.target.id === 'mkType') { s.type = e.target.value; queryChanged(true); }
-      if (e.target.id === 'mkPage') { s.page = Math.max(1, Math.trunc(Number(e.target.value)) || 1); s.selected = ''; if (snapshotMode && s.tab === 'buy' && s.category === 'Pokemon' && snapshots.get(s.account,s.cid)) { applySnapshot(snapshots.get(s.account,s.cid)); render(); } else if (s.tab === 'buy' && s.category === 'Pokemon' && s.pickedSpecies != null) load(); else render(); }
+      if (e.target.id === 'mkPage') { s.page = Math.max(1, Math.trunc(Number(e.target.value)) || 1); s.selected = ''; if (s.tab === 'buy' && s.category === 'Pokemon' && currentSnapshot()) { applySnapshot(currentSnapshot()); render(); } else if (s.tab === 'buy' && s.category === 'Pokemon' && s.pickedSpecies != null) load(); else render(); }
       if (/^mkRequest/.test(e.target.id)) totals();
     });
     overlay.addEventListener('focusin', e => {
-      const pokemon = e.target.closest('[data-listing],[data-owned]');
+      const pokemon = e.target.closest('[data-listing]');
       if (pokemon) void inspectIv(pokemon, e);
       if (e.target.id === 'mkAlertSearch') showAlertSuggestions();
       else if (!e.target.closest('.mk-alert-picker')) hideAlertSuggestions();
@@ -973,15 +857,14 @@
       if (!rule || alertRules.length >= 10 || !rule.desktop && !rule.voice) { el('#mkAlertError').textContent = alertText('invalid'); return; }
       alertRules.push(rule); saveAlerts(); el('#mkAlertError').textContent = ''; e.target.reset(); hideAlertSuggestions(); updateAlertEvolutions();
     });
-    monitor = A.create({ read: marketRead, changed: () => { if (s.open && s.tab === 'alerts' && el('#mkAlertList')) el('#mkAlertList').innerHTML = alertList(); }, notify: (rule, found) => {
+    monitor = A.create({ read: (account,script)=>marketRead(account,script,()=>true,10,true), changed: () => { if (s.open && s.tab === 'alerts' && el('#mkAlertList')) el('#mkAlertList').innerHTML = alertList(); }, notify: (rule, found) => {
       const x = found[0], value = nf(x.price) + (x.currency === 'DIAMONDS' ? ' diamantes' : ' dollars');
       const conditions = x.kind === 'pokemon' ? `, IV ${nf(x.ivTotal)}, ${tr('level')} ${nf(x.level)}, Q ${nf(x.quality)}` : '';
       const text = bridge.language() === 'en' ? `Market alert: ${x.name}, ${value}${conditions}, account ${rule.accountName}. ${found.length} matching offers.` : bridge.language() === 'es' ? `Alerta de mercado: ${x.name}, ${value}${conditions}, cuenta ${rule.accountName}. ${found.length} ofertas compatibles.` : `Alerta de mercado: ${x.name}, ${value}${conditions}, conta ${rule.accountName}. ${found.length} ofertas compatíveis.`;
       bridge.notifyMarket(text, rule.desktop, rule.voice);
     } });
     monitor.setRules(alertRules);
-    if (snapshotMode && bridge.marketSnapshotOptions?.background !== false) warmTimer = setTimeout(warmCache,5000);
-    window.addEventListener('beforeunload', () => { monitor.stop(); clearTimeout(warmTimer); snapshots.stop(); });
+    window.addEventListener('beforeunload', () => { monitor.stop(); clearInterval(clockTimer); snapshots.stop(); });
     if (bridge.loadSearchCatalog) void Promise.resolve().then(()=>bridge.loadSearchCatalog()).then(data=>{
       if (data?.version !== 1 || !Array.isArray(data.entries)) return;
       gameSearchEntries = data.entries;

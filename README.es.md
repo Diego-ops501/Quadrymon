@@ -1,8 +1,8 @@
 <p align="center"><img src="quadrymon-logo.png" alt="Quadrymon" width="600"></p>
 
 <p align="center"><a href="README.md">Português</a> · <a href="README.en.md">English</a> · <strong>Español</strong></p>
-<p align="center">Central multicuenta para Poke Idle World · Windows x64 · Versión 1.1.0</p>
-<p align="center"><a href="https://github.com/Diego-ops501/Quadrymon/releases/download/v1.1.0/Quadrymon-1.1.0-x64.exe"><strong>Descargar Quadrymon 1.1.0</strong></a> · <a href="https://github.com/Diego-ops501/Quadrymon/releases/latest">Última versión</a></p>
+<p align="center">Central multicuenta para Poke Idle World · Windows x64 · Versión 1.2.0</p>
+<p align="center"><a href="https://github.com/Diego-ops501/Quadrymon/releases/download/v1.2.0/Quadrymon-1.2.0-x64.exe"><strong>Descargar Quadrymon 1.2.0</strong></a> · <a href="https://github.com/Diego-ops501/Quadrymon/releases/latest">Última versión</a></p>
 
 ![Quadrymon — cuatro aventuras en una central](docs/art/quadrymon-banner.png)
 
@@ -12,7 +12,7 @@ La ilustración de presentación fue creada a partir de la referencia visual de 
 
 ## Instalación y primeros pasos
 
-1. Descarga **Quadrymon-1.1.0-x64.exe** desde el enlace superior.
+1. Descarga **Quadrymon-1.2.0-x64.exe** desde el enlace superior.
 2. Ejecuta el instalador y elige el idioma y la carpeta de instalación.
 3. Abre **Ajustes → Cuentas** (Ajustes → Contas), añade hasta cuatro cuentas y guarda.
 4. La app completa el correo o usuario y la contraseña y entra automáticamente cuando el formulario está listo. El nombre de la cuenta viene del personaje del juego. Completa CAPTCHA y autenticación adicional en el juego; **Entrar en las cuentas** permite reintentar manualmente.
@@ -72,13 +72,12 @@ Las sugerencias agrupan variantes y niveles bajo el nombre de la especie, evitan
 | Pestaña | Función |
 | --- | --- |
 | **Comprar** | Consultar ofertas y ordenar resultados. |
-| **Comparar con el mercado** | Elegir un objeto o Pokémon del inventario y consultar anuncios similares. |
 | **Alertas** | Configurar condiciones de precio y notificaciones de mercado. |
 | **Mis Anuncios** | Seguir los anuncios disponibles para la cuenta seleccionada. |
 | **Solicitudes** | Consultar solicitudes de compra. |
 | **Historial** | Consultar registros devueltos por el juego. |
 
-Las comparaciones usan las condiciones disponibles, como especie, shiny, rareza, nivel, IV y calidad. Convertir monedas requiere una cotización activa del diamante; sin ella, la aplicación indica que no es posible comparar precios entre monedas.
+Convertir monedas requiere una cotización activa del diamante; sin ella, la aplicación indica que no es posible comparar precios entre monedas.
 
 ### Ir al mercado y volver a una hunt
 
@@ -97,6 +96,12 @@ La tarjeta detallada incluye barras de los seis atributos, potencial por IV tota
 ![Tarjeta de IV y simulación](docs/images/ivs.png)
 
 El **IV total** lo informa el juego. Los **IVs individuales** se deducen de los atributos disponibles y pueden ser estimaciones. El cálculo necesita que el juego proporcione los datos necesarios.
+
+## Proyectos de breeding
+
+El botón **Breeding** abre proyectos con selección de Pokémon por cuenta, IV y calidad. Registra los padres y su coste de adquisición; después cruza e incuba normalmente en el juego. Las operaciones confirmadas se observan mientras Quadrymon está abierto, aunque el módulo esté cerrado. Los IDs conservan el linaje durante evoluciones y cruces posteriores; las etapas ambiguas pueden asociarse más tarde.
+
+Los totales incluyen adquisición, tasas, feromonas, piedras y nacimiento instantáneo sin duplicar padres reutilizados. Los materiales usan las cotizaciones disponibles; las monedas originales, estimaciones y costes pendientes se muestran por separado. La adquisición desconocida nunca se considera gratuita. Completa los importes, consulta los IDs y exporta el registro en JSON o con la copia de configuración. Las operaciones realizadas fuera de la aplicación no se reconstruyen.
 
 ## Recomendaciones de hunt
 

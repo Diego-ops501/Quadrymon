@@ -26,13 +26,14 @@ app.whenReady().then(async () => {
         if (fail) return { ok: false, reason: fail };
         const listings = Array.from({ length: listingCount }, (_, i) => ({ id: 'listing' + i, kind: 'pokemon', name: 'Abra', speciesId: 63, price: version * 100 + i, currency: 'GOLD', ivTotal: 160, quality: 1.5, level: listingLevel, stats: { hp: 100, atk: 40, def: 30, spAtk: 80, spDef: 60, speed: 50 }, at: new Date().toISOString() }));
         const responseListings = quoteEnabled && query.category === 'All' ? [...listings, {id:'quote',kind:'diamonds',price:10000,currency:'GOLD',quantity:1}] : listings;
-        return { ok: true, data: { cid: 'c1', name: 'Tester', listings:responseListings, total: 36, pages: 3, ownedReady: true, owned: [{ id: 'pokemon:owned', kind: 'pokemon', speciesId: 63, name: 'Abra', level: 20, ivTotal: 160, quality: 1.5, stats: { hp: 100, atk: 40, def: 30, spAtk: 80, spDef: 60, speed: 50 } }], catalog: { items: [{ kind: 'item', refId: 9, name: 'Potion' }] }, species: [{ speciesId: 63, name: 'Abra', total: 36 }], alertCatalog: [{ kind: 'pokemon', speciesId: 63, name: 'Abra' }] } };
+        return { ok: true, data: { cid: 'c1', name: 'Tester', listings:responseListings, mine: [responseListings[0]], total: 36, pages: 3, catalog: { items: [{ kind: 'item', refId: 9, name: 'Potion' }] }, species: [{ speciesId: 63, name: 'Abra', total: 36 }], alertCatalog: [{ kind: 'pokemon', speciesId: 63, name: 'Abra' }] } };
       };
       const ui = PokeMuxMarketUI.mount({ marketSnapshotOptions: {enabled:false}, marketReaderOptions: {interval:0,ttl:0}, load: () => '', save() {}, language: () => 'pt', sprite: () => '', preferred: () => 0, accounts: async () => [{ focused: true, live: true, off: false, name: 'Tester' }], read, rememberFocus() {}, isIvEnabled: () => ivEnabled,
         calculateIv: async (account, pokemon, cid) => { ivCalls.push({ account, pokemon, cid }); if (ivWaiting) return new Promise(resolve => ivWaiting.push({ resolve, pokemon })); return { nome: pokemon.name, id: pokemon.id }; },
         showIv(account, result, point) { ivShown = { account, result, point }; }, hideIv() { ivShown = null; } });
       const el = selector => document.querySelector(selector);
       await ui.open(); await pause(30);
+      check([...el('#pmMarket').querySelectorAll('[data-tab]')].map(x => x.dataset.tab).join(',') === 'buy,alerts,mine,requests,history', 'market exposes only the five supported tabs');
       el('[data-category="Pokemon"]').click(); await pause(30);
       check(el('[data-listing="listing0"]') && !el('[data-species]'), 'Pokemon opens all listings directly');
       check(!reads.some(x => x.browse === 'species'), 'species landing query removed');
@@ -78,29 +79,12 @@ app.whenReady().then(async () => {
       ui.close(); held.splice(0).forEach(resolve => resolve()); held = null; await pause(30);
       check(!active && !el('#pmMarket').classList.contains('show'), 'closing stops refresh');
       await ui.open(); await pause(30);
-      reads = []; el('[data-tab="compare"]').click(); await pause(30);
-      check(el('[data-owned="pokemon:owned"]'), 'bag Pokemon available');
-      check(el('[data-owned="pokemon:owned"]').textContent.includes('Abra') && el('[data-owned="pokemon:owned"]').textContent.includes('IV 160'), 'inventory row identifies the exact specimen');
-      check(!el('.mk-bag-slot.empty'), 'inventory has no decorative empty slots');
-      const beforeSearch = reads.length;
-      el('#mkOwnSearch').value = 'missing'; el('#mkOwnSearch').dispatchEvent(new Event('input', {bubbles:true}));
-      check(!el('[data-owned]'), 'inventory search hides unmatched specimens');
-      el('#mkOwnSearch').value = 'Abra'; el('#mkOwnSearch').dispatchEvent(new Event('input', {bubbles:true}));
-      check(el('[data-owned="pokemon:owned"]') && reads.length === beforeSearch, 'inventory search is local and retains the exact specimen ID');
-      el('[data-owned="pokemon:owned"]').click(); await pause(30);
-      check(el('.mk-own-info .mk-stats').textContent.includes('80'), 'bag attributes displayed');
-      check(el('.mk-sale-recommendation').textContent.includes('206'), 'median selling recommendation shown');
-      const comparisonReads = reads.filter(x => x.browse === 'pokemon');
-      check(comparisonReads.length === 3 && comparisonReads.every(x => x.speciesId === '63' && x.ivMin === '150' && x.lvMin === '10' && x.qMin === '1.4'), 'comparison sends specimen tolerances to the server');
-      version = 3; tick(); await pause(30);
-      check(el('.mk-sale-recommendation').textContent.includes('306'), 'selling recommendation refreshed');
-      listingLevel = 494; tick(); await pause(30);
-      check(!el('.mk-sale-recommendation').textContent.includes('Preço de referência da espécie'), 'different levels do not automatically become a selling reference');
-      check(el('.mk-own-info').textContent.includes('Sem anúncios semelhantes'), 'no similar level or rarity warning visible');
-      el('[data-widen]').click(); await pause(30);
-      check(el('.mk-sale-recommendation').textContent.includes('Preço de referência da espécie'), 'species reference requires explicit widening');
-      listingCount = 0; tick(); await pause(30);
-      check(el('.mk-sale-recommendation').textContent.includes('Nenhum resultado encontrado'), 'no species listing is distinct from incomplete bag');
+      el('[data-tab="mine"]').click(); await pause(30);
+      check(el('[data-listing="listing0"]') && el('[data-tab="mine"]').textContent.includes('(1)'), 'own listings and count remain available');
+      el('[data-tab="requests"]').click(); await pause(30);
+      check(el('#mkResults').textContent.includes('SOLICITAÇÕES ABERTAS'), 'buy requests remain available');
+      el('[data-tab="history"]').click(); await pause(30);
+      check(el('#mkResults').textContent.includes('Histórico'), 'market history remains available');
       el('[data-tab="alerts"]').click(); await pause(30);
       el('#mkAlertSearch').value = 'Pot'; el('#mkAlertSearch').dispatchEvent(new Event('input', { bubbles: true }));
       el('[name="priceMax"]').value = '123'; el('[name="voice"]').checked = false; el('#mkAlertSearch').focus();
@@ -108,8 +92,8 @@ app.whenReady().then(async () => {
       check(el('#mkAlertSearch').value === 'Pot' && el('[name="priceMax"]').value === '123' && !el('[name="voice"]').checked, 'alert draft preserved');
       check(document.activeElement.id === 'mkAlertSearch', 'draft focus preserved');
       ui.close();
-      return 'ok market-refresh: IV stats, hover, cursor, stale responses, toggle, no side panel, comparison, 60s refresh, filters, focus, failures and close';
-    })()`);
+      return 'ok market-refresh: IV stats, hover, cursor, stale responses, toggle, no side panel, 60s refresh, filters, focus, failures and close';
+    })().catch(error => { throw Error(error.stack); })`);
     console.log(result); win.destroy(); app.exit(0);
-  } catch (error) { console.error(error); win.destroy(); app.exit(1); }
+  } catch (error) { console.error(error.stack || error); win.destroy(); app.exit(1); }
 });

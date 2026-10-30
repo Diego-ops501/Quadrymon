@@ -1,0 +1,36 @@
+#breedingCostDialog { width: min(1120px, 94vw); max-width: 94vw; height: min(900px, 90vh); max-height: 90vh; padding: 0; overflow: hidden; box-sizing: border-box; color: #e5edf5; background: #0b1524; border: 1px solid #33516d; border-radius: 14px; }
+#breedingCostDialog::backdrop { background: #030914bb; }
+#breedingCostDialog .dialog-head { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid #28415e; }
+#breedingCostDialog h2 { margin: 0 auto 0 0; font-size: 21px; }
+#breedingCostDialog h3 { color: #6ce5db; margin: 14px 0 10px; }
+#breedingCostDialog button, #breedingCostDialog select, #breedingCostDialog input, #breedingCostNotice button { border: 1px solid #33516d; border-radius: 7px; padding: 8px 10px; background: #15263a; color: #e5edf5; font: inherit; }
+#breedingCostDialog button { cursor: pointer; }
+#breedingCostDialog button:disabled { opacity: .5; cursor: default; }
+#breedingCostDialog :focus-visible, #breedingCostNotice button:focus-visible { outline: 2px solid #6ce5db; outline-offset: 2px; }
+#breedingCostDialog .bc-body { overflow: auto; box-sizing: border-box; height: calc(100% - 66px); padding: 0 18px 22px; }
+.bc-note, .bc-step small, .bc-pending small, .bc-pokemon small { display: block; color: #9bb0c7; line-height: 1.5; font-size: 12px; }
+.bc-error { color: #ffc982; }
+.bc-controls, .bc-acquisition, .bc-quote, .bc-pending { display: flex; gap: 10px; align-items: end; flex-wrap: wrap; }
+.bc-quote { align-items: center; justify-content: space-between; padding: 10px; border: 1px solid #28415e; border-radius: 8px; }
+.bc-controls label, .bc-acquisition label { display: flex; flex-direction: column; gap: 5px; flex: 1 1 140px; font-size: 12px; }
+.bc-controls input, .bc-controls select, .bc-acquisition input { min-width: 0; width: 100%; box-sizing: border-box; }
+.bc-pokemon-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); max-height: 310px; overflow: auto; gap: 8px; padding: 4px; margin: 12px 0; }
+.bc-pokemon { display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #28415e; border-radius: 8px; background: #101e30; cursor: pointer; }
+.bc-pokemon:has(input:checked) { border-color: #6ce5db; background: #143039; }
+.bc-pokemon img { width: 48px; height: 48px; object-fit: contain; }
+.bc-pokemon input { flex: 0 0 auto; }
+.bc-project { border: 1px solid #28415e; border-radius: 10px; padding: 0 14px 14px; margin-top: 12px; }
+.bc-totals { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 24px; }
+.bc-totals strong { font-size: 21px; font-variant-numeric: tabular-nums; }
+.bc-totals span { color: #9bb0c7; }
+.bc-project summary { cursor: pointer; padding: 8px 0; }
+.bc-step { padding: 10px 0; border-bottom: 1px solid #22364d; }
+.bc-acquisition { margin: 8px 0; }
+.bc-pending { border: 1px solid #5e5934; border-radius: 8px; padding: 12px; margin: 8px 0; }
+.bc-pending > span { flex: 1 1 220px; }
+.bc-project table { border-collapse: collapse; width: 100%; margin-top: 12px; font-size: 12px; }
+.bc-project td, .bc-project th { padding: 8px; text-align: left; border-bottom: 1px solid #28415e; }
+#breedingCostNotice { position: fixed; bottom: 40px; right: 18px; z-index: 31000; max-width: min(500px, 90vw); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 14px; border: 1px solid #6ce5db; border-radius: 10px; background: #122c3d; color: #e5edf5; box-shadow: 0 10px 30px #0008; }
+#breedingCostNotice[hidden] { display: none; }
+#breedingCostBtn { white-space: nowrap; }
+@media (max-width: 700px) { #breedingCostDialog .dialog-head { flex-wrap: wrap; } .bc-totals strong { font-size: 17px; } .bc-pokemon-list { grid-template-columns: 1fr; } }

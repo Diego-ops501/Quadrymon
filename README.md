@@ -1,8 +1,8 @@
 <p align="center"><img src="quadrymon-logo.png" alt="Quadrymon" width="600"></p>
 
 <p align="center"><strong>Português</strong> · <a href="README.en.md">English</a> · <a href="README.es.md">Español</a></p>
-<p align="center">Central multitela para Poke Idle World · Windows x64 · Versão 1.1.0</p>
-<p align="center"><a href="https://github.com/Diego-ops501/Quadrymon/releases/download/v1.1.0/Quadrymon-1.1.0-x64.exe"><strong>Baixar Quadrymon 1.1.0</strong></a> · <a href="https://github.com/Diego-ops501/Quadrymon/releases/latest">Última versão</a></p>
+<p align="center">Central multitela para Poke Idle World · Windows x64 · Versão 1.2.0</p>
+<p align="center"><a href="https://github.com/Diego-ops501/Quadrymon/releases/download/v1.2.0/Quadrymon-1.2.0-x64.exe"><strong>Baixar Quadrymon 1.2.0</strong></a> · <a href="https://github.com/Diego-ops501/Quadrymon/releases/latest">Última versão</a></p>
 
 ![Quadrymon — quatro aventuras em uma central](docs/art/quadrymon-banner.png)
 
@@ -12,7 +12,7 @@ A ilustração de apresentação foi criada a partir da referência visual do Qu
 
 ## Instalação e primeiros passos
 
-1. Baixe **Quadrymon-1.1.0-x64.exe** pelo link acima.
+1. Baixe **Quadrymon-1.2.0-x64.exe** pelo link acima.
 2. Execute o instalador e escolha o idioma e a pasta de instalação.
 3. Abra **Ajustes → Contas**, cadastre até quatro contas e salve.
 4. O app preenche o e-mail ou usuário e a senha e entra automaticamente quando o formulário estiver pronto. O nome da conta é identificado pelo personagem no jogo. CAPTCHA e autenticação adicional são resolvidos no jogo; **Entrar nas contas** permite tentar novamente manualmente.
@@ -65,6 +65,8 @@ O **Histórico de capturas** reúne os Pokémon registrados pelo aplicativo. Fil
 
 O botão superior **Mercado** abre a consulta integrada de preços sem sair da hunt. Escolha conta, categoria e visualização em **Cards** ou **Linhas**. Para Pokémon, filtre por shiny, IV, nível, qualidade, tipo e raridade. Compras, vendas e negociações são realizadas no mercado do próprio jogo.
 
+O mercado consulta dados novos ao abrir e a cada minuto enquanto a janela estiver aberta. As atualizações inserem anúncios, removem os que saíram e renovam preços preservando filtros, página, foco e rolagem. Fechar interrompe as consultas da janela; os alertas configurados continuam monitorando em segundo plano. Filtros e ordenação usam o cache completo quando ele está atualizado; quando é necessária uma consulta, a lista permanece visível durante a busca.
+
 ![Mercado global e filtros](docs/images/mercado.png)
 
 ### Sugestões de busca e evoluções
@@ -80,13 +82,12 @@ As sugestões agrupam variantes e níveis sob o nome da espécie, evitando opç�
 | Aba | Função |
 | --- | --- |
 | **Comprar** | Consultar ofertas e ordenar resultados. |
-| **Comparar com o mercado** | Escolher um item ou Pokémon do inventário e consultar anúncios semelhantes. |
 | **Alertas** | Configurar condições de preço e notificações de mercado. |
 | **Meus Anúncios** | Acompanhar anúncios disponíveis para a conta selecionada. |
 | **Solicitações** | Consultar solicitações de compra. |
 | **Histórico** | Consultar registros retornados pelo jogo. |
 
-As comparações usam as condições disponíveis, como espécie, shiny, raridade, nível, IV e qualidade. A conversão entre moedas depende de uma cotação ativa do diamante; sem ela, o aplicativo informa que não é possível comparar preços entre moedas.
+A conversão entre moedas depende de uma cotação ativa do diamante; sem ela, o aplicativo informa que não é possível comparar preços entre moedas.
 
 ### Ir ao mercado e voltar à hunt
 
@@ -105,6 +106,16 @@ O cartão detalhado mostra barras dos seis atributos, potencial pelo IV total, a
 ![Cartão de IV e simulação](docs/images/ivs.png)
 
 O **IV total** é informado pelo jogo. Os **IVs individuais** são inferidos dos atributos disponíveis e podem ser estimados. O cálculo depende de o jogo fornecer os dados necessários.
+
+## Projetos de Breeding
+
+O botão **Breeding** abre **Projetos de Breeding**. Escolha a conta, dê um nome ao projeto e selecione os Pokémon disponíveis, com IV e qualidade. A origem é conferida pelo ID: capturas observadas no histórico local e compras acompanhadas pelo aplicativo podem ser identificadas; compras antigas sem vínculo individual ficam como origem não comprovada, com opção de informar o custo. Aquisição desconhecida aparece como **Custo a apurar**, nunca como gratuita.
+
+Crie e choque os ovos normalmente no jogo. Se o ID de um dos pais já pertence a um único projeto, a próxima etapa segue esse projeto automaticamente. Quando há dúvida ou pais de projetos diferentes, um aviso discreto permite escolher o vínculo ou responder depois. O nascimento do mesmo ovo segue o vínculo existente e registra IV, qualidade final, ganho de qualidade e resultado do bônus de IV quando há referência suficiente. Os IDs do Pokémon e do ovo aparecem nos detalhes. A evolução preserva o acompanhamento pelo ID; a chegada do filhote pelo inventário é observada imediatamente, inclusive se ele for usado no próximo breed antes da próxima atualização do painel. Ovos já em incubação podem ser vinculados com os custos anteriores explicitamente incompletos.
+
+O total reúne a aquisição dos pais, taxas, feromônios, pedras simples ou dobradas e eventual nascimento instantâneo, sem repetir o investimento de um pai reutilizado na linhagem. Materiais são estimados pela cotação disponível quando a etapa é registrada; gastos e estimativas aparecem discriminados. Os totais são apresentados em dólares e no equivalente em diamantes pela cotação ativa, com data da leitura. Sem cotação, os valores originais das duas moedas permanecem disponíveis.
+
+Custos antigos e materiais sem preço deixam o total **parcial**, em vez de serem tratados como gratuitos. Os valores podem ser completados nos detalhes da etapa. Capturas identificadas têm aquisição zero; o custo de farm não é distribuído automaticamente. Gerações informadas pelo jogo são diferentes da quantidade de cruzamentos acompanhados. O Quadrymon precisa estar em execução para observar as operações, mas a janela do módulo pode ficar fechada. O histórico completo anterior ou de operações feitas fora do app não é reconstruído. O acompanhamento é salvo localmente e pode ser exportado em JSON pelo próprio módulo ou incluído no backup de configurações.
 
 ## Recomendação de hunt
 

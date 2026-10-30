@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="src/renderer/runtime.css" />
     <link rel="stylesheet" href="src/renderer/brand.css" />
     <link rel="stylesheet" href="src/renderer/rich-panels.css" />
+    <link rel="stylesheet" href="src/renderer/breeding-cost.css" />
   </head>
   <body>
     <header id="topbar">
@@ -35,6 +36,7 @@
         ><button data-mode="summary"><span>Resumo</span></button>
       </nav>
       <div id="toolbarIcons">
+        <button id="breedingCostBtn" class="workspace-tool" title="Projetos de Breeding · custos de breeding">🥚 <span class="tool-label">Breeding</span></button>
         <button id="inventoryBtn" class="workspace-tool">
           <img src="src/renderer/game-icons/inventory.png" alt="" />
           <span class="tool-label">Inventário</span></button
@@ -182,6 +184,7 @@
     <script src="src/domain/health-alerts.js"></script>
     <script src="src/domain/shiny-history.js"></script>
     <script src="src/domain/account-notifications.js"></script>
+    <script src="src/domain/breeding-cost.js"></script>
     <script src="src/renderer/global-market.js"></script>
     <script src="src/renderer/inventory.js"></script>
     <script src="src/renderer/workspace.js"></script>
@@ -189,6 +192,7 @@
     <script src="src/renderer/settings.js"></script>
     <script src="src/game/login.js"></script>
     <script src="src/renderer/rich-panels.js"></script>
+    <script src="src/renderer/breeding-cost.js"></script>
     <script src="src/renderer/runtime.js"></script>
   </body>
 </html>

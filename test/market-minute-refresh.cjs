@@ -19,7 +19,7 @@ app.whenReady().then(async()=>{
         requests++;if(failure)return {ok:false,reason:failure,retryAfterMs:300000};const q=JSON.parse(script.match(/\\}\\)\\((\\{[^\\n]*?\\}),/)[1]);
         let listings=[{id:'quote',kind:'diamonds',quantity:1,price:10000,currency:'GOLD'}],total=1,pages=1;
         if(q.browse){const start=q.page==='2'?12:0;listings=Array.from({length:12},(_,j)=>{const i=start+j;return {id:'listing'+(version===1?i:i===23?99:i+1),kind:'pokemon',name:'Abra',speciesId:63,level:20,quality:1.8,ivTotal:180,price:version*100+i,currency:'GOLD',at:new Date(now-i*1000).toISOString()};});total=24;pages=2;if(q.currency==='DIAMONDS'){listings=[];total=0;pages=1;}}
-        return {ok:true,data:{cid:'c1',listings,total,pages,ownedReady:true,owned:[{id:'pokemon:owned',kind:'pokemon',name:'Abra',speciesId:63,level:20,quality:1.8,ivTotal:180,quantity:1}],alertCatalog:[]}};
+        return {ok:true,data:{cid:'c1',listings,total,pages,alertCatalog:[]}};
       }});
     const el=s=>document.querySelector(s);
     await ui.open();await pause();check(el('.mk-status').classList.contains('error'),'initial request failure is shown');
@@ -37,15 +37,13 @@ app.whenReady().then(async()=>{
     check(el('#mkIvMin').value==='150'&&document.activeElement.id==='mkIvMin','minute refresh preserves filters and input focus');
     const next=requests;version=3;now+=61000;tick();await pause(120);
     check(requests>next&&el('[data-listing="listing1"]').textContent.includes('300'),'second minute refreshes again without waiting five minutes');
-    el('[data-tab="compare"]').click();await pause();el('[data-owned="pokemon:owned"]').click();await pause();
-    const comparing=requests;version=4;now+=61000;tick();await pause(120);
-    check(requests>comparing&&el('.mk-sale-recommendation').textContent.includes('412'),'minute refresh also renews the Pokémon comparison snapshot and sale recommendation');
-    const currentPrice=el('.mk-sale-recommendation').textContent;failure='limited';now+=61000;tick();await pause(120);
-    check(el('.mk-sale-recommendation').textContent===currentPrice,'a rate limit preserves the last complete comparison');
+    const listingSnapshot=()=>JSON.stringify([...document.querySelectorAll('[data-listing]')].map(row=>[row.dataset.listing,row.querySelector('.mk-price')?.textContent]));
+    const currentResults=listingSnapshot();failure='limited';now+=61000;tick();await pause(120);
+    check(listingSnapshot()===currentResults,'a rate limit preserves the last complete listings');
     const limitedReads=requests;failure=null;now+=61000;tick();await pause(120);
     check(requests===limitedReads,'automatic recovery respects the rate-limit cooldown');
     version=5;now+=300000;tick();await pause(120);
-    check(requests>limitedReads&&el('.mk-sale-recommendation').textContent.includes('512'),'automatic refresh resumes after rate-limit cooldown without manual intervention');
+    check(requests>limitedReads&&el('[data-listing="listing1"]').textContent.includes('500'),'automatic refresh resumes after rate-limit cooldown without manual intervention');
     ui.close();const closed=requests;check(tick===null,'closing stops the visible-market timer');await pause();check(requests===closed,'closing does not cause another automatic read');
     return 'Market minute refresh: default page/snapshot caches, two consecutive fresh scans, removals, new prices, filters, focus and close passed.';
   })()`);

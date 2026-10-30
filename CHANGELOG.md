@@ -1,5 +1,19 @@
 # Alterações
 
+## 1.2.0 — 30/10/2026
+
+- Removida a função **Comparar com o mercado** do Mercado Global, incluindo sugestões de venda e consultas específicas de comparação.
+
+- Novo módulo **Projetos de Breeding** com cadastro de projetos, seleção de Pokémon por conta com IV/qualidade, origem por ID e custo de aquisição ajustável.
+- Continuidade automática pelo ID dos pais e do filhote, reconhecimento imediato de nascimentos pelo inventário, exibição dos IDs e custos desconhecidos apresentados como “a apurar”.
+- Acompanhamento passivo de breeds e nascimentos confirmados pelo jogo, associação não bloqueante ao projeto, recuperação dos ovos em incubação, qualidade final e comparação do bônus de IV.
+- Custos acumulados da linhagem sem duplicar pais, materiais avaliados pelo mercado, nascimento instantâneo, totais em dólares/diamantes, custos incompletos explícitos, ajustes e exportação local.
+
+- Mercado consulta dados novos ao abrir e atualiza a cada minuto enquanto estiver aberto, sem varreduras recorrentes da loja com a janela fechada.
+- Atualização dos anúncios preserva filtros, foco, página e rolagem. Filtros aproveitam o cache completo atualizado e mantêm os resultados visíveis durante consultas adicionais.
+- Consultas travadas deixam de bloquear a fila; fechamento, reabertura e respostas antigas respeitam a sessão atual. Varreduras completas possuem limite de duração e só publicam resultados completos.
+- Alertas continuam ativos com o mercado fechado e consultam páginas novas, sem reutilizar o cache de cinco minutos das buscas visíveis.
+
 ## 1.1.0 — 17/10/2026
 
 - Foco com conta principal à esquerda e miniaturas ao vivo à direita, sem recriar as sessões. Botão central permite ocultar e restaurar miniaturas e salva a preferência.
